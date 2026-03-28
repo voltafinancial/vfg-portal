@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VFG Compliance Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vault: #042825;
+    --vault-light: #0a3d39;
+    --vault-dark: #021a18;
+    --parch: #F7F0E0;
+    --parch-dark: #ede4ce;
+    --bedrock: #BFAA8E;
+    --steel: #ADC1C2;
+    --steel-light: #d4e4e5;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #6b6b6b;
+    --success: #2d7a4f;
+    --warning: #b8860b;
+    --danger: #8b2020;
+    --border: rgba(4,40,37,0.12);
+    --shadow: 0 2px 16px rgba(4,40,37,0.08);
+    --shadow-lg: 0 8px 40px rgba(4,40,37,0.14);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #f2ede0;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--vault);
+    color: var(--white);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .v-mark {
+    width: 36px;
+    height: 36px;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-title span:first-child {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    line-height: 1;
+  }
+
+  .header-title span:last-child {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--bedrock);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--bedrock);
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ── LAYOUT ── */
+  .app {
+    display: flex;
+    flex: 1;
+    min-height: calc(100vh - 64px);
+  }
+
+  /* ── SIDEBAR ── */
+  nav {
+    width: 220px;
+    background: var(--vault-dark);
+    flex-shrink: 0;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .nav-section {
+    padding: 0 16px 8px;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(191,170,142,0.5);
+    margin-top: 16px;
+  }
+
+  .nav-section:first-child { margin-top: 0; }
+
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    color: rgba(247,240,224,0.65);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border-left: 2px solid transparent;
+    margin: 0 8px;
+    border-radius: 4px;
+  }
+
+  nav a:hover {
+    background: rgba(247,240,224,0.06);
+    color: var(--parch);
+  }
+
+  nav a.active {
+    background: rgba(191,170,142,0.15);
+    color: var(--parch);
+    border-left-color: var(--bedrock);
+    font-weight: 500;
+  }
+
+  nav a svg { flex-shrink: 0; opacity: 0.7; }
+  nav a.active svg { opacity: 1; }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+    max-width: 1100px;
+  }
+
+  /* ── PAGE HEADER ── */
+  .page-header {
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--vault);
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+  }
+
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .breadcrumb {
+    font-size: 11px;
+    color: var(--bedrock);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-header h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--vault);
+  }
+
+  .card-body { padding: 20px; }
+
+  /* ── DASHBOARD STATS ── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--vault);
+  }
+
+  .stat-card.amber::before { background: var(--bedrock); }
+  .stat-card.teal::before { background: var(--steel); }
+  .stat-card.green::before { background: var(--success); }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px;
+    font-weight: 600;
+    color: var(--vault);
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* ── FORMS ── */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .form-group.span-2 { grid-column: span 2; }
+  .form-group.span-3 { grid-column: span 3; }
+
+  label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--vault);
+  }
+
+  input, select, textarea {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 12px;
+    border: 1px solid rgba(4,40,37,0.2);
+    border-radius: 5px;
+    background: var(--white);
+    color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--vault);
+    box-shadow: 0 0 0 3px rgba(4,40,37,0.08);
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 9px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-primary {
+    background: var(--vault);
+    color: var(--white);
+  }
+
+  .btn-primary:hover { background: var(--vault-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    background: var(--parch);
+    color: var(--vault);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { background: var(--parch-dark); }
+
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vault);
+    background: var(--parch);
+    border-bottom: 2px solid var(--vault);
+  }
+
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(4,40,37,0.07);
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  tr:hover td { background: rgba(247,240,224,0.5); }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge-green { background: rgba(45,122,79,0.12); color: var(--success); }
+  .badge-amber { background: rgba(184,134,11,0.12); color: var(--warning); }
+  .badge-red { background: rgba(139,32,32,0.12); color: var(--danger); }
+  .badge-blue { background: rgba(173,193,194,0.3); color: #2a5f62; }
+  .badge-grey { background: rgba(0,0,0,0.06); color: var(--text-muted); }
+
+  /* ── ALERTS ── */
+  .alert {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .alert-success { background: rgba(45,122,79,0.1); border-left: 3px solid var(--success); color: #1a4a2e; }
+  .alert-error { background: rgba(139,32,32,0.1); border-left: 3px solid var(--danger); color: #4a1a1a; }
+  .alert-info { background: rgba(173,193,194,0.2); border-left: 3px solid var(--steel); color: #1a3a3b; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .tab {
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s;
+  }
+
+  .tab:hover { color: var(--vault); }
+  .tab.active { color: var(--vault); border-bottom-color: var(--vault); font-weight: 600; }
+
+  /* ── LOADING ── */
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--text-muted);
+    font-size: 13px;
+    gap: 10px;
+  }
+
+  .spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--vault);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── DASHBOARD GRID ── */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+  .empty h4 { font-size: 14px; font-weight: 500; margin-bottom: 4px; color: var(--text); }
+  .empty p { font-size: 12px; }
+
+  /* ── SECTION DIVIDER ── */
+  .section-divider {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--vault);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0 0 8px;
+    border-bottom: 1px solid var(--border);
+    margin: 24px 0 16px;
+  }
+
+  .section-divider:first-child { margin-top: 0; }
+
+  /* ── NOTICE BOX ── */
+  .notice {
+    background: var(--parch);
+    border: 1px solid rgba(191,170,142,0.4);
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #4a3d28;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  /* ── HIDDEN ── */
+  .hidden { display: none !important; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--vault);
+    color: var(--white);
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    box-shadow: var(--shadow-lg);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s ease;
+    z-index: 9999;
+    max-width: 320px;
+  }
+
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.error { background: var(--danger); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <svg class="v-mark" viewBox="0 0 36 36" fill="none">
+      <polygon points="3,4 9,4 18,26 27,4 33,4 18,32" fill="#F7F0E0" opacity="0.15"/>
+      <polygon points="5,4 8,4 18,28 28,4 31,4 18,31" fill="none" stroke="#F7F0E0" stroke-width="1.2"/>
+      <polygon points="8,4 11,4 18,22 25,4 28,4 18,26" fill="none" stroke="#BFAA8E" stroke-width="1"/>
+    </svg>
+    <div class="header-title">
+      <span>Volta Financial Group</span>
+      <span>Compliance Portal</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot"></div>
+    <span>Connected to Google Sheets</span>
+    <span style="margin-left:16px;color:rgba(191,170,142,0.5)">|</span>
+    <span style="margin-left:16px" id="current-date"></span>
+  </div>
+</header>
+
+<div class="app">
+  <nav>
+    <div class="nav-section">Overview</div>
+    <a onclick="showPage('dashboard')" class="active" id="nav-dashboard">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+
+    <div class="nav-section">Registers</div>
+    <a onclick="showPage('coi')" id="nav-coi">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9S3 16.97 3 12 7.03 3 12 3s9 4.03 9 9z"/></svg>
+      COI Register
+    </a>
+    <a onclick="showPage('gifts')" id="nav-gifts">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+      Gifts & Entertainment
+    </a>
+    <a onclick="showPage('oba')" id="nav-oba">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+      OBA Register
+    </a>
+    <a onclick="showPage('training')" id="nav-training">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      Training Register
+    </a>
+    <a onclick="showPage('supervision')" id="nav-supervision">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Supervision Reports
+    </a>
+
+    <div class="nav-section">Actions</div>
+    <a onclick="showPage('log-coi')" id="nav-log-coi">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Conflict
+    </a>
+    <a onclick="showPage('log-gift')" id="nav-log-gift">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Gift/Entertainment
+    </a>
+    <a onclick="showPage('log-training')" id="nav-log-training">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Log Training
+    </a>
+  </nav>
+
+  <main id="main-content">
+    <!-- Pages injected by JS -->
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SHEET_ID = '1XhsjTCdIZ2CmDsMlqERfw9CT-ZtPPMtBu2Mlst7W42s';
+const API_KEY  = 'AIzaSyDRHOI1bJB8bc2g0xR2BxIQuwA9RJ7XfOY';
+const BASE     = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}`;
+
+// Set date
+document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-CA',{year:'numeric',month:'short',day:'numeric'});
+
+// ── TOAST ──
+function toast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = type === 'error' ? 'error show' : 'show';
+  setTimeout(() => t.className = '', 3500);
+}
+
+// ── API HELPERS ──
+async function readSheet(range) {
+  const url = `${BASE}/values/${encodeURIComponent(range)}?key=${API_KEY}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Failed to read sheet');
+  const d = await r.json();
+  return d.values || [];
+}
+
+async function appendRow(sheet, values) {
+  const url = `${BASE}/values/${encodeURIComponent(sheet+'!A1')}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key=${API_KEY}`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ values: [values] })
+  });
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(err.error?.message || 'Failed to write to sheet');
+  }
+  return r.json();
+}
+
+// ── NAVIGATION ──
+function showPage(id) {
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+id);
+  if (navEl) navEl.classList.add('active');
+  const pages = {
+    dashboard: renderDashboard,
+    coi: () => renderRegister('COI Register','COI_Register',['Date','Advisor','Type','Description','Action Taken','CCO Approval','Status']),
+    gifts: () => renderRegister('Gifts & Entertainment Register','Gifts_Entertainment',['Date','Received By','Donor/Host','Nature','Value ($)','CCO Required','Notes']),
+    oba: () => renderRegister('OBA Register','OBA_Register',['Date','Advisor','Activity Type','Organization','Compensated','CCO Approved','Status']),
+    training: () => renderRegister('Training Register','Training_Register',['Date','Advisor','Module','Score','CE Credits','CCO Certified']),
+    supervision: () => renderRegister('Supervision Reports','Supervision_Reports',['Period','Accounts Reviewed','KYC Status','SDW Status','Concentration','Deficiencies','Notes']),
+    'log-coi': renderLogCOI,
+    'log-gift': renderLogGift,
+    'log-training': renderLogTraining,
+  };
+  const fn = pages[id];
+  if (fn) fn();
+}
+
+// ── DASHBOARD ──
+async function renderDashboard() {
+  const el = document.getElementById('main-content');
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="breadcrumb">VFG Compliance Portal</div>
+      <h1>Compliance Dashboard</h1>
+      <p>Real-time view of compliance register activity — ${new Date().toLocaleDateString('en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+    </div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="loading"><div class="spinner"></div> Loading…</div>
+    </div>
+    <div class="dash-grid" id="dash-grid">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>`;
+
+  try {
+    const [coi, gifts, training, supervision] = await Promise.all([
+      readSheet('COI_Register!A2:G'),
+      readSheet('Gifts_Entertainment!A2:G'),
+      readSheet('Training_Register!A2:F'),
+      readSheet('Supervision_Reports!A2:G'),
+    ]);
+
+    const pending = coi.filter(r => r[6] && r[6].toLowerCase().includes('pending')).length;
+    const giftsThisMonth = gifts.filter(r => r[0] && r[0].startsWith(new Date().toISOString().slice(0,7))).length;
+
+    document.getElementById('stats-grid').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-label">COI Entries</div>
+        <div class="stat-value">${coi.length}</div>
+        <div class="stat-sub">${pending} pending review</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Gifts Logged</div>
+        <div class="stat-value">${gifts.length}</div>
+        <div class="stat-sub">${giftsThisMonth} this month</div>
+      </div>
+      <div class="stat-card teal">
+        <div class="stat-label">Training Records</div>
+        <div class="stat-value">${training.length}</div>
+        <div class="stat-sub">Across all modules</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Supervision Reports</div>
+        <div class="stat-value">${supervision.length}</div>
+        <div class="stat-sub">Monthly reviews filed</div>
+      </div>`;
+
+    document.getElementById('dash-grid').innerHTML = `
+      <div class="card">
+        <div class="card-header"><h3>Recent COI Entries</h3><button class="btn btn-secondary btn-sm" onclick="showPage('log-coi')">+ Log New</button></div>
+        <div class="card-body">
+          ${coi.length === 0 ? '<div class="empty"><div class="empty-icon">⚖️</div><h4>No conflicts logged</h4><p>Log your first conflict of interest</p></div>' :
+          `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Advisor</th><th>Type</th><th>Status</th></tr></thead><tbody>
+          ${coi.slice(-5).reverse().map(r=>`<tr><td>${r[0]||'—'}</td><td>${r[1]||'—'}</td><td>${r[2]||'—'}</td><td>${badgeFor(r[6])}</td></tr>`).join('')}
+          </tbody></table></div>`}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Recent Training</h3><button class="btn btn-secondary btn-sm" onclick="showPage('log-training')">+ Log Training</button></div>
+        <div class="card-body">
+          ${training.length === 0 ? '<div class="empty"><div class="empty-icon">📚</div><h4>No training logged</h4><p>Log completed training modules</p></div>' :
+          `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Advisor</th><th>Module</th><th>Score</th></tr></thead><tbody>
+          ${training.slice(-5).reverse().map(r=>`<tr><td>${r[0]||'—'}</td><td>${r[1]||'—'}</td><td>${r[2]||'—'}</td><td>${r[3]?r[3]+'%':'—'}</td></tr>`).join('')}
+          </tbody></tbody></table></div>`}
+        </div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('stats-grid').innerHTML = `<div class="alert alert-error" style="grid-column:span 4">⚠️ Could not load data: ${e.message}. Ensure the Google Sheet is shared to "Anyone with the link".</div>`;
+  }
+}
+
+function badgeFor(val) {
+  if (!val) return '<span class="badge badge-grey">—</span>';
+  const v = val.toLowerCase();
+  if (v.includes('approv') || v.includes('current') || v.includes('complet')) return `<span class="badge badge-green">${val}</span>`;
+  if (v.includes('pending') || v.includes('review')) return `<span class="badge badge-amber">${val}</span>`;
+  if (v.includes('reject') || v.includes('concern')) return `<span class="badge badge-red">${val}</span>`;
+  return `<span class="badge badge-blue">${val}</span>`;
+}
+
+// ── GENERIC REGISTER VIEW ──
+async function renderRegister(title, sheet, cols) {
+  const el = document.getElementById('main-content');
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="breadcrumb">Registers</div>
+      <h1>${title}</h1>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <h3>All Entries</h3>
+        <span style="font-size:12px;color:var(--text-muted)" id="entry-count">Loading…</span>
+      </div>
+      <div class="card-body" id="register-table"><div class="loading"><div class="spinner"></div> Fetching from Google Sheets…</div></div>
+    </div>`;
+
+  try {
+    const rows = await readSheet(`${sheet}!A2:${String.fromCharCode(64+cols.length)}`);
+    document.getElementById('entry-count').textContent = `${rows.length} entries`;
+
+    if (rows.length === 0) {
+      document.getElementById('register-table').innerHTML = `<div class="empty"><div class="empty-icon">📋</div><h4>No entries yet</h4><p>Entries will appear here once logged.</p></div>`;
+      return;
+    }
+
+    const tbody = rows.map(r =>
+      `<tr>${cols.map((_,i) => `<td>${r[i] ? (cols[i]==='Status'||cols[i]==='CCO Approval'||cols[i]==='CCO Approved'||cols[i]==='CCO Certified' ? badgeFor(r[i]) : r[i]) : '—'}</td>`).join('')}</tr>`
+    ).join('');
+
+    document.getElementById('register-table').innerHTML = `
+      <div class="table-wrap">
+        <table>
+          <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+          <tbody>${tbody}</tbody>
+        </table>
+      </div>`;
+  } catch(e) {
+    document.getElementById('register-table').innerHTML = `<div class="alert alert-error">⚠️ ${e.message}</div>`;
+  }
+}
+
+// ── LOG COI ──
+function renderLogCOI() {
+  const el = document.getElementById('main-content');
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="breadcrumb">Actions</div>
+      <h1>Log Conflict of Interest</h1>
+      <p>All conflicts must be logged and reviewed by the CCO per POL-VFG-007.</p>
+    </div>
+    <div class="notice">⚠️ If you are uncertain whether a situation constitutes a conflict, log it and let the CCO assess. The obligation is to disclose, not to pre-judge.</div>
+    <div class="card">
+      <div class="card-header"><h3>New COI Entry</h3></div>
+      <div class="card-body">
+        <div id="form-alert"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="coi-date" value="${today}">
+          </div>
+          <div class="form-group">
+            <label>Advisor Name *</label>
+            <input type="text" id="coi-advisor" placeholder="Full legal name">
+          </div>
+          <div class="form-group">
+            <label>Conflict Type *</label>
+            <select id="coi-type">
+              <option value="">— Select —</option>
+              <option>Trailing Commission / Compensation</option>
+              <option>Share Class Differential (A vs F)</option>
+              <option>Insurance Commission</option>
+              <option>Referral Arrangement</option>
+              <option>Personal Securities Holding</option>
+              <option>Outside Business Activity</option>
+              <option>Gift or Entertainment</option>
+              <option>Related Party Transaction</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Materiality</label>
+            <select id="coi-materiality">
+              <option>Low</option>
+              <option>Medium</option>
+              <option>High</option>
+            </select>
+          </div>
+          <div class="form-group span-2">
+            <label>Description *</label>
+            <textarea id="coi-desc" placeholder="Describe the conflict in detail — who is involved, what the financial interest is, and how it could affect the client relationship…"></textarea>
+          </div>
+          <div class="form-group span-2">
+            <label>Action Taken / Proposed Control</label>
+            <textarea id="coi-action" placeholder="How is this conflict being managed? (disclosure to client, referral to CCO, recusal, etc.)"></textarea>
+          </div>
+          <div class="form-group">
+            <label>CCO Approval Status</label>
+            <select id="coi-status">
+              <option>Pending Review</option>
+              <option>Approved — Managed</option>
+              <option>Approved — Disclosed</option>
+              <option>Escalated</option>
+              <option>Avoided</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="submitCOI()" id="submit-coi">Submit Entry</button>
+          <button class="btn btn-secondary" onclick="showPage('coi')">View Register</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function submitCOI() {
+  const date = document.getElementById('coi-date').value;
+  const advisor = document.getElementById('coi-advisor').value.trim();
+  const type = document.getElementById('coi-type').value;
+  const mat = document.getElementById('coi-materiality').value;
+  const desc = document.getElementById('coi-desc').value.trim();
+  const action = document.getElementById('coi-action').value.trim();
+  const status = document.getElementById('coi-status').value;
+
+  if (!date || !advisor || !type || !desc) {
+    document.getElementById('form-alert').innerHTML = '<div class="alert alert-error">Please complete all required fields (*).</div>';
+    return;
+  }
+
+  const btn = document.getElementById('submit-coi');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await appendRow('COI_Register', [date, advisor, type+' ('+mat+')', desc, action, '', status]);
+    toast('✓ COI entry logged successfully');
+    renderLogCOI();
+  } catch(e) {
+    document.getElementById('form-alert').innerHTML = `<div class="alert alert-error">⚠️ ${e.message}</div>`;
+    btn.disabled = false; btn.textContent = 'Submit Entry';
+  }
+}
+
+// ── LOG GIFT ──
+function renderLogGift() {
+  const el = document.getElementById('main-content');
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="breadcrumb">Actions</div>
+      <h1>Log Gift or Entertainment</h1>
+      <p>All gifts and entertainment must be logged per POL-VFG-007 s.3.3. CCO pre-approval required for items over $150.</p>
+    </div>
+    <div class="notice">💡 <strong>Policy reminder:</strong> Cash gifts of any amount are prohibited. Items under $150 — log only. Items $150–$500 — CCO pre-approval required. Items over $500 — decline unless exceptional circumstances approved by CCO.</div>
+    <div class="card">
+      <div class="card-header"><h3>New Gift / Entertainment Entry</h3></div>
+      <div class="card-body">
+        <div id="form-alert"></div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="date" id="gift-date" value="${today}">
+          </div>
+          <div class="form-group">
+            <label>Received By *</label>
+            <input type="text" id="gift-received" placeholder="Advisor name">
+          </div>
+          <div class="form-group">
+            <label>Donor / Host *</label>
+            <input type="text" id="gift-donor" placeholder="Company or individual name">
+          </div>
+          <div class="form-group">
+            <label>Nature of Gift/Entertainment *</label>
+            <select id="gift-nature">
+              <option value="">— Select —</option>
+              <option>Business meal</option>
+              <option>Event tickets (sports/arts)</option>
+              <option>Golf or recreational activity</option>
+              <option>Conference or educational event</option>
+              <option>Physical gift / merchandise</option>
+              <option>Travel or accommodation</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estimated Value (CAD $) *</label>
+            <input type="number" id="gift-value" placeholder="0.00" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>CCO Pre-Approval Required?</label>
+            <select id="gift-cco">
+              <option>No — under $150</option>
+              <option>Yes — CCO approved</option>
+              <option>Yes — pending approval</option>
+            </select>
+          </div>
+          <div class="form-group span-2">
+            <label>Additional Notes</label>
+            <textarea id="gift-notes" placeholder="Business purpose, attendees, any relevant context…"></textarea>
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="submitGift()" id="submit-gift">Submit Entry</button>
+          <button class="btn btn-secondary" onclick="showPage('gifts')">View Register</button>
+        </div>
+      </div>
+    </div>`;
+
+  // Auto-flag CCO requirement
+  document.getElementById('gift-value').addEventListener('input', function() {
+    const v = parseFloat(this.value);
+    const sel = document.getElementById('gift-cco');
+    if (v > 500) { sel.value = 'Yes — pending approval'; sel.style.borderColor = '#8b2020'; }
+    else if (v > 150) { sel.value = 'Yes — pending approval'; sel.style.borderColor = '#b8860b'; }
+    else { sel.value = 'No — under $150'; sel.style.borderColor = ''; }
+  });
+}
+
+async function submitGift() {
+  const date = document.getElementById('gift-date').value;
+  const received = document.getElementById('gift-received').value.trim();
+  const donor = document.getElementById('gift-donor').value.trim();
+  const nature = document.getElementById('gift-nature').value;
+  const value = document.getElementById('gift-value').value;
+  const cco = document.getElementById('gift-cco').value;
+  const notes = document.getElementById('gift-notes').value.trim();
+
+  if (!date || !received || !donor || !nature || !value) {
+    document.getElementById('form-alert').innerHTML = '<div class="alert alert-error">Please complete all required fields (*).</div>';
+    return;
+  }
+
+  const btn = document.getElementById('submit-gift');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await appendRow('Gifts_Entertainment', [date, received, donor, nature, '$'+parseFloat(value).toFixed(2), cco, notes]);
+    toast('✓ Gift/entertainment entry logged');
+    renderLogGift();
+  } catch(e) {
+    document.getElementById('form-alert').innerHTML = `<div class="alert alert-error">⚠️ ${e.message}</div>`;
+    btn.disabled = false; btn.textContent = 'Submit Entry';
+  }
+}
+
+// ── LOG TRAINING ──
+function renderLogTraining() {
+  const el = document.getElementById('main-content');
+  const today = new Date().toISOString().slice(0,10);
+  el.innerHTML = `
+    <div class="page-header">
+      <div class="breadcrumb">Actions</div>
+      <h1>Log Training Completion</h1>
+      <p>Log completed training modules and CE credits per REG-VFG-TRN-001.</p>
+    </div>
+    <div class="card">
+      <div class="card-header"><h3>New Training Record</h3></div>
+      <div class="card-body">
+        <div id="form-alert"></div>
+        <div class="form-grid three">
+          <div class="form-group">
+            <label>Completion Date *</label>
+            <input type="date" id="trn-date" value="${today}">
+          </div>
+          <div class="form-group">
+            <label>Advisor Name *</label>
+            <input type="text" id="trn-advisor" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Training Module *</label>
+            <select id="trn-module">
+              <option value="">— Select —</option>
+              <option>AML/ATF (TRN-VFG-001)</option>
+              <option>KYC &amp; Suitability (TRN-VFG-002)</option>
+              <option>Privacy / PIPEDA (TRN-VFG-003)</option>
+              <option>Conflict of Interest (TRN-VFG-004)</option>
+              <option>Cybersecurity Awareness</option>
+              <option>BCP Tabletop Exercise</option>
+              <option>Complaint Handling</option>
+              <option>Social Media Policy</option>
+              <option>External CE — CFP</option>
+              <option>External CE — CIM</option>
+              <option>External CE — CLU</option>
+              <option>External CE — RRC</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Knowledge Check Score (%)</label>
+            <input type="number" id="trn-score" placeholder="e.g. 90" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label>CE Credits Earned</label>
+            <input type="number" id="trn-credits" placeholder="0.0" step="0.5">
+          </div>
+          <div class="form-group">
+            <label>CCO Certification</label>
+            <select id="trn-cco">
+              <option>Pending</option>
+              <option>Certified</option>
+              <option>Failed — Retake Required</option>
+            </select>
+          </div>
+          <div class="form-group span-3">
+            <label>Notes</label>
+            <textarea id="trn-notes" placeholder="Provider, certificate number, designation cross-credit, any notes…"></textarea>
+          </div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="submitTraining()" id="submit-training">Submit Record</button>
+          <button class="btn btn-secondary" onclick="showPage('training')">View Register</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function submitTraining() {
+  const date = document.getElementById('trn-date').value;
+  const advisor = document.getElementById('trn-advisor').value.trim();
+  const module = document.getElementById('trn-module').value;
+  const score = document.getElementById('trn-score').value;
+  const credits = document.getElementById('trn-credits').value;
+  const cco = document.getElementById('trn-cco').value;
+
+  if (!date || !advisor || !module) {
+    document.getElementById('form-alert').innerHTML = '<div class="alert alert-error">Please complete all required fields (*).</div>';
+    return;
+  }
+
+  const btn = document.getElementById('submit-training');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  try {
+    await appendRow('Training_Register', [date, advisor, module, score?score+'%':'', credits||'0', cco]);
+    toast('✓ Training record logged');
+    renderLogTraining();
+  } catch(e) {
+    document.getElementById('form-alert').innerHTML = `<div class="alert alert-error">⚠️ ${e.message}</div>`;
+    btn.disabled = false; btn.textContent = 'Submit Record';
+  }
+}
+
+// ── INIT ──
+renderDashboard();
+</script>
+</body>
+</html>
