@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VFG Insurance Compliance Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{--vault:#042825;--vl:#0a3d39;--vd:#021a18;--parch:#F7F0E0;--pd:#ede4ce;--bed:#BFAA8E;--steel:#ADC1C2;--wh:#ffffff;--tx:#1a1a1a;--muted:#6b6b6b;--ok:#2d7a4f;--warn:#b8860b;--err:#8b2020;--bdr:rgba(4,40,37,.12);--shad:0 2px 16px rgba(4,40,37,.08);}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:#f0ead8;color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
+  header{background:var(--vault);color:var(--wh);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+  .hb{display:flex;align-items:center;gap:12px;}
+  .ht span:first-child{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:.04em;display:block;line-height:1.1;}
+  .ht span:last-child{font-size:9px;color:var(--bed);letter-spacing:.14em;text-transform:uppercase;}
+  .hr{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--bed);}
+  .dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .app{display:flex;flex:1;}
+  nav{width:218px;background:var(--vd);flex-shrink:0;padding:20px 0;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+  .ns{padding:0 14px 6px;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(191,170,142,.45);margin-top:14px;}
+  .ns:first-child{margin-top:0;}
+  nav a{display:flex;align-items:center;gap:9px;padding:8px 14px;color:rgba(247,240,224,.6);text-decoration:none;font-size:12.5px;cursor:pointer;transition:all .15s;border-left:2px solid transparent;margin:0 6px;border-radius:4px;}
+  nav a:hover{background:rgba(247,240,224,.07);color:var(--parch);}
+  nav a.active{background:rgba(191,170,142,.15);color:var(--parch);border-left-color:var(--bed);font-weight:500;}
+  main{flex:1;padding:28px 32px;overflow-y:auto;}
+  .ph{margin-bottom:22px;}
+  .ph h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--vault);}
+  .ph p{font-size:12.5px;color:var(--muted);margin-top:3px;}
+  .bc{font-size:10px;color:var(--bed);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase;}
+  .card{background:var(--wh);border-radius:8px;box-shadow:var(--shad);border:1px solid var(--bdr);overflow:hidden;margin-bottom:20px;}
+  .ch{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
+  .ch h3{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--vault);}
+  .cb{padding:18px;}
+  .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .fg.t{grid-template-columns:1fr 1fr 1fr;}
+  .fg.f{grid-template-columns:1fr;}
+  .fgrp{display:flex;flex-direction:column;gap:4px;}
+  .fgrp.s2{grid-column:span 2;}
+  .fgrp.s3{grid-column:span 3;}
+  label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--vault);}
+  input,select,textarea{font-family:'DM Sans',sans-serif;font-size:12.5px;padding:8px 11px;border:1px solid rgba(4,40,37,.2);border-radius:5px;background:var(--wh);color:var(--tx);transition:border-color .15s;outline:none;width:100%;}
+  input:focus,select:focus,textarea:focus{border-color:var(--vault);box-shadow:0 0 0 3px rgba(4,40,37,.07);}
+  textarea{resize:vertical;min-height:80px;}
+  .btn{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;padding:8px 18px;border-radius:5px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+  .bp{background:var(--vault);color:var(--wh);}
+  .bp:hover{background:var(--vl);}
+  .bp:disabled{opacity:.5;cursor:not-allowed;}
+  .bs{background:var(--parch);color:var(--vault);border:1px solid var(--bdr);}
+  .bs:hover{background:var(--pd);}
+  .bpdf{background:var(--bed);color:var(--vault);font-weight:600;}
+  .bpdf:hover{background:#a8916a;}
+  .bsm{padding:5px 11px;font-size:11.5px;}
+  .tw{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12px;}
+  th{text-align:left;padding:9px 12px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--vault);background:var(--parch);border-bottom:2px solid var(--vault);}
+  td{padding:9px 12px;border-bottom:1px solid rgba(4,40,37,.07);vertical-align:top;}
+  tr:hover td{background:rgba(247,240,224,.5);}
+  .b{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+  .bg{background:rgba(45,122,79,.12);color:var(--ok);}
+  .ba{background:rgba(184,134,11,.12);color:var(--warn);}
+  .br{background:rgba(139,32,32,.12);color:var(--err);}
+  .bb{background:rgba(173,193,194,.3);color:#2a5f62;}
+  .bx{background:rgba(0,0,0,.06);color:var(--muted);}
+  .al{padding:11px 14px;border-radius:6px;font-size:12.5px;margin-bottom:14px;}
+  .als{background:rgba(45,122,79,.1);border-left:3px solid var(--ok);color:#1a4a2e;}
+  .ale{background:rgba(139,32,32,.1);border-left:3px solid var(--err);color:#4a1a1a;}
+  .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);font-size:12.5px;gap:10px;}
+  .spinner{width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--vault);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .dg{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  .empty{text-align:center;padding:40px 20px;color:var(--muted);}
+  .ei{font-size:28px;margin-bottom:10px;opacity:.35;}
+  .empty h4{font-size:13px;font-weight:500;margin-bottom:3px;}
+  .notice{background:var(--parch);border:1px solid rgba(191,170,142,.4);border-radius:6px;padding:11px 14px;font-size:12px;color:#4a3d28;line-height:1.5;margin-bottom:18px;}
+  .sdiv{font-family:'Cormorant Garamond',serif;font-size:12.5px;font-weight:600;color:var(--vault);letter-spacing:.06em;text-transform:uppercase;padding:0 0 7px;border-bottom:1px solid var(--bdr);margin:22px 0 14px;}
+  .sdiv:first-child{margin-top:0;}
+  .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+  .sc{background:var(--wh);border-radius:8px;padding:16px;border:1px solid var(--bdr);box-shadow:var(--shad);position:relative;overflow:hidden;}
+  .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--vault);}
+  .sc.a::before{background:var(--bed);}
+  .sc.t::before{background:var(--steel);}
+  .sc.g::before{background:var(--ok);}
+  .sl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;}
+  .sv{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--vault);line-height:1;}
+  .ss{font-size:10.5px;color:var(--muted);margin-top:4px;}
+  #toast{position:fixed;bottom:22px;right:22px;background:var(--vault);color:var(--wh);padding:11px 18px;border-radius:6px;font-size:12.5px;box-shadow:0 8px 40px rgba(4,40,37,.14);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:320px;}
+  #toast.show{transform:translateY(0);opacity:1;}
+  #toast.error{background:var(--err);}
+  #toast.pdf{background:var(--ok);}
+  .pdf-preview{background:var(--parch);border:2px dashed var(--bed);border-radius:8px;padding:20px;text-align:center;margin:20px 0;font-size:13px;color:var(--vault);}
+  .pdf-preview .pdf-icon{font-size:36px;margin-bottom:8px;}
+  .btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+</style>
+</head>
+<body>
+<header>
+  <div class="hb">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <polygon points="2,3 8,3 16,25 24,3 30,3 16,30" fill="#F7F0E0" opacity=".1"/>
+      <polygon points="4,3 7,3 16,26 25,3 28,3 16,29" fill="none" stroke="#F7F0E0" stroke-width="1.1"/>
+      <polygon points="7,3 10,3 16,20 22,3 25,3 16,23" fill="none" stroke="#BFAA8E" stroke-width=".9"/>
+    </svg>
+    <div class="ht">
+      <span>Volta Financial Group</span>
+      <span>Insurance Compliance Portal</span>
+    </div>
+  </div>
+  <div class="hr">
+    <div class="dot"></div><span>Live — Google Sheets</span>
+    <span style="margin:0 10px;opacity:.3">|</span>
+    <span id="hdate"></span>
+  </div>
+</header>
+
+<div class="app">
+<nav>
+  <div class="ns">Overview</div>
+  <a onclick="go('dash')" id="n-dash" class="active">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+
+  <div class="ns">Registers — View</div>
+  <a onclick="go('vrec')" id="n-vrec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Recommendations</a>
+  <a onclick="go('vrep')" id="n-vrep"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Replacement Business</a>
+  <a onclick="go('vrwl')" id="n-vrwl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>RWL Log</a>
+  <a onclick="go('vseg')" id="n-vseg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Seg Fund Log</a>
+  <a onclick="go('vcmp')" id="n-vcmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Complaints</a>
+  <a onclick="go('vtrn')" id="n-vtrn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Training</a>
+
+  <div class="ns">Generate Documents</div>
+  <a onclick="go('grwl')" id="n-grwl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Reason Why Letter</a>
+  <a onclick="go('gina')" id="n-gina"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Insurance Needs Analysis</a>
+  <a onclick="go('gseg')" id="n-gseg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Seg Fund Assessment</a>
+  <a onclick="go('grep')" id="n-grep"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Replacement Declaration</a>
+  <a onclick="go('gsum')" id="n-gsum"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Recommendation Summary</a>
+
+  <div class="ns">Log New Entry</div>
+  <a onclick="go('lrec')" id="n-lrec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Recommendation</a>
+  <a onclick="go('lrep')" id="n-lrep"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Replacement</a>
+  <a onclick="go('lcmp')" id="n-lcmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Complaint</a>
+  <a onclick="go('ltrn')" id="n-ltrn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Training</a>
+</nav>
+
+<main id="mc"></main>
+</div>
+<div id="toast"></div>
+
+<script>
+const SID='1XhsjTCdIZ2CmDsMlqERfw9CT-ZtPPMtBu2Mlst7W42s';
+const AK='AIzaSyDRHOI1bJB8bc2g0xR2BxIQuwA9RJ7XfOY';
+const BASE='https://sheets.googleapis.com/v4/spreadsheets/'+SID;
+const TODAY=new Date().toISOString().slice(0,10);
+document.getElementById('hdate').textContent=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'short',day:'numeric'});
+
+function toast(m,t='ok'){const e=document.getElementById('toast');e.textContent=m;e.className=t==='err'?'error show':t==='pdf'?'pdf show':'show';setTimeout(()=>e.className='',4000);}
+async function aRow(sheet,vals){const r=await fetch(BASE+'/values/'+encodeURIComponent(sheet+'!A1')+':append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key='+AK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:[vals]})});if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Write failed');}return r.json();}
+async function rSheet(range){const r=await fetch(BASE+'/values/'+encodeURIComponent(range)+'?key='+AK);if(!r.ok)throw new Error('Read failed');const d=await r.json();return d.values||[];}
+function bdg(v){if(!v)return'<span class="b bx">—</span>';const l=v.toLowerCase();if(l.includes('approv')||l.includes('complet')||l.includes('pass')||l.includes('yes')||l.includes('generated'))return'<span class="b bg">'+v+'</span>';if(l.includes('pending')||l.includes('review'))return'<span class="b ba">'+v+'</span>';if(l.includes('fail')||l.includes('reject')||l.includes('concern'))return'<span class="b br">'+v+'</span>';return'<span class="b bb">'+v+'</span>';}
+function gv(id){const e=document.getElementById(id);return e?e.value:'';}
+
+function go(id){
+  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
+  const n=document.getElementById('n-'+id);if(n)n.classList.add('active');
+  const map={
+    dash:rDash,
+    vrec:()=>rReg('Insurance Recommendation Register','Insurance_Recommendations',['Date','Advisor','Client','Province','Product Type','Carrier','Coverage Amount','Annual Premium','RWL Generated?','INA Generated?','CCO Reviewed?']),
+    vrep:()=>rReg('Replacement Business Register','Replacement_Business',['Date','Advisor','Client','Replacing Carrier','Existing Carrier','Existing Policy #','Replacement Type','CCO Approved?','Declaration Signed?','Status']),
+    vrwl:()=>rReg('RWL Log','RWL_Log',['Date','Advisor','Client','Product Recommended','RWL Reference','Alternatives Documented','PDF Generated','Filed to SharePoint']),
+    vseg:()=>rReg('Seg Fund Suitability Log','SegFund_Suitability',['Date','Advisor','Client','Fund Name','Carrier','Guarantee Level','IF Delivered?','Fund Facts Delivered?','Assessment Generated?','CCO Reviewed?']),
+    vcmp:()=>rReg('Insurance Complaint Register','Insurance_Complaints',['Ref #','Date','Client','Advisor','Nature','Province','E&O Notified?','OLHI Referred?','Status','Resolution']),
+    vtrn:()=>rReg('Insurance Training Register','Insurance_Training',['Date','Advisor','Module','Province CE','Hours','Score','Pass/Fail','CE Credits','Certificate #']),
+    grwl:fRWL, gina:fINA, gseg:fSegFund, grep:fReplacement, gsum:fRecSummary,
+    lrec:fLogRec, lrep:fLogRep, lcmp:fLogCmp, ltrn:fLogTrn,
+  };
+  (map[id]||rDash)();
+}
+
+// ── DASHBOARD ──
+async function rDash(){
+  const el=document.getElementById('mc');
+  el.innerHTML='<div class="ph"><div class="bc">VFG Insurance Compliance Portal</div><h1>Insurance Dashboard</h1><p>Real-time insurance compliance register activity — '+new Date().toLocaleDateString('en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</p></div><div class="sg" id="sg"><div class="loading"><div class="spinner"></div>Loading…</div></div><div class="dg" id="dg"><div class="loading"><div class="spinner"></div></div></div>';
+  try{
+    const [rec,rep,rwl,seg,cmp,trn]=await Promise.all([rSheet('Insurance_Recommendations!A2:K'),rSheet('Replacement_Business!A2:J'),rSheet('RWL_Log!A2:H'),rSheet('SegFund_Suitability!A2:J'),rSheet('Insurance_Complaints!A2:J'),rSheet('Insurance_Training!A2:I')]);
+    const openCmp=cmp.filter(r=>r[8]&&!r[8].toLowerCase().includes('closed')).length;
+    const pendRep=rep.filter(r=>r[7]&&r[7].toLowerCase().includes('pending')).length;
+    document.getElementById('sg').innerHTML='<div class="sc"><div class="sl">Recommendations</div><div class="sv">'+rec.length+'</div><div class="ss">All products</div></div><div class="sc a"><div class="sl">Replacements</div><div class="sv">'+rep.length+'</div><div class="ss">'+pendRep+' pending CCO</div></div><div class="sc t"><div class="sl">RWLs Generated</div><div class="sv">'+rwl.length+'</div><div class="ss">Reason Why Letters</div></div><div class="sc g"><div class="sl">Open Complaints</div><div class="sv">'+openCmp+'</div><div class="ss">'+cmp.length+' total</div></div>';
+    document.getElementById('dg').innerHTML='<div class="card"><div class="ch"><h3>Recent Recommendations</h3><button class="btn bs bsm" onclick="go('lrec')">+ Log</button></div><div class="cb">'+(rec.length===0?'<div class="empty"><div class="ei">🛡️</div><h4>No recommendations logged</h4></div>':'<div class="tw"><table><thead><tr><th>Date</th><th>Advisor</th><th>Client</th><th>Product</th><th>RWL</th></tr></thead><tbody>'+rec.slice(-5).reverse().map(r=>'<tr><td>'+( r[0]||'—')+'</td><td>'+(r[1]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+(r[4]||'—')+'</td><td>'+bdg(r[8])+'</td></tr>').join('')+'</tbody></table></div>')+'</div></div><div class="card"><div class="ch"><h3>Recent Replacements</h3><button class="btn bs bsm" onclick="go('lrep')">+ Log</button></div><div class="cb">'+(rep.length===0?'<div class="empty"><div class="ei">🔄</div><h4>No replacements logged</h4></div>':'<div class="tw"><table><thead><tr><th>Date</th><th>Client</th><th>Replacing</th><th>CCO</th><th>Status</th></tr></thead><tbody>'+rep.slice(-5).reverse().map(r=>'<tr><td>'+(r[0]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+(r[3]||'—')+'</td><td>'+bdg(r[7])+'</td><td>'+bdg(r[9])+'</td></tr>').join('')+'</tbody></table></div>')+'</div></div>';
+  }catch(e){document.getElementById('sg').innerHTML='<div class="al ale" style="grid-column:span 4">⚠️ '+e.message+' — ensure Google Sheet is shared to Anyone with the link.</div>';}
+}
+
+async function rReg(title,sheet,cols){
+  const el=document.getElementById('mc');
+  el.innerHTML='<div class="ph"><div class="bc">Registers</div><h1>'+title+'</h1></div><div class="card"><div class="ch"><h3>All Entries</h3><span style="font-size:11.5px;color:var(--muted)" id="ec">Loading…</span></div><div class="cb" id="rt"><div class="loading"><div class="spinner"></div>Fetching…</div></div></div>';
+  try{
+    const rows=await rSheet(sheet+'!A2:'+String.fromCharCode(64+Math.min(cols.length,26)));
+    document.getElementById('ec').textContent=rows.length+' entries';
+    if(rows.length===0){document.getElementById('rt').innerHTML='<div class="empty"><div class="ei">📋</div><h4>No entries yet</h4></div>';return;}
+    const statusCols=['RWL Generated?','INA Generated?','CCO Reviewed?','CCO Approved?','Declaration Signed?','IF Delivered?','Fund Facts Delivered?','Assessment Generated?','E&O Notified?','OLHI Referred?','Pass/Fail','Filed to SharePoint'];
+    document.getElementById('rt').innerHTML='<div class="tw"><table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map((_,i)=>'<td>'+(r[i]?(statusCols.includes(cols[i])?bdg(r[i]):r[i]):'—')+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  }catch(e){document.getElementById('rt').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';}
+}
+
+// ── PDF GENERATOR ──
+function makePDF(title, docRef, sections){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'letter'});
+  const pw=215.9, ph=279.4, ml=20, mr=20, mt=20, cw=pw-ml-mr;
+  let y=mt;
+
+  // Header band — Vault Green
+  doc.setFillColor(4,40,37);
+  doc.rect(0,0,pw,28,'F');
+
+  // V mark (simple chevron lines)
+  doc.setDrawColor(247,240,224);
+  doc.setLineWidth(0.8);
+  doc.line(8,6,13,20);doc.line(13,20,18,6); // outer V
+  doc.setDrawColor(191,170,142);
+  doc.setLineWidth(0.6);
+  doc.line(10,6,13,16);doc.line(13,16,16,6); // inner V
+
+  // Company name
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.setTextColor(247,240,224);
+  doc.text('VOLTA FINANCIAL GROUP',22,10);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(191,170,142);
+  doc.text('INSURANCE COMPLIANCE PORTAL',22,16);
+
+  // Document title right side
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.setTextColor(247,240,224);
+  doc.text(title,pw-mr,10,{align:'right'});
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(191,170,142);
+  doc.text(docRef+'  |  Generated: '+new Date().toLocaleDateString('en-CA'),pw-mr,16,{align:'right'});
+
+  // Tagline
+  doc.setFontSize(7);
+  doc.setTextColor(191,170,142);
+  doc.text('Precision Planning. Managed Momentum. Lasting Legacy.',pw/2,23,{align:'center'});
+
+  y=38;
+
+  for(const section of sections){
+    if(section.type==='heading'){
+      if(y>ph-40){doc.addPage();y=mt;}
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(11);
+      doc.setTextColor(4,40,37);
+      // underline via line
+      doc.setDrawColor(4,40,37);
+      doc.setLineWidth(0.4);
+      doc.line(ml,y+3,pw-mr,y+3);
+      doc.text(section.text,ml,y);
+      y+=8;
+    } else if(section.type==='subheading'){
+      if(y>ph-30){doc.addPage();y=mt;}
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor(4,40,37);
+      doc.text(section.text,ml,y);
+      y+=5;
+    } else if(section.type==='field'){
+      if(y>ph-25){doc.addPage();y=mt;}
+      // Label
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(100,100,100);
+      doc.text(section.label.toUpperCase(),ml,y);
+      y+=4;
+      // Value box
+      const val=section.value||'';
+      doc.setFillColor(247,240,224);
+      doc.setDrawColor(191,170,142);
+      doc.setLineWidth(0.3);
+      const lines=doc.splitTextToSize(val||'',cw-6);
+      const boxH=Math.max(7,lines.length*4.5+3);
+      if(y+boxH>ph-20){doc.addPage();y=mt;}
+      doc.rect(ml,y,cw,boxH,'FD');
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(9);
+      doc.setTextColor(26,26,26);
+      doc.text(lines,ml+3,y+4.5);
+      y+=boxH+4;
+    } else if(section.type==='twocol'){
+      for(const [l,v] of section.rows){
+        if(y>ph-15){doc.addPage();y=mt;}
+        const colW=cw/2-2;
+        doc.setFont('helvetica','bold');
+        doc.setFontSize(8);
+        doc.setTextColor(4,40,37);
+        doc.setFillColor(237,228,206);
+        doc.rect(ml,y-3.5,colW,7,'F');
+        doc.text(l,ml+2,y);
+        doc.setFont('helvetica','normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(26,26,26);
+        const vlines=doc.splitTextToSize(v||'',colW-4);
+        const rh=Math.max(7,vlines.length*4+3);
+        doc.setFillColor(255,255,255);
+        doc.setDrawColor(213,201,181);
+        doc.rect(ml+colW+4,y-3.5,colW,rh,'FD');
+        doc.text(vlines,ml+colW+6,y);
+        y+=Math.max(7,rh)+2;
+      }
+      y+=2;
+    } else if(section.type==='notice'){
+      if(y>ph-20){doc.addPage();y=mt;}
+      doc.setFillColor(247,240,224);
+      doc.setDrawColor(4,40,37);
+      doc.setLineWidth(1.2);
+      const nlines=doc.splitTextToSize(section.text,cw-10);
+      const nh=nlines.length*4+6;
+      if(y+nh>ph-20){doc.addPage();y=mt;}
+      doc.rect(ml,y,cw,nh,'F');
+      doc.line(ml,y,ml,y+nh);
+      doc.setFont('helvetica','italic');
+      doc.setFontSize(8.5);
+      doc.setTextColor(74,61,40);
+      doc.text(nlines,ml+5,y+4);
+      y+=nh+5;
+    } else if(section.type==='signature'){
+      if(y>ph-35){doc.addPage();y=mt;}
+      y+=5;
+      const sw=(cw-10)/2;
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(8);
+      doc.setTextColor(4,40,37);
+      doc.setFillColor(4,40,37);
+      doc.rect(ml,y,sw,6,'F');
+      doc.rect(ml+sw+10,y,sw,6,'F');
+      doc.setTextColor(247,240,224);
+      doc.text(section.left,ml+2,y+4);
+      doc.text(section.right,ml+sw+12,y+4);
+      y+=10;
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(100,100,100);
+      ['Signature: ___________________________','Name: ________________________________','Date: _________________________________','Licence #: ____________________________'].forEach((line,i)=>{
+        doc.text(line,ml,y+i*5);
+        doc.text(line,ml+sw+10,y+i*5);
+      });
+      y+=25;
+    } else if(section.type==='spacer'){
+      y+=section.h||5;
+    } else if(section.type==='pagebreak'){
+      doc.addPage();y=mt;
+    }
+  }
+
+  // Footer on all pages
+  const totalPages=doc.getNumberOfPages();
+  for(let i=1;i<=totalPages;i++){
+    doc.setPage(i);
+    doc.setDrawColor(191,170,142);
+    doc.setLineWidth(0.4);
+    doc.line(ml,ph-12,pw-mr,ph-12);
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(7);
+    doc.setTextColor(150,150,150);
+    doc.text('Volta Financial Group  |  Insurance Compliance Portal  |  CONFIDENTIAL — Client File Copy',ml,ph-7);
+    doc.text('Page '+i+' of '+totalPages,pw-mr,ph-7,{align:'right'});
+  }
+
+  return doc;
+}
+
+// ── GENERATE RWL ──
+function fRWL(){
+  const yr=new Date().getFullYear();
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Generate Document</div><h1>Reason Why Letter</h1><p>Complete all fields. Click Generate PDF to produce a branded client-ready document. The RWL is automatically logged to the register.</p></div><div class="notice">⚠️ The RWL must be completed BEFORE the application is submitted to the carrier. Document at least two alternatives considered and why each was not recommended. Be specific — generic RWLs do not meet regulatory standards.</div><div class="card"><div class="ch"><h3>Reason Why Letter — TMP-VFP-INS-001</h3></div><div class="cb"><div id="fa"></div><div class="sdiv">Advisor & Client Information</div><div class="fg t"><div class="fgrp"><label>RWL Reference # *</label><input type="text" id="r-ref" placeholder="RWL-'+yr+'-001"></div><div class="fgrp"><label>Date *</label><input type="date" id="r-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor Name *</label><input type="text" id="r-adv" placeholder="Full name and designations"></div><div class="fgrp"><label>Client Full Name *</label><input type="text" id="r-cli" placeholder="As on application"></div><div class="fgrp"><label>Client Date of Birth</label><input type="date" id="r-dob"></div><div class="fgrp"><label>Province *</label><select id="r-prov"><option>Ontario</option><option>British Columbia</option><option>Alberta</option></select></div></div><div class="sdiv">Insurance Need</div><div class="fg"><div class="fgrp s2"><label>Specific Insurance Need Identified *</label><textarea id="r-need" placeholder="Describe the specific, quantified need — e.g. Income replacement: $120,000/year for 20 years to age 65. Mortgage coverage: $650,000 outstanding. Key person: estimated value to business $500,000."></textarea></div><div class="fgrp"><label>Coverage Amount Recommended *</label><input type="text" id="r-amt" placeholder="e.g. $750,000"></div><div class="fgrp"><label>Calculation Methodology</label><select id="r-method"><option>Income Multiple (10x)</option><option>Capital Needs Analysis</option><option>DIME Method</option><option>Human Life Value</option><option>Business Valuation</option><option>Client-specified amount</option></select></div></div><div class="sdiv">Product Recommended</div><div class="fg t"><div class="fgrp"><label>Product Type *</label><select id="r-prod"><option value="">— Select —</option><option>20-Year Term Life</option><option>30-Year Term Life</option><option>Term-to-65</option><option>Term-to-100</option><option>Whole Life — Participating</option><option>Whole Life — Non-Participating</option><option>Universal Life</option><option>Critical Illness — 10-Year Term</option><option>Critical Illness — to Age 75</option><option>Critical Illness — Permanent</option><option>Long-Term Disability</option><option>Long-Term Care</option><option>Segregated Fund</option><option>Annuity — Life</option><option>Annuity — Term Certain</option><option>Group Benefits Plan</option></select></div><div class="fgrp"><label>Carrier / Insurer *</label><input type="text" id="r-carrier" placeholder="e.g. Canada Life, Sun Life, Manulife"></div><div class="fgrp"><label>Annual Premium</label><input type="text" id="r-prem" placeholder="e.g. $1,247/year"></div></div><div class="sdiv">Suitability Rationale</div><div class="fg"><div class="fgrp s2"><label>Why This Product Is Recommended *</label><textarea id="r-why" placeholder="Explain specifically why this product type, coverage amount, and carrier address the client's need better than alternatives. Include: premium affordability analysis, policy features that match the need, carrier financial strength, and any specific client circumstances driving the recommendation."></textarea></div><div class="fgrp s2"><label>Existing Coverage Summary</label><textarea id="r-exist" placeholder="List all existing individual and group life, CI, DI, and LTC coverage. Note how the recommended policy complements or supplements existing coverage."></textarea></div></div><div class="sdiv">Alternatives Considered</div><div class="fg"><div class="fgrp s2"><label>Alternative 1 — Product Type and Carrier</label><input type="text" id="r-alt1" placeholder="e.g. 20-year term, Manulife — $980/year"></div><div class="fgrp s2"><label>Why Alternative 1 Was Not Recommended</label><textarea id="r-alt1w" placeholder="Specific reason — not just 'more expensive'. Address features, suitability, carrier, or client circumstances."></textarea></div><div class="fgrp s2"><label>Alternative 2 — Product Type and Carrier</label><input type="text" id="r-alt2" placeholder="e.g. Term-to-100, Canada Life — $2,400/year"></div><div class="fgrp s2"><label>Why Alternative 2 Was Not Recommended</label><textarea id="r-alt2w" placeholder="Specific reason for not recommending this alternative."></textarea></div></div><div class="sdiv">Disclosure Confirmations</div><div class="fg t"><div class="fgrp"><label>Policy Illustration Provided?</label><select id="r-ill"><option>Yes — provided before application</option><option>Pending — will provide before signing</option><option>N/A — not applicable for this product</option></select></div><div class="fgrp"><label>Replacement Transaction?</label><select id="r-rep"><option>No</option><option>Yes — Replacement Declaration completed</option><option>Yes — CCO pre-approval obtained</option></select></div><div class="fgrp"><label>CCO Review Status</label><select id="r-cco"><option>Pending CCO review</option><option>CCO reviewed and approved</option></select></div></div><div class="btn-row"><button class="btn bpdf" onclick="genRWL()">📄 Generate PDF</button><button class="btn bs" onclick="go('vrwl')">View RWL Log</button></div></div></div>';
+}
+
+async function genRWL(){
+  const ref=gv('r-ref'),date=gv('r-date'),adv=gv('r-adv'),cli=gv('r-cli'),prod=gv('r-prod'),carrier=gv('r-carrier'),need=gv('r-need'),why=gv('r-why');
+  if(!ref||!date||!adv||!cli||!prod||!carrier||!need||!why){document.getElementById('fa').innerHTML='<div class="al ale">Complete all required fields (*).</div>';return;}
+  try{
+    const sections=[
+      {type:'heading',text:'REASON WHY LETTER'},
+      {type:'twocol',rows:[['RWL Reference',ref],['Date',date],['Advisor',adv+' | Licence: '+gv('r-prov')],['Client Name',cli],['Date of Birth',gv('r-dob')||'On application'],['Province',gv('r-prov')]]},
+      {type:'spacer',h:4},
+      {type:'heading',text:'1. INSURANCE NEED IDENTIFIED'},
+      {type:'field',label:'Specific Need',value:need},
+      {type:'twocol',rows:[['Coverage Amount',gv('r-amt')||'See application'],['Calculation Method',gv('r-method')]]},
+      {type:'heading',text:'2. PRODUCT RECOMMENDED'},
+      {type:'twocol',rows:[['Product Type',prod],['Carrier / Insurer',carrier],['Annual Premium',gv('r-prem')||'See illustration']]},
+      {type:'heading',text:'3. WHY THIS PRODUCT IS RECOMMENDED'},
+      {type:'field',label:'Suitability Rationale',value:why},
+      {type:'field',label:'Existing Coverage',value:gv('r-exist')||'No existing coverage identified or not applicable.'},
+      {type:'heading',text:'4. ALTERNATIVES CONSIDERED'},
+      {type:'subheading',text:'Alternative 1'},
+      {type:'twocol',rows:[['Product / Carrier',gv('r-alt1')||'Not specified'],['Why Not Recommended',gv('r-alt1w')||'Not documented']]},
+      {type:'subheading',text:'Alternative 2'},
+      {type:'twocol',rows:[['Product / Carrier',gv('r-alt2')||'Not specified'],['Why Not Recommended',gv('r-alt2w')||'Not documented']]},
+      {type:'heading',text:'5. DISCLOSURE CONFIRMATIONS'},
+      {type:'twocol',rows:[['Policy Illustration',gv('r-ill')],['Replacement Transaction',gv('r-rep')],['CCO Review',gv('r-cco')]]},
+      {type:'notice',text:'This Reason Why Letter documents the basis for the insurance recommendation made on the date above. It does not constitute a guarantee of coverage, insurability, or premium. Final policy terms are subject to carrier underwriting.'},
+      {type:'spacer',h:5},
+      {type:'signature',left:'Advisor Signature',right:'Client Acknowledgement'},
+    ];
+    const pdf=makePDF('REASON WHY LETTER',ref,sections);
+    pdf.save('RWL-'+ref+'-'+cli.replace(/s/g,'-')+'.pdf');
+    await aRow('RWL_Log',[date,adv,cli,prod,ref,'Yes — '+gv('r-alt1')+' / '+gv('r-alt2'),'Generated','Pending']);
+    await aRow('Insurance_Recommendations',[date,adv,cli,gv('r-prov'),prod,carrier,gv('r-amt'),gv('r-prem'),'Generated — '+ref,'Pending','Pending CCO review']);
+    toast('✓ RWL PDF generated and logged','pdf');
+  }catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';}
+}
+
+// ── GENERATE INA ──
+function fINA(){
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Generate Document</div><h1>Insurance Needs Analysis</h1><p>Complete the needs analysis. Click Generate PDF to produce a branded client-ready document.</p></div><div class="card"><div class="ch"><h3>Insurance Needs Analysis — TMP-VFP-INS-002</h3></div><div class="cb"><div id="fa"></div><div class="sdiv">Client Information</div><div class="fg t"><div class="fgrp"><label>INA Reference # *</label><input type="text" id="i-ref" placeholder="INA-'+new Date().getFullYear()+'-001"></div><div class="fgrp"><label>Date *</label><input type="date" id="i-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="i-adv" placeholder="Full name and designations"></div><div class="fgrp"><label>Client Name *</label><input type="text" id="i-cli" placeholder="Full legal name"></div><div class="fgrp"><label>Client Date of Birth</label><input type="date" id="i-dob"></div><div class="fgrp"><label>Smoker Status</label><select id="i-smk"><option>Non-smoker (24+ months)</option><option>Smoker</option><option>Occasional smoker</option></select></div></div><div class="sdiv">Financial Profile</div><div class="fg t"><div class="fgrp"><label>Annual Income (Client)</label><input type="text" id="i-inc" placeholder="e.g. $175,000"></div><div class="fgrp"><label>Annual Income (Spouse)</label><input type="text" id="i-incs" placeholder="e.g. $85,000"></div><div class="fgrp"><label>Annual Expenses</label><input type="text" id="i-exp" placeholder="e.g. $120,000"></div><div class="fgrp"><label>Total Debt</label><input type="text" id="i-debt" placeholder="e.g. $650,000 mortgage + $45,000 LOC"></div><div class="fgrp"><label>Liquid Assets</label><input type="text" id="i-liq" placeholder="e.g. $380,000"></div><div class="fgrp"><label>Registered Assets (RRSP/TFSA)</label><input type="text" id="i-reg" placeholder="e.g. $220,000"></div></div><div class="sdiv">Life Insurance Needs</div><div class="fg"><div class="fgrp s2"><label>Primary Objective for Life Insurance</label><textarea id="i-liobj" placeholder="e.g. Income replacement for spouse and two dependant children aged 8 and 11 during mortgage repayment period and child-rearing years to age 65."></textarea></div><div class="fgrp"><label>Recommended Coverage — Life</label><input type="text" id="i-licov" placeholder="e.g. $1,200,000"></div><div class="fgrp"><label>Recommended Policy Type</label><input type="text" id="i-litype" placeholder="e.g. 30-year term"></div></div><div class="sdiv">Living Benefits Needs</div><div class="fg t"><div class="fgrp"><label>CI Need Identified?</label><select id="i-ci"><option>Yes — see analysis below</option><option>No — not required</option><option>Already covered adequately</option></select></div><div class="fgrp"><label>CI Coverage Recommended</label><input type="text" id="i-cicov" placeholder="e.g. $250,000"></div><div class="fgrp"><label>DI Need Identified?</label><select id="i-di"><option>Yes — see analysis below</option><option>No — not required</option><option>Already covered adequately</option></select></div><div class="fgrp"><label>Monthly DI Benefit Recommended</label><input type="text" id="i-dibenefit" placeholder="e.g. $7,500/month"></div><div class="fgrp"><label>LTC Need Identified?</label><select id="i-ltc"><option>Deferred — address at age 55+</option><option>Yes — coverage recommended now</option><option>No — not required at this time</option></select></div><div class="fgrp"><label>LTC Benefit Recommended</label><input type="text" id="i-ltcbenefit" placeholder="e.g. $4,000/month"></div></div><div class="sdiv">Existing Coverage</div><div class="fg"><div class="fgrp s2"><label>Existing Individual Coverage</label><textarea id="i-exist" placeholder="List all existing individual policies: type, carrier, coverage amount, annual premium, beneficiary."></textarea></div><div class="fgrp s2"><label>Group / Employee Benefits Coverage</label><textarea id="i-grp" placeholder="Life: ___ x salary. LTD: ___% income to age ___. CI: N/A. Note: group coverage is not portable on job change."></textarea></div></div><div class="sdiv">Summary & Priority</div><div class="fg"><div class="fgrp s2"><label>Priority Recommendations *</label><textarea id="i-priority" placeholder="1. Highest priority — life insurance gap: $xxx,xxx. Recommend immediately.&#10;2. Second priority — CI coverage: $xxx,xxx. Recommend within 6 months.&#10;3. Third priority — DI: Review group coverage adequacy at next review."></textarea></div></div><div class="btn-row"><button class="btn bpdf" onclick="genINA()">📄 Generate PDF</button><button class="btn bs" onclick="go('vrec')">View Register</button></div></div></div>';
+}
+
+async function genINA(){
+  const ref=gv('i-ref'),date=gv('i-date'),adv=gv('i-adv'),cli=gv('i-cli'),priority=gv('i-priority');
+  if(!ref||!date||!adv||!cli||!priority){document.getElementById('fa').innerHTML='<div class="al ale">Complete all required fields (*).</div>';return;}
+  const sections=[
+    {type:'heading',text:'INSURANCE NEEDS ANALYSIS'},
+    {type:'twocol',rows:[['INA Reference',ref],['Date',date],['Advisor',adv],['Client Name',cli],['Date of Birth',gv('i-dob')||'On file'],['Smoker Status',gv('i-smk')]]},
+    {type:'heading',text:'1. FINANCIAL PROFILE'},
+    {type:'twocol',rows:[['Annual Income — Client',gv('i-inc')||'Not provided'],['Annual Income — Spouse',gv('i-incs')||'Not provided'],['Annual Expenses',gv('i-exp')||'Not provided'],['Total Debt',gv('i-debt')||'Not provided'],['Liquid Assets',gv('i-liq')||'Not provided'],['Registered Assets',gv('i-reg')||'Not provided']]},
+    {type:'heading',text:'2. LIFE INSURANCE NEEDS'},
+    {type:'field',label:'Primary Objective',value:gv('i-liobj')},
+    {type:'twocol',rows:[['Recommended Coverage',gv('i-licov')||'See RWL'],['Recommended Policy Type',gv('i-litype')||'See RWL']]},
+    {type:'heading',text:'3. LIVING BENEFITS NEEDS'},
+    {type:'twocol',rows:[['Critical Illness',gv('i-ci')],['CI Coverage Recommended',gv('i-cicov')||'N/A'],['Disability Income',gv('i-di')],['Monthly DI Benefit',gv('i-dibenefit')||'N/A'],['Long-Term Care',gv('i-ltc')],['LTC Benefit Recommended',gv('i-ltcbenefit')||'N/A']]},
+    {type:'heading',text:'4. EXISTING COVERAGE REVIEW'},
+    {type:'field',label:'Individual Coverage',value:gv('i-exist')||'None identified.'},
+    {type:'field',label:'Group / Employee Benefits',value:gv('i-grp')||'None identified.'},
+    {type:'heading',text:'5. PRIORITY RECOMMENDATIONS'},
+    {type:'field',label:'Priority Actions',value:priority},
+    {type:'notice',text:'This Insurance Needs Analysis is based on information provided by the client as of the date above. It is a snapshot analysis and should be reviewed whenever material life changes occur. This analysis does not constitute a guarantee of insurability or policy terms.'},
+    {type:'spacer',h:5},
+    {type:'signature',left:'Advisor Signature',right:'Client Acknowledgement'},
+  ];
+  try{
+    const pdf=makePDF('INSURANCE NEEDS ANALYSIS',ref,sections);
+    pdf.save('INA-'+ref+'-'+cli.replace(/s/g,'-')+'.pdf');
+    toast('✓ INA PDF generated','pdf');
+  }catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ PDF generation failed: '+e.message+'</div>';}
+}
+
+// ── GENERATE SEG FUND ASSESSMENT ──
+function fSegFund(){
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Generate Document</div><h1>Segregated Fund Suitability Assessment</h1><p>Complete all fields. This assessment is required for every seg fund recommendation per POL-VFP-INS-004.</p></div><div class="card"><div class="ch"><h3>Seg Fund Suitability Assessment — TMP-VFP-INS-003</h3></div><div class="cb"><div id="fa"></div><div class="sdiv">Client & Advisor</div><div class="fg t"><div class="fgrp"><label>Assessment Reference # *</label><input type="text" id="sf-ref" placeholder="SFA-'+new Date().getFullYear()+'-001"></div><div class="fgrp"><label>Date *</label><input type="date" id="sf-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="sf-adv" placeholder="Full name"></div><div class="fgrp s3"><label>Client Name *</label><input type="text" id="sf-cli" placeholder="Full legal name"></div></div><div class="sdiv">Fund Details</div><div class="fg t"><div class="fgrp"><label>Fund Name *</label><input type="text" id="sf-fund" placeholder="e.g. Canada Life Pathways Balanced Fund"></div><div class="fgrp"><label>Carrier *</label><input type="text" id="sf-carrier" placeholder="e.g. Canada Life"></div><div class="fgrp"><label>Investment Amount</label><input type="text" id="sf-amt" placeholder="e.g. $150,000"></div><div class="fgrp"><label>Guarantee Level</label><select id="sf-guar"><option>75% Maturity / 100% Death Benefit</option><option>100% Maturity / 100% Death Benefit</option><option>75% Maturity / 75% Death Benefit</option></select></div><div class="fgrp"><label>Fund MER</label><input type="text" id="sf-mer" placeholder="e.g. 2.45%"></div><div class="fgrp"><label>Comparable Mutual Fund MER</label><input type="text" id="sf-cmer" placeholder="e.g. 1.85% — Mawer Balanced"></div></div><div class="sdiv">Insurance Suitability Factors</div><div class="fg"><div class="fgrp s2"><label>Why Capital Guarantee / Death Benefit Is Needed *</label><textarea id="sf-why" placeholder="Explain why the guarantee features are material to this client's situation. e.g. Client is self-employed with no group life coverage — the 100% death benefit provides estate equalization. Or: Client requires capital certainty for estate planning — the maturity guarantee protects principal at target retirement date."></textarea></div><div class="fgrp"><label>Estate Planning Benefit Applicable?</label><select id="sf-estate"><option>Yes — probate bypass is material (preferred beneficiary designated)</option><option>Possible — creditor protection being assessed with legal counsel</option><option>No — no estate planning benefit applicable</option></select></div><div class="fgrp"><label>Creditor Protection Need?</label><select id="sf-cred"><option>No</option><option>Yes — client is a business owner / professional</option><option>Under legal review</option></select></div></div><div class="sdiv">Investment Suitability Factors</div><div class="fg t"><div class="fgrp"><label>Client Risk Profile</label><select id="sf-risk"><option>Conservative</option><option>Moderate Conservative</option><option>Moderate</option><option>Moderate Aggressive</option><option>Aggressive</option></select></div><div class="fgrp"><label>Time Horizon (years)</label><input type="number" id="sf-horizon" placeholder="e.g. 15"></div><div class="fgrp"><label>Investment Objective</label><select id="sf-obj"><option>Capital preservation</option><option>Income</option><option>Balanced growth and income</option><option>Growth</option><option>Aggressive growth</option></select></div></div><div class="sdiv">Cost-Benefit Analysis</div><div class="fg"><div class="fgrp s2"><label>MER Premium Justification *</label><textarea id="sf-mer-just" placeholder="Calculate the annual dollar cost of the MER premium (difference between seg fund MER and comparable mutual fund MER) on the investment amount, and explain why the guarantee features justify this cost for this specific client. e.g. Annual MER premium: $150,000 x 0.60% = $900/year. This cost is justified because [specific reasons]."></textarea></div></div><div class="sdiv">Disclosures</div><div class="fg t"><div class="fgrp"><label>Information Folder Delivered?</label><select id="sf-if"><option>Yes — delivered before application</option><option>Yes — delivered at time of application</option><option>Pending delivery</option></select></div><div class="fgrp"><label>Fund Facts Delivered?</label><select id="sf-ff"><option>Yes — delivered before application</option><option>Yes — delivered at time of application</option><option>Pending delivery</option></select></div><div class="fgrp"><label>Reset Provision Explained?</label><select id="sf-reset"><option>Yes — client understands reset provisions</option><option>N/A — no reset provision on this product</option></select></div></div><div class="btn-row"><button class="btn bpdf" onclick="genSegFund()">📄 Generate PDF</button><button class="btn bs" onclick="go('vseg')">View Log</button></div></div></div>';
+}
+
+async function genSegFund(){
+  const ref=gv('sf-ref'),date=gv('sf-date'),adv=gv('sf-adv'),cli=gv('sf-cli'),fund=gv('sf-fund'),carrier=gv('sf-carrier'),why=gv('sf-why'),merJust=gv('sf-mer-just');
+  if(!ref||!date||!adv||!cli||!fund||!carrier||!why||!merJust){document.getElementById('fa').innerHTML='<div class="al ale">Complete all required fields (*).</div>';return;}
+  const sections=[
+    {type:'heading',text:'SEGREGATED FUND SUITABILITY ASSESSMENT'},
+    {type:'twocol',rows:[['Assessment Reference',ref],['Date',date],['Advisor',adv],['Client Name',cli]]},
+    {type:'heading',text:'1. FUND DETAILS'},
+    {type:'twocol',rows:[['Fund Name',fund],['Carrier',carrier],['Investment Amount',gv('sf-amt')||'See application'],['Guarantee Level',gv('sf-guar')],['Fund MER',gv('sf-mer')||'See Information Folder'],['Comparable Mutual Fund MER',gv('sf-cmer')||'Not provided']]},
+    {type:'heading',text:'2. INSURANCE SUITABILITY'},
+    {type:'field',label:'Why Guarantee / Death Benefit Is Needed',value:why},
+    {type:'twocol',rows:[['Estate Planning Benefit',gv('sf-estate')],['Creditor Protection',gv('sf-cred')]]},
+    {type:'heading',text:'3. INVESTMENT SUITABILITY'},
+    {type:'twocol',rows:[['Client Risk Profile',gv('sf-risk')],['Time Horizon',gv('sf-horizon')+' years'],['Investment Objective',gv('sf-obj')]]},
+    {type:'heading',text:'4. COST-BENEFIT ANALYSIS'},
+    {type:'field',label:'MER Premium Justification',value:merJust},
+    {type:'heading',text:'5. DISCLOSURE CONFIRMATIONS'},
+    {type:'twocol',rows:[['Information Folder',gv('sf-if')],['Fund Facts',gv('sf-ff')],['Reset Provisions Explained',gv('sf-reset')]]},
+    {type:'notice',text:'This Segregated Fund Suitability Assessment documents the basis for the recommendation of the above segregated fund. A segregated fund is an insurance contract — not a mutual fund — regulated under provincial insurance legislation. Past performance does not guarantee future results. The guarantee applies to the total deposits made, not to investment returns.'},
+    {type:'spacer',h:5},
+    {type:'signature',left:'Advisor Certification',right:'Client Acknowledgement'},
+  ];
+  try{
+    const pdf=makePDF('SEG FUND SUITABILITY ASSESSMENT',ref,sections);
+    pdf.save('SFA-'+ref+'-'+cli.replace(/s/g,'-')+'.pdf');
+    await aRow('SegFund_Suitability',[date,adv,cli,fund,carrier,gv('sf-guar'),gv('sf-if'),gv('sf-ff'),'Generated — '+ref,'Pending CCO']);
+    toast('✓ Seg Fund Assessment PDF generated and logged','pdf');
+  }catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';}
+}
+
+// ── GENERATE REPLACEMENT DECLARATION ──
+function fReplacement(){
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Generate Document</div><h1>Replacement Business Declaration</h1><p>Required for all replacement transactions. CCO pre-approval must be obtained BEFORE submitting the application.</p></div><div class="notice">⚠️ Submit this form and obtain CCO pre-approval before the application is sent to the carrier. Failure to obtain CCO pre-approval is grounds for immediate contract termination.</div><div class="card"><div class="ch"><h3>Replacement Business Declaration — TMP-VFP-INS-005</h3></div><div class="cb"><div id="fa"></div><div class="sdiv">Parties</div><div class="fg t"><div class="fgrp"><label>Declaration Reference # *</label><input type="text" id="rp-ref" placeholder="REP-'+new Date().getFullYear()+'-001"></div><div class="fgrp"><label>Date *</label><input type="date" id="rp-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="rp-adv" placeholder="Full name and licence #"></div><div class="fgrp s3"><label>Client Name *</label><input type="text" id="rp-cli" placeholder="Full legal name"></div></div><div class="sdiv">Existing Policy Being Replaced</div><div class="fg t"><div class="fgrp"><label>Existing Carrier *</label><input type="text" id="rp-ecarrier" placeholder="e.g. Sun Life Financial"></div><div class="fgrp"><label>Existing Policy Number</label><input type="text" id="rp-epol" placeholder="Policy # from existing policy documents"></div><div class="fgrp"><label>Existing Policy Type</label><input type="text" id="rp-etype" placeholder="e.g. 20-year term, $500,000"></div><div class="fgrp"><label>Existing Annual Premium</label><input type="text" id="rp-eprem" placeholder="e.g. $1,240/year"></div><div class="fgrp"><label>Cash Surrender Value (if any)</label><input type="text" id="rp-csv" placeholder="e.g. $0 (term policy) or $85,000"></div><div class="fgrp"><label>What Is Being Done to Existing Policy</label><select id="rp-action"><option>Lapsed / allowed to expire</option><option>Surrendered for cash value</option><option>Reduced paid-up conversion</option><option>Extended term conversion</option><option>Policy loan used to fund new premium</option></select></div></div><div class="sdiv">New Policy Being Purchased</div><div class="fg t"><div class="fgrp"><label>New Carrier *</label><input type="text" id="rp-ncarrier" placeholder="e.g. Canada Life"></div><div class="fgrp"><label>New Policy Type</label><input type="text" id="rp-ntype" placeholder="e.g. 30-year term, $750,000"></div><div class="fgrp"><label>New Annual Premium</label><input type="text" id="rp-nprem" placeholder="e.g. $1,890/year"></div></div><div class="sdiv">Client Benefit Analysis</div><div class="fg"><div class="fgrp s2"><label>How the Client Benefits from the Replacement *</label><textarea id="rp-benefit" placeholder="Specific, quantified benefits to the client. e.g. Client's health has significantly improved — new policy is issued standard vs. existing rated policy at +150%. Annual savings of $340 at standard rates for increased coverage of $250,000."></textarea></div><div class="fgrp s2"><label>What the Client Loses by Replacing</label><textarea id="rp-lose" placeholder="What features, rights, or values are lost? e.g. Loss of guaranteed insurability rider. No surrender charges (term policy). Client is 8 years older — if health changes in future, new coverage may not be available."></textarea></div></div><div class="sdiv">Carrier Notifications</div><div class="fg"><div class="fgrp"><label>Replacing Carrier Notified?</label><select id="rp-nnotify"><option>Yes — notification submitted with application</option><option>Pending notification</option></select></div><div class="fgrp"><label>Existing Carrier Notified?</label><select id="rp-enotify"><option>Yes — written notice sent</option><option>Pending notification</option></select></div></div><div class="btn-row"><button class="btn bpdf" onclick="genReplacement()">📄 Generate PDF</button><button class="btn bs" onclick="go('vrep')">View Register</button></div></div></div>';
+}
+
+async function genReplacement(){
+  const ref=gv('rp-ref'),date=gv('rp-date'),adv=gv('rp-adv'),cli=gv('rp-cli'),ecarrier=gv('rp-ecarrier'),ncarrier=gv('rp-ncarrier'),benefit=gv('rp-benefit'),lose=gv('rp-lose');
+  if(!ref||!date||!adv||!cli||!ecarrier||!ncarrier||!benefit||!lose){document.getElementById('fa').innerHTML='<div class="al ale">Complete all required fields (*).</div>';return;}
+  const sections=[
+    {type:'heading',text:'REPLACEMENT BUSINESS DECLARATION'},
+    {type:'notice',text:'This document discloses that the insurance transaction described below involves the replacement of existing insurance coverage. Both the advisor and the client must sign this declaration before the application is submitted to the carrier.'},
+    {type:'twocol',rows:[['Declaration Reference',ref],['Date',date],['Advisor',adv],['Client Name',cli]]},
+    {type:'heading',text:'1. EXISTING POLICY BEING REPLACED'},
+    {type:'twocol',rows:[['Existing Carrier',ecarrier],['Policy Number',gv('rp-epol')||'On file'],['Policy Type',gv('rp-etype')||'On file'],['Annual Premium',gv('rp-eprem')||'On file'],['Cash Surrender Value',gv('rp-csv')||'$0'],['Action on Existing Policy',gv('rp-action')]]},
+    {type:'heading',text:'2. NEW POLICY BEING PURCHASED'},
+    {type:'twocol',rows:[['New Carrier',ncarrier],['Policy Type',gv('rp-ntype')||'See application'],['Annual Premium',gv('rp-nprem')||'See application']]},
+    {type:'heading',text:'3. CLIENT BENEFIT ANALYSIS'},
+    {type:'field',label:'How the Client Benefits',value:benefit},
+    {type:'field',label:'What the Client Loses by Replacing',value:lose},
+    {type:'heading',text:'4. CARRIER NOTIFICATIONS'},
+    {type:'twocol',rows:[['Replacing Carrier Notified',gv('rp-nnotify')],['Existing Carrier Notified',gv('rp-enotify')]]},
+    {type:'notice',text:'CLIENT ACKNOWLEDGEMENT: I have read and understand this Replacement Business Declaration. I understand what I am giving up by replacing my existing coverage and have received a side-by-side comparison illustration. I am proceeding voluntarily with this replacement.'},
+    {type:'spacer',h:5},
+    {type:'signature',left:'Advisor Certification',right:'Client Acknowledgement & Signature'},
+  ];
+  try{
+    const pdf=makePDF('REPLACEMENT DECLARATION',ref,sections);
+    pdf.save('REP-'+ref+'-'+cli.replace(/s/g,'-')+'.pdf');
+    await aRow('Replacement_Business',[date,adv,cli,ncarrier,ecarrier,gv('rp-epol'),gv('rp-action'),'Pending CCO','Generated — '+ref,'Pending']);
+    toast('✓ Replacement Declaration PDF generated and logged','pdf');
+  }catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';}
+}
+
+// ── GENERATE RECOMMENDATION SUMMARY ──
+function fRecSummary(){
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Generate Document</div><h1>Insurance Recommendation Summary</h1><p>One-page client-friendly summary of the recommended coverage. Provide alongside the application.</p></div><div class="card"><div class="ch"><h3>Insurance Recommendation Summary — TMP-VFP-INS-004</h3></div><div class="cb"><div id="fa"></div><div class="fg t"><div class="fgrp"><label>Reference # *</label><input type="text" id="rs-ref" placeholder="IRS-'+new Date().getFullYear()+'-001"></div><div class="fgrp"><label>Date *</label><input type="date" id="rs-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="rs-adv" placeholder="Full name"></div><div class="fgrp s3"><label>Client Name *</label><input type="text" id="rs-cli" placeholder="Full legal name"></div><div class="fgrp"><label>Product Type *</label><input type="text" id="rs-prod" placeholder="e.g. 30-Year Term Life Insurance"></div><div class="fgrp"><label>Coverage Amount *</label><input type="text" id="rs-cov" placeholder="e.g. $1,000,000"></div><div class="fgrp"><label>Carrier</label><input type="text" id="rs-carrier" placeholder="e.g. Manulife Financial"></div><div class="fgrp"><label>Annual Premium</label><input type="text" id="rs-prem" placeholder="e.g. $1,847/year or $154/month"></div><div class="fgrp"><label>Policy Term</label><input type="text" id="rs-term" placeholder="e.g. 30 years to age 65"></div></div><div class="fg" style="margin-top:14px"><div class="fgrp s2"><label>What This Coverage Does *</label><textarea id="rs-what" placeholder="Plain language description of what the coverage provides and when it pays. e.g. This policy provides $1,000,000 tax-free to your estate if you pass away within the next 30 years. It protects your family's home, lifestyle, and financial future during your prime earning years."></textarea></div><div class="fgrp s2"><label>Why We Recommended This *</label><textarea id="rs-why" placeholder="Plain language summary of the recommendation rationale. e.g. Based on your mortgage of $650,000, your family's income needs of $85,000/year, and two dependants aged 8 and 11, we calculated a total need of $1,200,000. After your existing group life of $200,000, this policy fills the $1,000,000 gap at a cost of $154/month — approximately 1% of your gross income."></textarea></div><div class="fgrp s2"><label>Key Policy Features</label><textarea id="rs-features" placeholder="e.g. Renewable at end of term (no medical). Convertible to permanent without medical evidence before age 65. Premiums guaranteed level for the full 30-year term."></textarea></div></div><div class="btn-row"><button class="btn bpdf" onclick="genRecSummary()">📄 Generate PDF</button></div></div></div>';
+}
+
+async function genRecSummary(){
+  const ref=gv('rs-ref'),date=gv('rs-date'),adv=gv('rs-adv'),cli=gv('rs-cli'),prod=gv('rs-prod'),cov=gv('rs-cov'),what=gv('rs-what'),why=gv('rs-why');
+  if(!ref||!date||!adv||!cli||!prod||!cov||!what||!why){document.getElementById('fa').innerHTML='<div class="al ale">Complete all required fields (*).</div>';return;}
+  const sections=[
+    {type:'heading',text:'INSURANCE RECOMMENDATION SUMMARY'},
+    {type:'twocol',rows:[['Reference',ref],['Date',date],['Your Advisor',adv],['Prepared For',cli]]},
+    {type:'heading',text:'YOUR RECOMMENDED COVERAGE'},
+    {type:'twocol',rows:[['Product',prod],['Coverage Amount',cov],['Carrier / Insurer',gv('rs-carrier')||'To be confirmed'],['Annual Premium',gv('rs-prem')||'See illustration'],['Policy Term',gv('rs-term')||'See policy']]},
+    {type:'heading',text:'WHAT THIS COVERAGE DOES'},
+    {type:'field',label:'Coverage Description',value:what},
+    {type:'heading',text:'WHY WE RECOMMENDED THIS'},
+    {type:'field',label:'Our Recommendation Rationale',value:why},
+    {type:'heading',text:'KEY POLICY FEATURES'},
+    {type:'field',label:'Features',value:gv('rs-features')||'See the policy illustration provided separately.'},
+    {type:'notice',text:'This summary is for informational purposes only. Please review the full policy contract, illustration, and disclosure documents before applying. Coverage is subject to carrier underwriting. Final terms and premiums are set by the carrier.'},
+    {type:'spacer',h:5},
+    {type:'signature',left:'Advisor',right:'Client Acknowledgement'},
+  ];
+  try{
+    const pdf=makePDF('RECOMMENDATION SUMMARY',ref,sections);
+    pdf.save('IRS-'+ref+'-'+cli.replace(/s/g,'-')+'.pdf');
+    toast('✓ Recommendation Summary PDF generated','pdf');
+  }catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';}
+}
+
+// ── LOG FORMS ──
+function fLogRec(){
+  const yr=new Date().getFullYear();
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Log New Entry</div><h1>Log Insurance Recommendation</h1></div><div class="card"><div class="ch"><h3>New Recommendation Entry</h3></div><div class="cb"><div id="fa"></div><div class="fg t"><div class="fgrp"><label>Date *</label><input type="date" id="lr-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="lr-adv" placeholder="Full name"></div><div class="fgrp"><label>Client *</label><input type="text" id="lr-cli" placeholder="Client name"></div><div class="fgrp"><label>Province</label><select id="lr-prov"><option>Ontario</option><option>British Columbia</option><option>Alberta</option></select></div><div class="fgrp"><label>Product Type *</label><select id="lr-prod"><option value="">— Select —</option><option>Term Life</option><option>Whole Life — Participating</option><option>Whole Life — Non-Participating</option><option>Universal Life</option><option>Critical Illness</option><option>Long-Term Disability</option><option>Long-Term Care</option><option>Segregated Fund</option><option>Annuity</option><option>Group Benefits</option></select></div><div class="fgrp"><label>Carrier</label><input type="text" id="lr-carrier" placeholder="Carrier name"></div><div class="fgrp"><label>Coverage Amount</label><input type="text" id="lr-amt" placeholder="e.g. $750,000"></div><div class="fgrp"><label>Annual Premium</label><input type="text" id="lr-prem" placeholder="e.g. $1,247/year"></div><div class="fgrp"><label>RWL Generated?</label><select id="lr-rwl"><option>Yes — RWL on file</option><option>Yes — RWL reference: see notes</option><option>Pending</option></select></div><div class="fgrp"><label>INA Generated?</label><select id="lr-ina"><option>Yes — INA on file</option><option>N/A — not required</option><option>Pending</option></select></div><div class="fgrp"><label>CCO Reviewed?</label><select id="lr-cco"><option>Pending CCO review</option><option>Yes — CCO approved</option></select></div></div><div style="margin-top:18px"><button class="btn bp" onclick="sLogRec()" id="sb-lr">Log Recommendation</button></div></div></div>';
+}
+async function sLogRec(){const d=gv('lr-date'),a=gv('lr-adv'),c=gv('lr-cli'),p=gv('lr-prod');if(!d||!a||!c||!p){document.getElementById('fa').innerHTML='<div class="al ale">Complete required fields.</div>';return;}const btn=document.getElementById('sb-lr');btn.disabled=true;btn.textContent='Logging…';try{await aRow('Insurance_Recommendations',[d,a,c,gv('lr-prov'),p,gv('lr-carrier'),gv('lr-amt'),gv('lr-prem'),gv('lr-rwl'),gv('lr-ina'),gv('lr-cco')]);toast('✓ Recommendation logged');fLogRec();}catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';btn.disabled=false;btn.textContent='Log Recommendation';}}
+
+function fLogRep(){
+  const yr=new Date().getFullYear();
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Log New Entry</div><h1>Log Replacement Transaction</h1></div><div class="notice">⚠️ CCO pre-approval is required before submitting the application. Do not submit without approval.</div><div class="card"><div class="ch"><h3>New Replacement Entry</h3></div><div class="cb"><div id="fa"></div><div class="fg t"><div class="fgrp"><label>Date *</label><input type="date" id="rr-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="rr-adv" placeholder="Full name"></div><div class="fgrp"><label>Client *</label><input type="text" id="rr-cli" placeholder="Client name"></div><div class="fgrp"><label>Replacing Carrier *</label><input type="text" id="rr-new" placeholder="New carrier name"></div><div class="fgrp"><label>Existing Carrier *</label><input type="text" id="rr-old" placeholder="Existing carrier name"></div><div class="fgrp"><label>Existing Policy #</label><input type="text" id="rr-pol" placeholder="Policy number"></div><div class="fgrp"><label>Replacement Type</label><select id="rr-type"><option>Lapse / let expire</option><option>Surrender for CSV</option><option>Reduced paid-up</option><option>Extended term</option><option>Policy loan to fund new premium</option></select></div><div class="fgrp"><label>CCO Approved?</label><select id="rr-cco"><option>Pending CCO pre-approval</option><option>Yes — CCO approved</option></select></div><div class="fgrp"><label>Declaration Signed?</label><select id="rr-dec"><option>Yes — generated and signed</option><option>Pending signature</option></select></div><div class="fgrp"><label>Status</label><select id="rr-stat"><option>Pending CCO Approval</option><option>Approved — Application Submitted</option><option>Policy Issued</option><option>Declined by Carrier</option></select></div></div><div style="margin-top:18px"><button class="btn bp" onclick="sLogRep()" id="sb-rr">Log Replacement</button></div></div></div>';
+}
+async function sLogRep(){const d=gv('rr-date'),a=gv('rr-adv'),c=gv('rr-cli'),n=gv('rr-new'),o=gv('rr-old');if(!d||!a||!c||!n||!o){document.getElementById('fa').innerHTML='<div class="al ale">Complete required fields.</div>';return;}const btn=document.getElementById('sb-rr');btn.disabled=true;btn.textContent='Logging…';try{await aRow('Replacement_Business',[d,a,c,n,o,gv('rr-pol'),gv('rr-type'),gv('rr-cco'),gv('rr-dec'),gv('rr-stat')]);toast('✓ Replacement logged');fLogRep();}catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';btn.disabled=false;btn.textContent='Log Replacement';}}
+
+function fLogCmp(){
+  const yr=new Date().getFullYear();
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Log New Entry</div><h1>Log Insurance Complaint</h1></div><div class="notice">⚠️ Log immediately. Notify E&O insurer before responding to any complaint alleging financial loss over $10,000.</div><div class="card"><div class="ch"><h3>New Complaint Entry</h3></div><div class="cb"><div id="fa"></div><div class="fg t"><div class="fgrp"><label>Ref # *</label><input type="text" id="ic-ref" placeholder="INS-CMP-'+yr+'-001"></div><div class="fgrp"><label>Date Received *</label><input type="date" id="ic-date" value="'+TODAY+'"></div><div class="fgrp"><label>Client *</label><input type="text" id="ic-cli" placeholder="Client name"></div><div class="fgrp"><label>Advisor Named</label><input type="text" id="ic-adv" placeholder="Advisor name"></div><div class="fgrp"><label>Nature *</label><select id="ic-nat"><option value="">— Select —</option><option>Unsuitable recommendation</option><option>Replacement — misrepresentation</option><option>Claim denial dispute</option><option>Fee / premium dispute</option><option>Service quality</option><option>Disclosure failure</option><option>Seg fund — performance complaint</option><option>Other</option></select></div><div class="fgrp"><label>Province</label><select id="ic-prov"><option>Ontario</option><option>British Columbia</option><option>Alberta</option></select></div><div class="fgrp"><label>E&O Notified?</label><select id="ic-eo"><option>No — does not meet threshold</option><option>Yes — E&O notified</option><option>Pending assessment</option></select></div><div class="fgrp"><label>OLHI Referred?</label><select id="ic-olhi"><option>No</option><option>Yes — client self-referred</option><option>Yes — firm referred</option></select></div><div class="fgrp"><label>Status</label><select id="ic-stat"><option>Open — Investigation</option><option>Open — Response Pending</option><option>Closed — Resolved</option><option>Closed — Not Upheld</option></select></div></div><div class="fg" style="margin-top:14px"><div class="fgrp s2"><label>Resolution Notes</label><textarea id="ic-res" placeholder="Resolution details, compensation paid, lessons learned…"></textarea></div></div><div style="margin-top:18px"><button class="btn bp" onclick="sLogCmp()" id="sb-ic">Log Complaint</button></div></div></div>';
+}
+async function sLogCmp(){const r=gv('ic-ref'),d=gv('ic-date'),c=gv('ic-cli'),n=gv('ic-nat');if(!r||!d||!c||!n){document.getElementById('fa').innerHTML='<div class="al ale">Complete required fields.</div>';return;}const btn=document.getElementById('sb-ic');btn.disabled=true;btn.textContent='Logging…';try{await aRow('Insurance_Complaints',[r,d,c,gv('ic-adv'),n,gv('ic-prov'),gv('ic-eo'),gv('ic-olhi'),gv('ic-stat'),gv('ic-res')]);toast('✓ Complaint logged');fLogCmp();}catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';btn.disabled=false;btn.textContent='Log Complaint';}}
+
+function fLogTrn(){
+  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">Log New Entry</div><h1>Log Insurance Training</h1></div><div class="card"><div class="ch"><h3>New Training Record</h3></div><div class="cb"><div id="fa"></div><div class="fg t"><div class="fgrp"><label>Date *</label><input type="date" id="it-date" value="'+TODAY+'"></div><div class="fgrp"><label>Advisor *</label><input type="text" id="it-adv" placeholder="Full name"></div><div class="fgrp"><label>Module *</label><select id="it-mod"><option value="">— Select —</option><option>Insurance Compliance Training — TRN-VFP-INS-001</option><option>Replacement Business Training</option><option>Seg Fund Suitability Training</option><option>LLQP — Life Insurance</option><option>LLQP — Accident & Sickness</option><option>LLQP — Segregated Funds</option><option>LLQP — Ethics</option><option>FSRA CE — Life</option><option>BCFSA CE — Life</option><option>AIC CE — Life</option><option>CLU Designation CE</option><option>Carrier Product Training</option><option>Other</option></select></div><div class="fgrp"><label>Province CE Applicable</label><select id="it-prov"><option>Ontario (FSRA)</option><option>BC (BCFSA)</option><option>Alberta (AIC)</option><option>Multiple provinces</option><option>N/A — not CE qualifying</option></select></div><div class="fgrp"><label>Hours</label><input type="number" id="it-hrs" placeholder="e.g. 2.0" step="0.5"></div><div class="fgrp"><label>Score (%)</label><input type="number" id="it-score" placeholder="e.g. 90" min="0" max="100"></div><div class="fgrp"><label>Pass/Fail</label><select id="it-pf"><option>Pass (≥80%)</option><option>Pass — no assessment</option><option>Fail — retake required</option></select></div><div class="fgrp"><label>CE Credits Earned</label><input type="number" id="it-cred" placeholder="0.0" step="0.5"></div><div class="fgrp"><label>Certificate #</label><input type="text" id="it-cert" placeholder="Provider reference number"></div></div><div style="margin-top:18px"><button class="btn bp" onclick="sLogTrn()" id="sb-it">Log Training</button></div></div></div>';
+}
+async function sLogTrn(){const d=gv('it-date'),a=gv('it-adv'),m=gv('it-mod');if(!d||!a||!m){document.getElementById('fa').innerHTML='<div class="al ale">Complete required fields.</div>';return;}const btn=document.getElementById('sb-it');btn.disabled=true;btn.textContent='Logging…';try{await aRow('Insurance_Training',[d,a,m,gv('it-prov'),gv('it-hrs'),gv('it-score')?gv('it-score')+'%':'',gv('it-pf'),gv('it-cred')||'0',gv('it-cert')]);toast('✓ Training logged');fLogTrn();}catch(e){document.getElementById('fa').innerHTML='<div class="al ale">⚠️ '+e.message+'</div>';btn.disabled=false;btn.textContent='Log Training';}}
+
+// INIT
+rDash();
+</script>
+</body>
+</html>
