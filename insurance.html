@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
+
 :root{--vault:#042825;--vl:#0a3d39;--vd:#021a18;--parch:#F7F0E0;--pd:#ede4ce;--bed:#BFAA8E;--steel:#ADC1C2;--wh:#ffffff;--tx:#1a1a1a;--muted:#6b6b6b;--ok:#2d7a4f;--warn:#b8860b;--err:#8b2020;--bdr:rgba(4,40,37,.12);--shad:0 2px 16px rgba(4,40,37,.08);}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:#f0ead8;color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
@@ -130,9 +131,64 @@ details summary{font-size:11.5px;color:var(--vault);cursor:pointer;font-weight:5
   .rw-chk:has(input:checked){border-color:var(--vault);background:rgba(4,40,37,.05);}
   .rw-chk:has(input:checked) strong{color:var(--vault);}
 
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--vd);}
+.login-box{background:var(--wh);border-radius:12px;padding:40px 44px;width:420px;box-shadow:0 20px 80px rgba(0,0,0,.4);}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.login-box h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--vault);margin-bottom:6px;}
+.login-box p{font-size:12.5px;color:var(--muted);margin-bottom:24px;}
+.login-fgrp{display:flex;flex-direction:column;gap:5px;margin-bottom:16px;}
+.login-fgrp label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--vault);}
+.login-fgrp input{font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 13px;border:1px solid rgba(4,40,37,.2);border-radius:6px;outline:none;transition:border-color .15s;}
+.login-fgrp input:focus{border-color:var(--vault);box-shadow:0 0 0 3px rgba(4,40,37,.07);}
+.login-btn{width:100%;padding:11px;background:var(--vault);color:var(--wh);border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s;}
+.login-btn:hover{background:var(--vl);}
+.login-btn:disabled{opacity:.6;cursor:not-allowed;}
+.login-err{background:rgba(139,32,32,.1);border-left:3px solid var(--err);color:#4a1a1a;padding:10px 13px;border-radius:5px;font-size:12.5px;margin-bottom:14px;}
+.login-forgot{text-align:center;margin-top:14px;font-size:12px;color:var(--muted);}
+.login-forgot a{color:var(--vault);text-decoration:none;font-weight:500;}
+.login-badge{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:20px;font-size:11px;color:var(--muted);}
+.signout-btn{background:none;border:1px solid rgba(191,170,142,.4);color:var(--bed);padding:5px 12px;border-radius:4px;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.signout-btn:hover{background:rgba(247,240,224,.1);}
 </style>
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen" style="display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--vd);">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
+        <polygon points="2,3 8,3 16,25 24,3 30,3 16,30" fill="#042825" opacity=".15"/>
+        <polygon points="4,3 7,3 16,26 25,3 28,3 16,29" fill="none" stroke="#042825" stroke-width="1.1"/>
+        <polygon points="7,3 10,3 16,20 22,3 25,3 16,23" fill="none" stroke="#BFAA8E" stroke-width=".9"/>
+      </svg>
+      <div class="ht"><span>Volta Financial Group</span><span>Insurance Compliance Portal</span></div>
+    </div>
+    <h2>Sign In</h2>
+    <p>Enter your VFG credentials to access the Insurance Compliance Portal.</p>
+    <div id="li-err" class="login-err" style="display:none"></div>
+    <form onsubmit="handleLogin(event)">
+      <div class="login-fgrp"><label>Email Address</label><input type="email" id="li-email" placeholder="you@voltafinancial.ca" autocomplete="email" required></div>
+      <div class="login-fgrp"><label>Password</label><input type="password" id="li-pass" placeholder="Your VFG password" autocomplete="current-password" required></div>
+      <button type="submit" class="login-btn" id="li-btn">Sign In</button>
+    </form>
+    <div class="login-forgot"><a href="#" onclick="showReset();return false;">Forgot your password?</a></div>
+    <div id="reset-form" style="display:none;margin-top:16px;">
+      <div class="login-fgrp"><label>Email for password reset</label><input type="email" id="li-reset-email" placeholder="you@voltafinancial.ca"></div>
+      <button class="login-btn" style="background:var(--bed);color:var(--vault)" onclick="sendReset()">Send Reset Link</button>
+    </div>
+    <div class="login-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      Secured by Supabase Auth &mdash; Canada (Central)
+    </div>
+  </div>
+</div>
+<div id="reset-success" style="display:none;position:fixed;top:20px;right:20px;background:var(--ok);color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;z-index:9999;">Reset link sent &mdash; check your email.</div>
+
+<!-- APP SHELL -->
+<div id="app-shell" style="display:none;flex-direction:column;min-height:100vh;">
 <header>
   <div class="hb">
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -142,9 +198,15 @@ details summary{font-size:11.5px;color:var(--vault);cursor:pointer;font-weight:5
     </svg>
     <div class="ht"><span>Volta Financial Group</span><span>Insurance Compliance Portal</span></div>
   </div>
-  <div class="hr"><div class="dot"></div><span>Live &mdash; Google Sheets</span><span style="margin:0 10px;opacity:.3">|</span><span id="hdate"></span></div>
+  <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--bed);">
+    <div class="dot"></div>
+    <span id="user-name"></span>
+    <span style="opacity:.4">|</span>
+    <span id="hdate"></span>
+    <button class="signout-btn" onclick="sbSignOut()">Sign Out</button>
+  </div>
 </header>
-<div class="app">
+<div style="display:flex;flex:1;">
 <nav>
   <div class="ns">Overview</div>
   <a onclick="go('dash')" id="n-dash" class="active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
@@ -167,33 +229,82 @@ details summary{font-size:11.5px;color:var(--vault);cursor:pointer;font-weight:5
   <a onclick="go('lcmp')" id="n-lcmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Complaint</a>
   <a onclick="go('ltrn')" id="n-ltrn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Training</a>
 </nav>
-<main id="mc"></main>
+<main id="mc" style="flex:1;padding:28px 32px;overflow-y:auto;"></main>
+</div>
 </div>
 <div id="toast"></div>
-<script>
-var SID="1XhsjTCdIZ2CmDsMlqERfw9CT-ZtPPMtBu2Mlst7W42s";
-var AK="AIzaSyDRHOI1bJB8bc2g0xR2BxIQuwA9RJ7XfOY";
-var BASE="https://sheets.googleapis.com/v4/spreadsheets/"+SID;
-var TODAY=new Date().toISOString().slice(0,10);
-document.getElementById("hdate").textContent=new Date().toLocaleDateString("en-CA",{year:"numeric",month:"short",day:"numeric"});
 
-function toast(m,t){
+<script>
+
+var SUPA_URL = "https://vpuwuyqnknlqyozqfmfb.supabase.co";
+var SUPA_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwdXd1eXFua25scXlvenFmbWZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTA1NDQsImV4cCI6MjA5MDU4NjU0NH0.SZoeLCEqcl6VL0jbe4Pvsi8yC0J8aSGbJT0Fol1URUY";
+var _session = null;
+var _profile = null;
+var TODAY = new Date().toISOString().slice(0,10);
+
+async function sbFetch(path, opts) {
+  opts = opts || {};
+  var headers = {"apikey": SUPA_ANON, "Content-Type": "application/json"};
+  if (_session && _session.access_token) headers["Authorization"] = "Bearer " + _session.access_token;
+  if (opts.headers) Object.assign(headers, opts.headers);
+  opts.headers = headers;
+  return await fetch(SUPA_URL + path, opts);
+}
+
+async function sbSignIn(email, password) {
+  var r = await fetch(SUPA_URL + "/auth/v1/token?grant_type=password", {
+    method: "POST",
+    headers: {"apikey": SUPA_ANON, "Content-Type": "application/json"},
+    body: JSON.stringify({email: email, password: password})
+  });
+  var d = await r.json();
+  if (!r.ok) throw new Error(d.error_description || d.msg || "Sign in failed");
+  return d;
+}
+
+async function sbSignOut() {
+  if (_session) {
+    await fetch(SUPA_URL + "/auth/v1/logout", {
+      method: "POST",
+      headers: {"apikey": SUPA_ANON, "Authorization": "Bearer " + _session.access_token}
+    });
+  }
+  _session = null; _profile = null;
+  localStorage.removeItem("vfg_ins_session");
+  showLogin();
+}
+
+async function sbGetProfile(userId) {
+  var r = await sbFetch("/rest/v1/profiles?id=eq." + userId + "&select=*");
+  var d = await r.json();
+  return d[0] || null;
+}
+
+async function sbInsert(table, row) {
+  var r = await sbFetch("/rest/v1/" + table, {
+    method: "POST",
+    headers: {"Prefer": "return=minimal"},
+    body: JSON.stringify(row)
+  });
+  if (!r.ok) { var e = await r.json(); throw new Error(e.message || e.details || "Insert failed"); }
+}
+
+async function sbSelect(table, q) {
+  var r = await sbFetch("/rest/v1/" + table + "?" + (q || "select=*&order=created_at.desc&limit=200"));
+  if (!r.ok) { var e = await r.json(); throw new Error(e.message || "Query failed"); }
+  return await r.json();
+}
+
+function toast(m,t) {
   t=t||"ok";
   var e=document.getElementById("toast");
   e.textContent=m;
   e.className=t==="err"?"error show":t==="pdf"?"pdf show":"show";
   setTimeout(function(){e.className="";},4000);
 }
-async function aRow(sheet,vals){
-  var r=await fetch(BASE+"/values/"+encodeURIComponent(sheet+"!A1")+":append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key="+AK,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({values:[vals]})});
-  if(!r.ok){var e=await r.json();throw new Error((e.error&&e.error.message)||"Write failed");}
-  return r.json();
-}
-async function rSheet(range){
-  var r=await fetch(BASE+"/values/"+encodeURIComponent(range)+"?key="+AK);
-  if(!r.ok)throw new Error("Read failed");
-  var d=await r.json();return d.values||[];
-}
+function gv(id){var e=document.getElementById(id);return e?e.value:"";}
+function fmt(n){return "$"+Math.abs(Math.round(n)).toLocaleString("en-CA");}
+function pn(id){var e=document.getElementById(id);return parseFloat(String(e?e.value:"0").replace(/[^0-9.]/g,""))||0;}
 function bdg(v){
   if(!v)return "<span class=\"b bx\">&mdash;</span>";
   var l=v.toLowerCase();
@@ -202,9 +313,197 @@ function bdg(v){
   if(l.includes("fail")||l.includes("reject")||l.includes("concern"))return "<span class=\"b br\">"+v+"</span>";
   return "<span class=\"b bb\">"+v+"</span>";
 }
-function gv(id){var e=document.getElementById(id);return e?e.value:"";}
-function fmt(n){return "$"+Math.abs(Math.round(n)).toLocaleString("en-CA");}
-function pn(id){var e=document.getElementById(id);return parseFloat(String(e?e.value:"0").replace(/[^0-9.]/g,""))||0;}
+
+async function rReg(title, table, cols, filterOwn) {
+  var el=document.getElementById("mc");
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">Registers</div><h1>"+title+"</h1></div><div class=\"card\"><div class=\"ch\"><h3>All Entries</h3><span style=\"font-size:11.5px;color:var(--muted)\" id=\"ec\">Loading&hellip;</span></div><div class=\"cb\" id=\"rt\"><div class=\"loading\"><div class=\"spinner\"></div>Fetching&hellip;</div></div></div>";
+  try {
+    var q="select=*&order=created_at.desc&limit=200";
+    if(filterOwn && _profile && _profile.role!=="cco") q+="&advisor_id=eq."+_profile.id;
+    var rows=await sbSelect(table,q);
+    document.getElementById("ec").textContent=rows.length+" entries";
+    if(rows.length===0){document.getElementById("rt").innerHTML="<div class=\"empty\"><p>No entries yet</p></div>";return;}
+    var th="<tr>"+cols.map(function(c){return "<th>"+c[0]+"</th>";}).join("")+"</tr>";
+    var tb=rows.map(function(r){
+      return "<tr>"+cols.map(function(c){
+        var v=r[c[1]]||"";
+        return "<td>"+(v?(c[2]?bdg(String(v)):String(v)):"&mdash;")+"</td>";
+      }).join("")+"</tr>";
+    }).join("");
+    document.getElementById("rt").innerHTML="<div class=\"tw\"><table><thead>"+th+"</thead><tbody>"+tb+"</tbody></table></div>";
+  }catch(e){document.getElementById("rt").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
+}
+
+async function rDash() {
+  var el=document.getElementById("mc");
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">VFG Insurance Compliance Portal</div><h1>Insurance Dashboard</h1><p>"+new Date().toLocaleDateString("en-CA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+"</p></div><div class=\"sg\" id=\"sg\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div><div class=\"dg\" id=\"dg\"><div class=\"loading\"><div class=\"spinner\"></div></div></div>";
+  try {
+    var q = _profile && _profile.role!=="cco" ? "&advisor_id=eq."+_profile.id : "";
+    var res=await Promise.all([
+      sbSelect("insurance_recommendations","select=*&order=created_at.desc&limit=500"+q),
+      sbSelect("replacement_business","select=*&order=created_at.desc&limit=200"+q),
+      sbSelect("rwl_log","select=*&order=created_at.desc&limit=200"+q),
+      sbSelect("insurance_complaints","select=*&order=created_at.desc&limit=200"+q)
+    ]);
+    var rec=res[0],rep=res[1],rwl=res[2],cmp=res[3];
+    var openCmp=cmp.filter(function(r){return r.status&&!r.status.toLowerCase().includes("closed");}).length;
+    var pendRep=rep.filter(function(r){return r.cco_approved&&r.cco_approved.toLowerCase().includes("pending");}).length;
+    document.getElementById("sg").innerHTML=
+      "<div class=\"sc\"><div class=\"sl\">Recommendations</div><div class=\"sv\">"+rec.length+"</div><div class=\"ss\">All products</div></div>"+
+      "<div class=\"sc a\"><div class=\"sl\">Replacements</div><div class=\"sv\">"+rep.length+"</div><div class=\"ss\">"+pendRep+" pending CCO</div></div>"+
+      "<div class=\"sc t\"><div class=\"sl\">RWLs Generated</div><div class=\"sv\">"+rwl.length+"</div><div class=\"ss\">Reason Why Letters</div></div>"+
+      "<div class=\"sc g\"><div class=\"sl\">Open Complaints</div><div class=\"sv\">"+openCmp+"</div><div class=\"ss\">"+cmp.length+" total logged</div></div>";
+    var rr=rec.slice(0,5).map(function(r){return "<tr><td>"+(r.date||"&mdash;")+"</td><td>"+(r.advisor_name||"&mdash;")+"</td><td>"+(r.client_name||"&mdash;")+"</td><td>"+(r.product_type||"&mdash;")+"</td><td>"+bdg(r.rwl_generated)+"</td></tr>";}).join("");
+    document.getElementById("dg").innerHTML=
+      "<div class=\"card\"><div class=\"ch\"><h3>Recent Recommendations</h3><button class=\"btn bs bsm\" onclick=\"go('lrec')\">+ Log</button></div><div class=\"cb\">"+(rec.length===0?"<div class=\"empty\"><p>No entries yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Date</th><th>Advisor</th><th>Client</th><th>Product</th><th>RWL</th></tr></thead><tbody>"+rr+"</tbody></table></div>")+"</div></div>"+
+      "<div class=\"card\"><div class=\"ch\"><h3>Quick Actions</h3></div><div class=\"cb\"><div class=\"btn-row\"><button class=\"btn bp\" onclick=\"go('gina')\">New INA</button><button class=\"btn bp\" onclick=\"go('grwl')\">New RWL</button><button class=\"btn bs\" onclick=\"go('lrec')\">Log Rec</button><button class=\"btn bs\" onclick=\"go('lrep')\">Log Replacement</button></div></div></div>";
+  }catch(e){document.getElementById("sg").innerHTML="<div class=\"al ale\" style=\"grid-column:span 4\">&mdash; "+e.message+"</div>";}
+}
+
+async function initSession() {
+  var stored = localStorage.getItem("vfg_ins_session");
+  if (stored) {
+    try {
+      var sess = JSON.parse(stored);
+      if (sess.expires_at && Date.now()/1000 < sess.expires_at - 300) {
+        _session = sess;
+        _profile = await sbGetProfile(sess.user.id);
+        if (_profile && _profile.active) { showApp(); return; }
+      }
+    } catch(e) { localStorage.removeItem("vfg_ins_session"); }
+  }
+  showLogin();
+}
+
+function showLogin() {
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("app-shell").style.display = "none";
+}
+
+function showApp() {
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app-shell").style.display = "flex";
+  var n = _profile ? _profile.full_name : "User";
+  var roleMap = {cco:"CCO",advisor_investment:"Investment Advisor",advisor_insurance:"Insurance Advisor",advisor_dual:"Dual Advisor"};
+  var r = _profile ? (roleMap[_profile.role] || _profile.role) : "";
+  document.getElementById("user-name").textContent = n + " — " + r;
+  document.getElementById("hdate").textContent = new Date().toLocaleDateString("en-CA",{year:"numeric",month:"short",day:"numeric"});
+  rDash();
+}
+
+function onAppReady() { rDash(); }
+
+async function handleLogin(e) {
+  e.preventDefault();
+  var email = document.getElementById("li-email").value.trim();
+  var pass  = document.getElementById("li-pass").value;
+  var btn   = document.getElementById("li-btn");
+  var err   = document.getElementById("li-err");
+  err.style.display = "none";
+  if (!email || !pass) { err.textContent="Email and password are required."; err.style.display="block"; return; }
+  btn.disabled = true; btn.textContent = "Signing in\u2026";
+  try {
+    var sess = await sbSignIn(email, pass);
+    _session = sess;
+    localStorage.setItem("vfg_ins_session", JSON.stringify(sess));
+    _profile = await sbGetProfile(sess.user.id);
+    if (!_profile) throw new Error("Profile not found. Contact your CCO.");
+    if (!_profile.active) throw new Error("Your account is deactivated. Contact your CCO.");
+    // Insurance portal: insurance and dual advisors only (plus CCO)
+    if (_profile.role === "advisor_investment") throw new Error("This portal is for insurance advisors. Please use the Investment Portal.");
+    showApp();
+  } catch(ex) {
+    err.textContent = ex.message;
+    err.style.display = "block";
+    btn.disabled = false;
+    btn.textContent = "Sign In";
+  }
+}
+
+function showReset() {
+  var rf=document.getElementById("reset-form");
+  rf.style.display=rf.style.display==="none"?"block":"none";
+}
+
+async function sendReset() {
+  var email=document.getElementById("li-reset-email").value.trim();
+  if(!email) return;
+  await fetch(SUPA_URL+"/auth/v1/recover",{
+    method:"POST",
+    headers:{"apikey":SUPA_ANON,"Content-Type":"application/json"},
+    body:JSON.stringify({email:email})
+  });
+  document.getElementById("reset-success").style.display="block";
+  setTimeout(function(){document.getElementById("reset-success").style.display="none";},4000);
+}
+
+
+function go(id) {
+  document.querySelectorAll("nav a").forEach(function(a){a.classList.remove("active");});
+  var nd=document.getElementById("n-"+id); if(nd) nd.classList.add("active");
+  var map = {
+    dash: rDash,
+    vrec: function(){rReg("Recommendation Register","insurance_recommendations",[
+      ["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],
+      ["Province","province",false],["Product","product_type",false],["Carrier","carrier",false],
+      ["Coverage","coverage_amount",false],["RWL?","rwl_generated",true],["INA?","ina_generated",true],["CCO?","cco_reviewed",true]
+    ], true);},
+    vrep: function(){rReg("Replacement Business Register","replacement_business",[
+      ["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],
+      ["Replacing","replacing_carrier",false],["Existing","existing_carrier",false],
+      ["CCO Approved?","cco_approved",true],["Declaration?","declaration_signed",true],["Status","status",true]
+    ], true);},
+    vrwl: function(){rReg("RWL Log","rwl_log",[
+      ["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],
+      ["Product","product_recommended",false],["RWL Ref","rwl_reference",false],
+      ["PDF Generated","pdf_generated",true],["INA Ref","ina_reference",false]
+    ], true);},
+    vseg: function(){rReg("Seg Fund Log","segfund_suitability",[
+      ["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],
+      ["Fund","fund_name",false],["Carrier","carrier",false],["Guarantee","guarantee_level",false],
+      ["IF Delivered?","if_delivered",true],["Fund Facts?","fund_facts",true],["CCO?","cco_reviewed",true]
+    ], true);},
+    vcmp: function(){rReg("Complaint Register","insurance_complaints",[
+      ["Ref","ref_number",false],["Date","date_received",false],["Client","client_name",false],
+      ["Nature","nature",false],["Province","province",false],
+      ["E&O?","eo_notified",true],["Status","status",true]
+    ], true);},
+    vtrn: function(){rReg("Training Register","insurance_training",[
+      ["Date","date",false],["Advisor","advisor_name",false],["Module","module",false],
+      ["Province CE","province_ce",false],["Hours","hours",false],
+      ["Pass/Fail","pass_fail",true],["CE Credits","ce_credits",false]
+    ], true);},
+    grwl:fRWL, gina:fINA, gseg:fSegFund, grep:fReplacement, gsum:fRecSummary,
+    lrec:fLogRec, lrep:fLogRep, lcmp:fLogCmp, ltrn:fLogTrn
+  };
+  (map[id]||rDash)();
+}
+
+
+async function doInsertRec(row) {
+  row.advisor_id = _profile ? _profile.id : null;
+  await sbInsert("insurance_recommendations", row);
+}
+async function doInsertRWL(row) {
+  row.advisor_id = _profile ? _profile.id : null;
+  await sbInsert("rwl_log", row);
+}
+async function doInsertRep(row) {
+  row.advisor_id = _profile ? _profile.id : null;
+  await sbInsert("replacement_business", row);
+}
+async function doInsertSeg(row) {
+  row.advisor_id = _profile ? _profile.id : null;
+  await sbInsert("segfund_suitability", row);
+}
+async function doInsertCmp(row) {
+  row.advisor_id = _profile ? _profile.id : null;
+  await sbInsert("insurance_complaints", row);
+}
+async function doInsertTrn(row) {
+  row.advisor_id = _profile ? _profile.id : null;
+  await sbInsert("insurance_training", row);
+}
 
 function go(id){
   document.querySelectorAll("nav a").forEach(function(a){a.classList.remove("active");});
@@ -223,40 +522,7 @@ function go(id){
   (map[id]||rDash)();
 }
 
-async function rDash(){
-  var el=document.getElementById("mc");
-  el.innerHTML="<div class=\"ph\"><div class=\"bc\">VFG Insurance Compliance Portal</div><h1>Insurance Dashboard</h1><p>"+new Date().toLocaleDateString("en-CA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+"</p></div><div class=\"sg\" id=\"sg\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div><div class=\"dg\" id=\"dg\"><div class=\"loading\"><div class=\"spinner\"></div></div></div>";
-  try{
-    var res=await Promise.all([rSheet("Insurance_Recommendations!A2:K"),rSheet("Replacement_Business!A2:J"),rSheet("RWL_Log!A2:H"),rSheet("Insurance_Complaints!A2:J")]);
-    var rec=res[0],rep=res[1],rwl=res[2],cmp=res[3];
-    var openCmp=cmp.filter(function(r){return r[8]&&!r[8].toLowerCase().includes("closed");}).length;
-    var pendRep=rep.filter(function(r){return r[7]&&r[7].toLowerCase().includes("pending");}).length;
-    document.getElementById("sg").innerHTML=
-      "<div class=\"sc\"><div class=\"sl\">Recommendations</div><div class=\"sv\">"+rec.length+"</div><div class=\"ss\">All products</div></div>"+
-      "<div class=\"sc a\"><div class=\"sl\">Replacements</div><div class=\"sv\">"+rep.length+"</div><div class=\"ss\">"+pendRep+" pending CCO</div></div>"+
-      "<div class=\"sc t\"><div class=\"sl\">RWLs Generated</div><div class=\"sv\">"+rwl.length+"</div><div class=\"ss\">Reason Why Letters</div></div>"+
-      "<div class=\"sc g\"><div class=\"sl\">Open Complaints</div><div class=\"sv\">"+openCmp+"</div><div class=\"ss\">"+cmp.length+" total logged</div></div>";
-    var rr=rec.slice(-5).reverse().map(function(r){return "<tr><td>"+(r[0]||"&mdash;")+"</td><td>"+(r[1]||"&mdash;")+"</td><td>"+(r[2]||"&mdash;")+"</td><td>"+(r[4]||"&mdash;")+"</td><td>"+bdg(r[8])+"</td></tr>";}).join("");
-    document.getElementById("dg").innerHTML=
-      "<div class=\"card\"><div class=\"ch\"><h3>Recent Recommendations</h3><button class=\"btn bs bsm\" onclick=\"go('lrec')\">+ Log</button></div><div class=\"cb\">"+(rec.length===0?"<div class=\"empty\"><p>No entries yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Date</th><th>Advisor</th><th>Client</th><th>Product</th><th>RWL</th></tr></thead><tbody>"+rr+"</tbody></table></div>")+"</div></div>"+
-      "<div class=\"card\"><div class=\"ch\"><h3>Quick Actions</h3></div><div class=\"cb\"><div class=\"btn-row\" style=\"flex-wrap:wrap\"><button class=\"btn bp\" onclick=\"go('gina')\">New INA</button><button class=\"btn bp\" onclick=\"go('grwl')\">New RWL</button><button class=\"btn bs\" onclick=\"go('lrec')\">Log Rec</button><button class=\"btn bs\" onclick=\"go('lrep')\">Log Replacement</button></div></div></div>";
-  }catch(e){document.getElementById("sg").innerHTML="<div class=\"al ale\" style=\"grid-column:span 4\">&mdash; "+e.message+"</div>";}
-}
 
-async function rReg(title,sheet,cols){
-  var el=document.getElementById("mc");
-  el.innerHTML="<div class=\"ph\"><div class=\"bc\">Registers</div><h1>"+title+"</h1></div><div class=\"card\"><div class=\"ch\"><h3>All Entries</h3><span style=\"font-size:11.5px;color:var(--muted)\" id=\"ec\">Loading&hellip;</span></div><div class=\"cb\" id=\"rt\"><div class=\"loading\"><div class=\"spinner\"></div>Fetching&hellip;</div></div></div>";
-  try{
-    var maxC=String.fromCharCode(64+Math.min(cols.length,26));
-    var rows=await rSheet(sheet+"!A2:"+maxC);
-    document.getElementById("ec").textContent=rows.length+" entries";
-    if(rows.length===0){document.getElementById("rt").innerHTML="<div class=\"empty\"><p>No entries yet</p></div>";return;}
-    var sc=["RWL?","INA?","CCO?","CCO Approved?","Declaration?","IF Delivered?","Fund Facts?","Assessment?","E&O?","OLHI?","Pass/Fail","Filed"];
-    var th="<tr>"+cols.map(function(c){return "<th>"+c+"</th>";}).join("")+"</tr>";
-    var tb=rows.map(function(r){return "<tr>"+cols.map(function(_,i){var v=r[i]||"";return "<td>"+(v?(sc.includes(cols[i])?bdg(v):v):"&mdash;")+"</td>";}).join("")+"</tr>";}).join("");
-    document.getElementById("rt").innerHTML="<div class=\"tw\"><table><thead>"+th+"</thead><tbody>"+tb+"</tbody></table></div>";
-  }catch(e){document.getElementById("rt").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
-}
 
 function makePDF(title,ref,sections){
   var J=window.jspdf;
@@ -710,7 +976,7 @@ async function genINAPDF(){
   var total=doc.getNumberOfPages();for(var pi=1;pi<=total;pi++){doc.setPage(pi);dF(pi,total);}
   doc.save("INA-"+_ref+"-"+cn.replace(/\s/g,"-")+".pdf");
   toast("INA PDF generated","pdf");
-  try{aRow("Insurance_Recommendations",[_D["fdt"]||TODAY,adv,cn,_D["fprov"]||"Ontario","Insurance Needs Analysis","Multiple carriers",fmt(r.lN)+" term","See INA","Pending","Generated - "+_ref,"Pending CCO review"]);}catch(e){console.log("Sheet log:",e.message);}
+  try{doInsertRec({date:_D["fdt"]||TODAY,advisor_name:adv,client_name:cn,province:_D["fprov"]||"Ontario",product_type:"Insurance Needs Analysis",carrier:"Multiple carriers",coverage_amount:fmt(r.lN)+" term",annual_premium:"See INA",rwl_generated:"Pending",ina_generated:"Generated - "+_ref,cco_reviewed:"Pending CCO review"});}catch(e){console.log("Sheet log:",e.message);}
 }
 
 
@@ -989,9 +1255,9 @@ async function genRWL(){
     // Log to RWL_Log
     var needsShort=needsList.slice(0,3).join("; ")+(needsList.length>3?" + more":"");
     var altsShort=alts.map(function(a){return a[0];}).join("; ")||"None documented";
-    await aRow("RWL_Log",[dat,adv,cli,prod,ref,altsShort,"Generated","Pending"]);
+    await doInsertRWL({date:dat,advisor_name:adv,client_name:cli,product_recommended:prod,rwl_reference:ref,alternatives:altsShort,pdf_generated:"Generated",filed_to_sharepoint:"Pending",ina_reference:inaRef});
     // Log to Insurance_Recommendations
-    await aRow("Insurance_Recommendations",[dat,adv,cli,gv("rprov"),prod,car,amt,gv("rprem")||"","Generated \u2014 "+ref,inaRef!=="N/A"?"Yes \u2014 INA "+inaRef:"Pending","Pending CCO review"]);
+    await doInsertRec({date:dat,advisor_name:adv,client_name:cli,province:gv("rprov"),product_type:prod,carrier:car,coverage_amount:amt,annual_premium:gv("rprem")||"",rwl_generated:"Generated - "+ref,ina_generated:inaRef!=="N/A"?"Yes - INA "+inaRef:"Pending",cco_reviewed:"Pending CCO review"});
     toast("\u2713 RWL generated and logged","pdf");
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">\u26a0\ufe0f "+e.message+"</div>";}
 }
@@ -1219,8 +1485,8 @@ async function genSegFund() {
   try{
     var pdf=makePDF("SEG FUND SUITABILITY ASSESSMENT",ref,sections);
     pdf.save("SFA-"+ref+"-"+cli.replace(/\s/g,"-")+".pdf");
-    await aRow("SegFund_Suitability",[dat,adv,cli,fund,car,gv("sfguar"),gv("sfif"),gv("sfff"),"Generated \u2014 "+ref,gv("sfcco")]);
-    await aRow("Insurance_Recommendations",[dat,adv,cli,gv("sfprov"),"Segregated Fund \u2014 "+fund,car,gv("sfamt")||"","See assessment","Pending",inaRef!=="N/A"?"Yes \u2014 INA "+inaRef:"Pending",gv("sfcco")]);
+    await doInsertSeg({date:dat,advisor_name:adv,client_name:cli,fund_name:fund,carrier:car,guarantee_level:gv("sfguar"),if_delivered:gv("sfif"),fund_facts:gv("sfff"),assessment_ref:"Generated - "+ref,cco_reviewed:gv("sfcco"),ina_reference:inaRef});
+    await doInsertRec({date:dat,advisor_name:adv,client_name:cli,province:gv("sfprov"),product_type:"Segregated Fund - "+fund,carrier:car,coverage_amount:gv("sfamt")||"",annual_premium:"See assessment",rwl_generated:"Pending",ina_generated:inaRef!=="N/A"?"Yes - INA "+inaRef:"Pending",cco_reviewed:gv("sfcco")});
     toast("\u2713 Seg Fund Assessment generated and logged","pdf");
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">\u26a0\ufe0f "+e.message+"</div>";}
 }
@@ -1270,7 +1536,7 @@ async function genReplacement(){
   try{
     var pdf=makePDF("REPLACEMENT DECLARATION",ref,sections);
     pdf.save("REP-"+ref+"-"+cli.replace(/\s/g,"-")+".pdf");
-    await aRow("Replacement_Business",[dat,adv,cli,nc,ec,gv("rpep"),gv("rpact"),"Pending CCO","Generated - "+ref,"Pending"]);
+    await doInsertRep({date:dat,advisor_name:adv,client_name:cli,replacing_carrier:nc,existing_carrier:ec,existing_policy_num:gv("rpep"),replacement_type:gv("rpact"),cco_approved:"Pending CCO",declaration_signed:"Generated - "+ref,status:"Pending"});
     toast("Replacement Declaration generated and logged","pdf");
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">"+e.message+"</div>";}
 }
@@ -1342,7 +1608,7 @@ async function sLogRec(){
   var d=gv("lrdat"),a=gv("lradv"),c=gv("lrcli"),p=gv("lrprod");
   if(!d||!a||!c||!p){document.getElementById("fa").innerHTML="<div class=\"al ale\">Complete required fields.</div>";return;}
   var btn=document.getElementById("sblr");btn.disabled=true;btn.textContent="Logging...";
-  try{await aRow("Insurance_Recommendations",[d,a,c,gv("lrprov"),p,gv("lrcar"),gv("lramt"),gv("lrprem"),gv("lrrwl"),gv("lrina"),gv("lrcco")]);toast("Recommendation logged");fLogRec();}
+  try{await doInsertRec({date:d,advisor_name:a,client_name:c,province:gv("lrprov"),product_type:p,carrier:gv("lrcar"),coverage_amount:gv("lramt"),annual_premium:gv("lrprem"),rwl_generated:gv("lrrwl"),ina_generated:gv("lrina"),cco_reviewed:gv("lrcco")});toast("Recommendation logged");fLogRec();}
   catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">"+e.message+"</div>";btn.disabled=false;btn.textContent="Log Recommendation";}
 }
 
@@ -1368,7 +1634,7 @@ async function sLogRep(){
   var d=gv("rrdat"),a=gv("rradv"),c=gv("rrcli"),n=gv("rrnew"),o=gv("rrold");
   if(!d||!a||!c||!n||!o){document.getElementById("fa").innerHTML="<div class=\"al ale\">Complete required fields.</div>";return;}
   var btn=document.getElementById("sbrr");btn.disabled=true;btn.textContent="Logging...";
-  try{await aRow("Replacement_Business",[d,a,c,n,o,gv("rrpol"),gv("rrtyp"),gv("rrcco"),gv("rrdec"),gv("rrstat")]);toast("Replacement logged");fLogRep();}
+  try{await doInsertRep({date:d,advisor_name:a,client_name:c,replacing_carrier:n,existing_carrier:o,existing_policy_num:gv("rrpol"),replacement_type:gv("rrtyp"),cco_approved:gv("rrcco"),declaration_signed:gv("rrdec"),status:gv("rrstat")});toast("Replacement logged");fLogRep();}
   catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">"+e.message+"</div>";btn.disabled=false;btn.textContent="Log Replacement";}
 }
 
@@ -1395,7 +1661,7 @@ async function sLogCmp(){
   var r2=gv("icref"),d=gv("icdat"),c=gv("iccli"),n=gv("icnat");
   if(!r2||!d||!c||!n){document.getElementById("fa").innerHTML="<div class=\"al ale\">Complete required fields.</div>";return;}
   var btn=document.getElementById("sbic");btn.disabled=true;btn.textContent="Logging...";
-  try{await aRow("Insurance_Complaints",[r2,d,c,gv("icadv"),n,gv("icprov"),gv("iceo"),gv("icolhi"),gv("icstat"),gv("icres")]);toast("Complaint logged");fLogCmp();}
+  try{await doInsertCmp({ref_number:r2,date_received:d,client_name:c,advisor_name:gv("icadv"),nature:n,province:gv("icprov"),eo_notified:gv("iceo"),olhi_referred:gv("icolhi"),status:gv("icstat"),resolution:gv("icres")});toast("Complaint logged");fLogCmp();}
   catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">"+e.message+"</div>";btn.disabled=false;btn.textContent="Log Complaint";}
 }
 
@@ -1418,11 +1684,11 @@ async function sLogTrn(){
   var d=gv("itdat"),a=gv("itadv"),m=gv("itmod");
   if(!d||!a||!m){document.getElementById("fa").innerHTML="<div class=\"al ale\">Complete required fields.</div>";return;}
   var btn=document.getElementById("sbit");btn.disabled=true;btn.textContent="Logging...";
-  try{await aRow("Insurance_Training",[d,a,m,gv("itprov"),gv("ithrs"),gv("itsco")?gv("itsco")+"%":"",gv("itpf"),gv("itcred")||"0",gv("itcert")]);toast("Training logged");fLogTrn();}
+  try{await doInsertTrn({date:d,advisor_name:a,module:m,province_ce:gv("itprov"),hours:parseFloat(gv("ithrs"))||null,score:gv("itsco")?gv("itsco")+"%":"",pass_fail:gv("itpf"),ce_credits:parseFloat(gv("itcred"))||null,certificate_num:gv("itcert")});toast("Training logged");fLogTrn();}
   catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">"+e.message+"</div>";btn.disabled=false;btn.textContent="Log Training";}
 }
 
-rDash();
+initSession();
 </script>
 </body>
 </html>
