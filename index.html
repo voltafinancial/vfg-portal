@@ -184,7 +184,10 @@ async function sbSignOut(){
   _session=null;_profile=null;localStorage.removeItem("vfg_inv_session");showLogin();
 }
 async function sbGetProfile(uid){
-  var r=await sbFetch("/rest/v1/profiles?id=eq."+uid+"&select=*");
+  var token=_session?_session.access_token:SUPA_ANON;
+  var r=await fetch(SUPA_URL+"/rest/v1/profiles?id=eq."+uid+"&select=*",{
+    headers:{"apikey":SUPA_ANON,"Authorization":"Bearer "+token,"Content-Type":"application/json"}
+  });
   var d=await r.json();return d[0]||null;
 }
 async function sbInsert(table,row){
