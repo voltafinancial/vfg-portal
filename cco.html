@@ -3,471 +3,571 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VFG CCO Master Compliance Portal</title>
+<title>VFG CCO Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--vault:#042825;--vl:#0a3d39;--vd:#021a18;--parch:#F7F0E0;--pd:#ede4ce;--bed:#BFAA8E;--steel:#ADC1C2;--wh:#ffffff;--tx:#1a1a1a;--muted:#6b6b6b;--ok:#2d7a4f;--warn:#b8860b;--err:#8b2020;--bdr:rgba(4,40,37,.12);--shad:0 2px 16px rgba(4,40,37,.08);--ins:#1a3a5c;--ins-light:#2a5a8c;}
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{font-family:'DM Sans',sans-serif;background:#eae4d4;color:var(--tx);min-height:100vh;display:flex;flex-direction:column;}
-  header{background:var(--vault);color:var(--wh);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,.4);}
-  .hb{display:flex;align-items:center;gap:14px;}
-  .ht span:first-child{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;letter-spacing:.04em;display:block;line-height:1.1;}
-  .ht span:last-child{font-size:9px;color:var(--bed);letter-spacing:.18em;text-transform:uppercase;}
-  .hr{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--bed);}
-  .cco-badge{background:rgba(191,170,142,.25);border:1px solid rgba(191,170,142,.4);color:var(--bed);padding:3px 10px;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
-  .dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-  .app{display:flex;flex:1;}
-  nav{width:230px;background:var(--vd);flex-shrink:0;padding:20px 0;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
-  .ns{padding:0 16px 6px;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(191,170,142,.4);margin-top:16px;}
-  .ns:first-child{margin-top:0;}
-  .ns.ins{color:rgba(42,90,140,.7);}
-  nav a{display:flex;align-items:center;gap:9px;padding:8px 16px;color:rgba(247,240,224,.55);text-decoration:none;font-size:12.5px;cursor:pointer;transition:all .15s;border-left:2px solid transparent;margin:0 8px;border-radius:4px;}
-  nav a:hover{background:rgba(247,240,224,.07);color:var(--parch);}
-  nav a.active{background:rgba(191,170,142,.15);color:var(--parch);border-left-color:var(--bed);font-weight:500;}
-  nav a.ins-link{color:rgba(173,210,255,.55);}
-  nav a.ins-link:hover{background:rgba(42,90,140,.15);color:rgba(173,210,255,.9);}
-  nav a.ins-link.active{background:rgba(42,90,140,.2);color:rgba(173,210,255,.95);border-left-color:var(--steel);}
-  main{flex:1;padding:28px 36px;overflow-y:auto;}
-  .ph{margin-bottom:24px;}
-  .ph h1{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;color:var(--vault);}
-  .ph p{font-size:12.5px;color:var(--muted);margin-top:4px;}
-  .bc{font-size:10px;color:var(--bed);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase;}
-  .card{background:var(--wh);border-radius:8px;box-shadow:var(--shad);border:1px solid var(--bdr);overflow:hidden;margin-bottom:20px;}
-  .ch{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
-  .ch h3{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--vault);}
-  .ch.ins-ch{background:rgba(26,58,92,.04);border-bottom-color:rgba(26,58,92,.15);}
-  .ch.ins-ch h3{color:var(--ins);}
-  .cb{padding:20px;}
-  .fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .fg.t{grid-template-columns:1fr 1fr 1fr;}
-  .fgrp{display:flex;flex-direction:column;gap:4px;}
-  .fgrp.s2{grid-column:span 2;}
-  label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--vault);}
-  input,select,textarea{font-family:'DM Sans',sans-serif;font-size:12.5px;padding:8px 11px;border:1px solid rgba(4,40,37,.2);border-radius:5px;background:var(--wh);color:var(--tx);transition:border-color .15s;outline:none;width:100%;}
-  input:focus,select:focus,textarea:focus{border-color:var(--vault);box-shadow:0 0 0 3px rgba(4,40,37,.07);}
-  textarea{resize:vertical;min-height:72px;}
-  .btn{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;padding:8px 18px;border-radius:5px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
-  .bp{background:var(--vault);color:var(--wh);}
-  .bp:hover{background:var(--vl);}
-  .bp:disabled{opacity:.5;cursor:not-allowed;}
-  .bs{background:var(--parch);color:var(--vault);border:1px solid var(--bdr);}
-  .bs:hover{background:var(--pd);}
-  .bsm{padding:5px 12px;font-size:11.5px;}
-  .tw{overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;font-size:12px;}
-  th{text-align:left;padding:9px 12px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--vault);background:var(--parch);border-bottom:2px solid var(--vault);}
-  th.ins{color:var(--ins);background:rgba(173,210,255,.12);border-bottom-color:var(--ins);}
-  td{padding:9px 12px;border-bottom:1px solid rgba(4,40,37,.07);vertical-align:top;}
-  tr:hover td{background:rgba(247,240,224,.5);}
-  .b{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
-  .bg{background:rgba(45,122,79,.12);color:var(--ok);}
-  .ba{background:rgba(184,134,11,.12);color:var(--warn);}
-  .br{background:rgba(139,32,32,.12);color:var(--err);}
-  .bb{background:rgba(173,193,194,.3);color:#2a5f62;}
-  .bx{background:rgba(0,0,0,.06);color:var(--muted);}
-  .loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);font-size:12.5px;gap:10px;}
-  .spinner{width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--vault);border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .dg2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
-  .dg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
-  .empty{text-align:center;padding:32px 20px;color:var(--muted);}
-  .empty h4{font-size:13px;font-weight:500;margin-bottom:3px;}
-  .notice{background:var(--parch);border:1px solid rgba(191,170,142,.4);border-radius:6px;padding:11px 14px;font-size:12px;color:#4a3d28;line-height:1.5;margin-bottom:16px;}
-  .sdiv{font-family:'Cormorant Garamond',serif;font-size:12.5px;font-weight:600;color:var(--vault);letter-spacing:.06em;text-transform:uppercase;padding:0 0 7px;border-bottom:1px solid var(--bdr);margin:22px 0 14px;}
-  .sdiv:first-child{margin-top:0;}
-  .sdiv.ins{color:var(--ins);border-bottom-color:rgba(26,58,92,.2);}
-  #toast{position:fixed;bottom:22px;right:22px;background:var(--vault);color:var(--wh);padding:11px 18px;border-radius:6px;font-size:12.5px;box-shadow:0 8px 40px rgba(4,40,37,.14);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:320px;}
-  #toast.show{transform:translateY(0);opacity:1;}
-  #toast.error{background:var(--err);}
-
-  /* STAT GRIDS */
-  .sg-inv{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px;}
-  .sg-ins{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-  .sc{background:var(--wh);border-radius:8px;padding:14px 16px;border:1px solid var(--bdr);box-shadow:var(--shad);position:relative;overflow:hidden;}
-  .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--vault);}
-  .sc.a::before{background:var(--bed);}
-  .sc.t::before{background:var(--steel);}
-  .sc.g::before{background:var(--ok);}
-  .sc.r::before{background:var(--err);}
-  .sc.ins::before{background:var(--ins);}
-  .sc.ins-t::before{background:var(--steel);}
-  .sl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:5px;}
-  .sv{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--vault);line-height:1;}
-  .sc.ins .sv,.sc.ins-t .sv{color:var(--ins);}
-  .ss{font-size:10px;color:var(--muted);margin-top:4px;}
-
-  /* HEALTH INDICATOR */
-  .health-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-  .health-card{background:var(--wh);border-radius:8px;padding:16px;border:1px solid var(--bdr);text-align:center;}
-  .health-score{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;line-height:1;margin:8px 0 4px;}
-  .health-score.green{color:var(--ok);}
-  .health-score.amber{color:var(--warn);}
-  .health-score.red{color:var(--err);}
-  .health-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);}
-  .health-detail{font-size:11px;color:var(--muted);margin-top:4px;}
-
-  /* SECTION DIVIDER WITH LABEL */
-  .section-band{background:var(--vault);color:var(--wh);padding:8px 20px;margin:-20px -20px 20px;font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
-  .section-band.ins{background:var(--ins);}
-
-  /* TABS */
-  .tabs{display:flex;gap:2px;margin-bottom:20px;border-bottom:2px solid var(--bdr);}
-  .tab{padding:8px 18px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;}
-  .tab:hover{color:var(--vault);}
-  .tab.active{color:var(--vault);border-bottom-color:var(--vault);font-weight:600;}
-  .tab.ins.active{color:var(--ins);border-bottom-color:var(--ins);}
-
-  .advisor-card{background:var(--wh);border-radius:8px;border:1px solid var(--bdr);padding:18px;box-shadow:var(--shad);cursor:pointer;transition:all .15s;}
-  .advisor-card:hover{box-shadow:0 4px 24px rgba(4,40,37,.12);transform:translateY(-1px);}
-  .advisor-name{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:var(--vault);margin-bottom:3px;}
-  .advisor-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;}
-  .advisor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
-  .licence-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(4,40,37,.06);font-size:12.5px;}
-  .licence-row:last-child{border-bottom:none;}
-  .licence-label{color:var(--muted);font-size:11.5px;width:180px;flex-shrink:0;}
-  .licence-value{flex:1;font-weight:500;}
-  .expiry-badge{padding:3px 8px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;}
-  .exp-ok{background:rgba(45,122,79,.12);color:var(--ok);}
-  .exp-warn90{background:rgba(184,134,11,.12);color:var(--warn);}
-  .exp-warn30{background:rgba(139,32,32,.12);color:var(--err);}
-  .exp-expired{background:var(--err);color:var(--wh);}
-  .alert-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:6px;margin-bottom:8px;border:1px solid;}
-  .alert-critical{background:rgba(139,32,32,.08);border-color:rgba(139,32,32,.2);}
-  .alert-warning{background:rgba(184,134,11,.08);border-color:rgba(184,134,11,.2);}
-  .alert-notice{background:rgba(173,193,194,.15);border-color:rgba(173,193,194,.3);}
-  .days-chip{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;min-width:48px;text-align:center;}
-  .days-chip.red{color:var(--err);}
-  .days-chip.amber{color:var(--warn);}
-  .days-chip.teal{color:var(--steel);}
+:root{--vault:#042825;--vl:#0a3d39;--vd:#021a18;--parch:#F7F0E0;--pd:#ede4ce;--bed:#BFAA8E;--steel:#ADC1C2;--wh:#ffffff;--tx:#1a1a1a;--muted:#6b6b6b;--ok:#2d7a4f;--warn:#b8860b;--err:#8b2020;--bdr:rgba(4,40,37,.12);--shad:0 2px 16px rgba(4,40,37,.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:#f0ead8;color:var(--tx);min-height:100vh;}
+.login-box{background:var(--wh);border-radius:12px;padding:40px 44px;width:420px;box-shadow:0 20px 80px rgba(0,0,0,.4);}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.login-box h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--vault);margin-bottom:6px;}
+.login-box p{font-size:12.5px;color:var(--muted);margin-bottom:24px;}
+.login-fgrp{display:flex;flex-direction:column;gap:5px;margin-bottom:16px;}
+.login-fgrp label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--vault);}
+.login-fgrp input{font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 13px;border:1px solid rgba(4,40,37,.2);border-radius:6px;outline:none;transition:border-color .15s;}
+.login-fgrp input:focus{border-color:var(--vault);box-shadow:0 0 0 3px rgba(4,40,37,.07);}
+.login-btn{width:100%;padding:11px;background:var(--vault);color:var(--wh);border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s;}
+.login-btn:hover{background:var(--vl);}.login-btn:disabled{opacity:.6;cursor:not-allowed;}
+.login-err{background:rgba(139,32,32,.1);border-left:3px solid var(--err);color:#4a1a1a;padding:10px 13px;border-radius:5px;font-size:12.5px;margin-bottom:14px;}
+.login-forgot{text-align:center;margin-top:14px;font-size:12px;color:var(--muted);}
+.login-forgot a{color:var(--vault);text-decoration:none;font-weight:500;}
+.login-badge{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:20px;font-size:11px;color:var(--muted);}
+.cco-badge{background:rgba(139,32,32,.08);border:1px solid rgba(139,32,32,.2);color:var(--err);padding:8px 12px;border-radius:5px;font-size:12px;text-align:center;margin-bottom:20px;font-weight:600;}
+header{background:var(--vault);color:var(--wh);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.3);}
+.hb{display:flex;align-items:center;gap:12px;}
+.ht span:first-child{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;letter-spacing:.04em;display:block;line-height:1.1;}
+.ht span:last-child{font-size:9px;color:var(--bed);letter-spacing:.14em;text-transform:uppercase;}
+.dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.signout-btn{background:none;border:1px solid rgba(191,170,142,.4);color:var(--bed);padding:5px 12px;border-radius:4px;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.signout-btn:hover{background:rgba(247,240,224,.1);}
+nav{width:230px;background:var(--vd);flex-shrink:0;padding:20px 0;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+.ns{padding:0 14px 6px;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(191,170,142,.45);margin-top:14px;}
+.ns:first-child{margin-top:0;}
+nav a{display:flex;align-items:center;gap:9px;padding:8px 14px;color:rgba(247,240,224,.6);text-decoration:none;font-size:12.5px;cursor:pointer;transition:all .15s;border-left:2px solid transparent;margin:0 6px;border-radius:4px;}
+nav a:hover{background:rgba(247,240,224,.07);color:var(--parch);}
+nav a.active{background:rgba(191,170,142,.15);color:var(--parch);border-left-color:var(--bed);font-weight:500;}
+main{flex:1;padding:28px 32px;overflow-y:auto;}
+.ph{margin-bottom:22px;}.ph h1{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--vault);}
+.ph p{font-size:12.5px;color:var(--muted);margin-top:3px;}
+.bc{font-size:10px;color:var(--bed);margin-bottom:6px;letter-spacing:.06em;text-transform:uppercase;}
+.card{background:var(--wh);border-radius:8px;box-shadow:var(--shad);border:1px solid var(--bdr);overflow:hidden;margin-bottom:20px;}
+.ch{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
+.ch h3{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--vault);}
+.cb{padding:18px;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.fg.t{grid-template-columns:1fr 1fr 1fr;}
+.fgrp{display:flex;flex-direction:column;gap:4px;}.fgrp.s2{grid-column:span 2;}
+label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--vault);}
+input,select,textarea{font-family:'DM Sans',sans-serif;font-size:12.5px;padding:8px 11px;border:1px solid rgba(4,40,37,.2);border-radius:5px;background:var(--wh);color:var(--tx);transition:border-color .15s;outline:none;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--vault);box-shadow:0 0 0 3px rgba(4,40,37,.07);}
+textarea{resize:vertical;min-height:80px;}
+.btn{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;padding:8px 18px;border-radius:5px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.bp{background:var(--vault);color:var(--wh);}.bp:hover{background:var(--vl);}.bp:disabled{opacity:.5;cursor:not-allowed;}
+.bs{background:var(--parch);color:var(--vault);border:1px solid var(--bdr);}.bs:hover{background:var(--pd);}
+.bdanger{background:rgba(139,32,32,.1);color:var(--err);border:1px solid rgba(139,32,32,.3);}
+.bdanger:hover{background:rgba(139,32,32,.18);}
+.bsm{padding:5px 11px;font-size:11.5px;}
+.tw{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;padding:9px 12px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--vault);background:var(--parch);border-bottom:2px solid var(--vault);}
+td{padding:9px 12px;border-bottom:1px solid rgba(4,40,37,.07);vertical-align:top;}
+tr:hover td{background:rgba(247,240,224,.5);}
+.b{display:inline-flex;align-items:center;padding:2px 7px;border-radius:3px;font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+.bg{background:rgba(45,122,79,.12);color:var(--ok);}.ba{background:rgba(184,134,11,.12);color:var(--warn);}
+.br{background:rgba(139,32,32,.12);color:var(--err);}.bb{background:rgba(173,193,194,.3);color:#2a5f62;}.bx{background:rgba(0,0,0,.06);color:var(--muted);}
+.al{padding:11px 14px;border-radius:6px;font-size:12.5px;margin-bottom:14px;}
+.ale{background:rgba(139,32,32,.1);border-left:3px solid var(--err);color:#4a1a1a;}
+.als{background:rgba(45,122,79,.1);border-left:3px solid var(--ok);color:#1a4a2e;}
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--muted);font-size:12.5px;gap:10px;}
+.spinner{width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--vault);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.sc{background:var(--wh);border-radius:8px;padding:16px;border:1px solid var(--bdr);box-shadow:var(--shad);position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--vault);}
+.sc.a::before{background:var(--bed);}.sc.t::before{background:var(--steel);}.sc.g::before{background:var(--ok);}
+.sl{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;}
+.sv{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--vault);line-height:1;}
+.ss{font-size:10.5px;color:var(--muted);margin-top:4px;}
+.notice{background:var(--parch);border:1px solid rgba(191,170,142,.4);border-radius:6px;padding:11px 14px;font-size:12px;color:#4a3d28;line-height:1.5;margin-bottom:18px;}
+.sdiv{font-family:'Cormorant Garamond',serif;font-size:12.5px;font-weight:600;color:var(--vault);letter-spacing:.06em;text-transform:uppercase;padding:0 0 7px;border-bottom:1px solid var(--bdr);margin:22px 0 14px;}
+.sdiv:first-child{margin-top:0;}
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+.empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.health-bar{height:8px;border-radius:4px;background:var(--bdr);overflow:hidden;margin:8px 0;}
+.health-fill{height:100%;border-radius:4px;transition:width .5s;}
+.advisor-card{background:var(--wh);border:1px solid var(--bdr);border-radius:8px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.advisor-card:hover{box-shadow:var(--shad);}
+.exp-chip{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.exp-ok{background:rgba(45,122,79,.1);color:var(--ok);}
+.exp-warn{background:rgba(184,134,11,.12);color:var(--warn);}
+.exp-danger{background:rgba(139,32,32,.12);color:var(--err);}
+#toast{position:fixed;bottom:22px;right:22px;background:var(--vault);color:var(--wh);padding:11px 18px;border-radius:6px;font-size:12.5px;box-shadow:0 8px 40px rgba(4,40,37,.14);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:320px;}
+#toast.show{transform:translateY(0);opacity:1;}#toast.error{background:var(--err);}#toast.pdf{background:var(--ok);}
 </style>
 </head>
 <body>
-<header>
-  <div class="hb">
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-      <polygon points="2,3 9,3 18,28 27,3 34,3 18,32" fill="#F7F0E0" opacity=".08"/>
-      <polygon points="4,3 8,3 18,27 28,3 32,3 18,31" fill="none" stroke="#F7F0E0" stroke-width="1.2"/>
-      <polygon points="8,3 12,3 18,21 24,3 28,3 18,24" fill="none" stroke="#BFAA8E" stroke-width="1"/>
-    </svg>
-    <div class="ht">
-      <span>Volta Financial Group</span>
-      <span>CCO Master Compliance Portal</span>
+
+<!-- LOGIN -->
+<div id="login-screen" style="display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--vd);">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="36" height="36" viewBox="0 0 32 32" fill="none">
+        <polygon points="2,3 8,3 16,25 24,3 30,3 16,30" fill="#042825" opacity=".15"/>
+        <polygon points="4,3 7,3 16,26 25,3 28,3 16,29" fill="none" stroke="#042825" stroke-width="1.1"/>
+        <polygon points="7,3 10,3 16,20 22,3 25,3 16,23" fill="none" stroke="#BFAA8E" stroke-width=".9"/>
+      </svg>
+      <div class="ht"><span>Volta Financial Group</span><span>CCO Compliance Portal</span></div>
+    </div>
+    <div class="cco-badge">&#128274; CCO &amp; Compliance Officers Only</div>
+    <h2>CCO Sign In</h2>
+    <p>This portal is restricted to the Chief Compliance Officer and authorized compliance staff.</p>
+    <div id="li-err" class="login-err" style="display:none"></div>
+    <form onsubmit="handleLogin(event)">
+      <div class="login-fgrp"><label>CCO Email Address</label><input type="email" id="li-email" placeholder="cco@voltafinancial.ca" autocomplete="email" required></div>
+      <div class="login-fgrp"><label>Password</label><input type="password" id="li-pass" placeholder="CCO password" autocomplete="current-password" required></div>
+      <button type="submit" class="login-btn" id="li-btn">Sign In to CCO Portal</button>
+    </form>
+    <div class="login-forgot"><a href="#" onclick="showReset();return false;">Forgot your password?</a></div>
+    <div id="reset-form" style="display:none;margin-top:16px;">
+      <div class="login-fgrp"><label>Email for password reset</label><input type="email" id="li-reset-email" placeholder="cco@voltafinancial.ca"></div>
+      <button class="login-btn" style="background:var(--bed);color:var(--vault)" onclick="sendReset()">Send Reset Link</button>
+    </div>
+    <div class="login-badge">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      CCO access only &mdash; Supabase Auth &mdash; Canada (Central)
     </div>
   </div>
-  <div class="hr">
-    <span class="cco-badge">CCO Access</span>
-    <span style="margin:0 6px;opacity:.3">|</span>
-    <div class="dot"></div><span>Live — All Registers</span>
-    <span style="margin:0 10px;opacity:.3">|</span>
+</div>
+<div id="reset-success" style="display:none;position:fixed;top:20px;right:20px;background:var(--ok);color:#fff;padding:12px 20px;border-radius:6px;font-size:13px;z-index:9999;">Reset link sent &mdash; check your email.</div>
+
+<!-- APP SHELL -->
+<div id="app-shell" style="display:none;flex-direction:column;min-height:100vh;">
+<header>
+  <div class="hb">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <polygon points="2,3 8,3 16,25 24,3 30,3 16,30" fill="#F7F0E0" opacity=".1"/>
+      <polygon points="4,3 7,3 16,26 25,3 28,3 16,29" fill="none" stroke="#F7F0E0" stroke-width="1.1"/>
+      <polygon points="7,3 10,3 16,20 22,3 25,3 16,23" fill="none" stroke="#BFAA8E" stroke-width=".9"/>
+    </svg>
+    <div class="ht"><span>Volta Financial Group</span><span>CCO Compliance Portal</span></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--bed);">
+    <div class="dot"></div>
+    <span id="user-name"></span>
+    <span style="opacity:.4">|</span>
     <span id="hdate"></span>
+    <button class="signout-btn" onclick="sbSignOut()">Sign Out</button>
   </div>
 </header>
-
-<div class="app">
+<div style="display:flex;flex:1;">
 <nav>
   <div class="ns">Overview</div>
-  <a onclick="go('dash')" id="n-dash" class="active">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Master Dashboard</a>
-  <a onclick="go('health')" id="n-health">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Compliance Health</a>
-
+  <a onclick="go('dash')" id="n-dash" class="active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+  <div class="ns">Insurance Registers</div>
+  <a onclick="go('ins-rec')" id="n-ins-rec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Recommendations</a>
+  <a onclick="go('ins-rep')" id="n-ins-rep"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Replacement Business</a>
+  <a onclick="go('ins-rwl')" id="n-ins-rwl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>RWL Log</a>
+  <a onclick="go('ins-seg')" id="n-ins-seg"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Seg Fund Log</a>
+  <a onclick="go('ins-cmp')" id="n-ins-cmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Complaints</a>
+  <a onclick="go('ins-trn')" id="n-ins-trn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Training</a>
   <div class="ns">Investment Registers</div>
-  <a onclick="go('vcoi')" id="n-vcoi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>COI Register</a>
-  <a onclick="go('vgift')" id="n-vgift"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v10H4V12"/><path d="M22 7H2v5h20V7z"/></svg>Gifts & Entertainment</a>
-  <a onclick="go('voba')" id="n-voba"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>OBA Register</a>
-  <a onclick="go('vtrn')" id="n-vtrn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Training Register</a>
-  <a onclick="go('vsup')" id="n-vsup"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Supervision Reports</a>
-  <a onclick="go('vcmp')" id="n-vcmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Investment Complaints</a>
-  <a onclick="go('vref')" id="n-vref"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Referral Register</a>
-  <a onclick="go('vsoc')" id="n-vsoc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/></svg>Social Media Log</a>
-  <a onclick="go('vptrd')" id="n-vptrd"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Personal Trading Log</a>
-
-  <div class="ns ins">Insurance Registers</div>
-  <a onclick="go('virec')" id="n-virec" class="ins-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Recommendations</a>
-  <a onclick="go('virep')" id="n-virep" class="ins-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/></svg>Replacement Business</a>
-  <a onclick="go('virwl')" id="n-virwl" class="ins-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>RWL Log</a>
-  <a onclick="go('viseg')" id="n-viseg" class="ins-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Seg Fund Log</a>
-  <a onclick="go('vicmp')" id="n-vicmp" class="ins-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Insurance Complaints</a>
-  <a onclick="go('vitrn')" id="n-vitrn" class="ins-link"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/></svg>Insurance Training</a>
-
-
-  <div class="ns">Advisor Registry</div>
-  <a onclick="go('registry')" id="n-registry">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Advisor Profiles</a>
-  <a onclick="go('addadvisor')" id="n-addadvisor">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add / Update Advisor</a>
-  <a onclick="go('expiry')" id="n-expiry">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Expiry Alerts</a>
-  <div class="ns">CCO Actions</div>
-  <a onclick="go('lsup')" id="n-lsup"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>File Supervision Report</a>
-  <a onclick="go('export')" id="n-export"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Summary</a>
+  <a onclick="go('inv-rec')" id="n-inv-rec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Recommendations</a>
+  <a onclick="go('inv-suit')" id="n-inv-suit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Suitability</a>
+  <a onclick="go('inv-coi')" id="n-inv-coi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>COI Register</a>
+  <a onclick="go('inv-cmp')" id="n-inv-cmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Complaints</a>
+  <div class="ns">Advisor Management</div>
+  <a onclick="go('registry')" id="n-registry"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Advisor Registry</a>
+  <a onclick="go('onboard')" id="n-onboard"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add New Advisor</a>
+  <a onclick="go('supervision')" id="n-supervision"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Supervision Log</a>
 </nav>
-
-<main id="mc"></main>
+<main id="mc" style="flex:1;padding:28px 32px;overflow-y:auto;"></main>
+</div>
 </div>
 <div id="toast"></div>
-
 <script>
-const SID='1XhsjTCdIZ2CmDsMlqERfw9CT-ZtPPMtBu2Mlst7W42s';
-const AK='AIzaSyDRHOI1bJB8bc2g0xR2BxIQuwA9RJ7XfOY';
-const BASE='https://sheets.googleapis.com/v4/spreadsheets/'+SID;
-const TODAY=new Date().toISOString().slice(0,10);
-document.getElementById('hdate').textContent=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'short',day:'numeric'});
+var SUPA_URL="https://vpuwuyqnknlqyozqfmfb.supabase.co";
+var SUPA_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwdXd1eXFua25scXlvenFmbWZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTA1NDQsImV4cCI6MjA5MDU4NjU0NH0.SZoeLCEqcl6VL0jbe4Pvsi8yC0J8aSGbJT0Fol1URUY";
 
-function toast(m,t='ok'){const e=document.getElementById('toast');e.textContent=m;e.className=t==='err'?'error show':'show';setTimeout(()=>e.className='',3500);}
-async function rSheet(range){try{const r=await fetch(BASE+'/values/'+encodeURIComponent(range)+'?key='+AK);if(!r.ok)return[];const d=await r.json();return d.values||[];}catch{return[];}}
-async function aRow(sheet,vals){const r=await fetch(BASE+'/values/'+encodeURIComponent(sheet+'!A1')+':append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS&key='+AK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:[vals]})});if(!r.ok){const e=await r.json();throw new Error(e.error?.message||'Write failed');}return r.json();}
-function bdg(v){if(!v)return'<span class="b bx">—</span>';const l=v.toLowerCase();if(l.includes('approv')||l.includes('complet')||l.includes('pass')||l.includes('current')||l.includes('yes')||l.includes('certif')||l.includes('generated'))return'<span class="b bg">'+v+'</span>';if(l.includes('pending')||l.includes('review'))return'<span class="b ba">'+v+'</span>';if(l.includes('fail')||l.includes('reject')||l.includes('no')||l.includes('defici'))return'<span class="b br">'+v+'</span>';return'<span class="b bb">'+v+'</span>';}
-function gv(id){const e=document.getElementById(id);return e?e.value:'';}
+var _session=null,_profile=null;
+var TODAY=new Date().toISOString().slice(0,10);
+
+async function sbFetch(path,opts){
+  opts=opts||{};
+  var headers={"apikey":SUPA_ANON,"Content-Type":"application/json"};
+  if(_session&&_session.access_token)headers["Authorization"]="Bearer "+_session.access_token;
+  if(opts.headers)Object.assign(headers,opts.headers);
+  opts.headers=headers;
+  return await fetch(SUPA_URL+path,opts);
+}
+async function sbSignIn(email,password){
+  var r=await fetch(SUPA_URL+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"apikey":SUPA_ANON,"Content-Type":"application/json"},body:JSON.stringify({email:email,password:password})});
+  var d=await r.json();
+  if(!r.ok)throw new Error(d.error_description||d.msg||"Sign in failed");
+  return d;
+}
+async function sbSignOut(){
+  if(_session){await fetch(SUPA_URL+"/auth/v1/logout",{method:"POST",headers:{"apikey":SUPA_ANON,"Authorization":"Bearer "+_session.access_token}});}
+  _session=null;_profile=null;
+  localStorage.removeItem("vfg_cco_session");
+  showLogin();
+}
+async function sbGetProfile(uid){
+  var r=await sbFetch("/rest/v1/profiles?id=eq."+uid+"&select=*");
+  var d=await r.json();return d[0]||null;
+}
+async function sbInsert(table,row){
+  var r=await sbFetch("/rest/v1/"+table,{method:"POST",headers:{"Prefer":"return=minimal"},body:JSON.stringify(row)});
+  if(!r.ok){var e=await r.json();throw new Error(e.message||e.details||"Insert failed");}
+}
+async function sbSelect(table,q){
+  var r=await sbFetch("/rest/v1/"+table+"?"+(q||"select=*&order=created_at.desc&limit=500"));
+  if(!r.ok){var e=await r.json();throw new Error(e.message||"Query failed");}
+  return await r.json();
+}
+async function sbUpdate(table,filter,data){
+  var r=await sbFetch("/rest/v1/"+table+"?"+filter,{method:"PATCH",headers:{"Prefer":"return=minimal"},body:JSON.stringify(data)});
+  if(!r.ok){var e=await r.json();throw new Error(e.message||"Update failed");}
+}
+async function sbSignUpAdvisor(email,password,meta){
+  var r=await sbFetch("/auth/v1/admin/users",{method:"POST",headers:{"Authorization":"Bearer "+_session.access_token},body:JSON.stringify({email:email,password:password,email_confirm:true,user_metadata:meta})});
+  if(!r.ok){var e=await r.json();throw new Error(e.message||e.msg||"Could not create advisor account");}
+  return await r.json();
+}
+
+function toast(m,t){t=t||"ok";var e=document.getElementById("toast");e.textContent=m;e.className=t==="err"?"error show":t==="pdf"?"pdf show":"show";setTimeout(function(){e.className="";},4000);}
+function gv(id){var e=document.getElementById(id);return e?e.value:"";}
+function bdg(v){if(!v)return "<span class=\"b bx\">&mdash;</span>";var l=v.toLowerCase();if(l.includes("approv")||l.includes("complet")||l.includes("pass")||l.includes("yes")||l.includes("generated")||l.includes("active"))return "<span class=\"b bg\">"+v+"</span>";if(l.includes("pending")||l.includes("review"))return "<span class=\"b ba\">"+v+"</span>";if(l.includes("fail")||l.includes("reject")||l.includes("concern")||l.includes("deact"))return "<span class=\"b br\">"+v+"</span>";return "<span class=\"b bb\">"+v+"</span>";}
+
+async function rReg(title,table,cols){
+  var el=document.getElementById("mc");
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">CCO &mdash; All Advisors</div><h1>"+title+"</h1></div><div class=\"card\"><div class=\"ch\"><h3>All Entries</h3><span style=\"font-size:11.5px;color:var(--muted)\" id=\"ec\">Loading&hellip;</span></div><div class=\"cb\" id=\"rt\"><div class=\"loading\"><div class=\"spinner\"></div>Fetching&hellip;</div></div></div>";
+  try{
+    var rows=await sbSelect(table,"select=*&order=created_at.desc&limit=500");
+    document.getElementById("ec").textContent=rows.length+" entries";
+    if(rows.length===0){document.getElementById("rt").innerHTML="<div class=\"empty\"><p>No entries yet</p></div>";return;}
+    var th="<tr>"+cols.map(function(c){return "<th>"+c[0]+"</th>";}).join("")+"</tr>";
+    var tb=rows.map(function(r){return "<tr>"+cols.map(function(c){var v=r[c[1]]||"";return "<td>"+(v?(c[2]?bdg(String(v)):String(v)):"&mdash;")+"</td>";}).join("")+"</tr>";}).join("");
+    document.getElementById("rt").innerHTML="<div class=\"tw\"><table><thead>"+th+"</thead><tbody>"+tb+"</tbody></table></div>";
+  }catch(e){document.getElementById("rt").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
+}
 
 function go(id){
-  document.querySelectorAll('nav a').forEach(a=>a.classList.remove('active'));
-  const n=document.getElementById('n-'+id);if(n)n.classList.add('active');
-  const map={
-    dash:rMasterDash, health:rHealth, export:rExport,
-    vcoi:()=>rReg('COI Register','COI_Register',['Date','Advisor','Type / Materiality','Description','Parties','Control / Action','Client Disclosed?','Date Disclosed','RDI Updated?','CCO Approval','Next Review'],false),
-    vgift:()=>rReg('Gifts & Entertainment Register','Gifts_Entertainment',['Date','Direction','Person','Donor/Host','Relationship','Nature','Value (CAD)','Business Purpose','CCO Required','CCO Decision','Notes'],false),
-    voba:()=>rReg('OBA Register','OBA_Register',['OBA Ref','Date Disclosed','Advisor','Activity Type','Organization','Role','Compensated','Hours/Week','COI Potential','CCO Outcome','Conditions','NRD Updated','Re-Cert Due','Status'],false),
-    vtrn:()=>rReg('Training Register','Training_Register',['Date','Advisor','Module','Provider','Score','Pass/Fail','CE Credits','Designation Cross-Credit','Certificate #','CCO Certified'],false),
-    vsup:()=>rReg('Supervision Reports','Supervision_Reports',['Period','AUM ($M)','Accounts','New Accounts','Trades Reviewed','KYC Status','SDW Status','COI Status','Complaints','Deficiencies','Overall Rating','CCO Sign-off'],false),
-    vcmp:()=>rReg('Investment Complaints','Complaint_Register',['Ref #','Date Received','Client','Advisor','Nature','Channel','Acknowledged?','Response Date','OBSI Referred?','ComSet Filed?','Description','Compensation','Status'],false),
-    vref:()=>rReg('Referral Register','Referral_Register',['Ref ID','Date Approved','Party','Registration','Direction','Services','Fee Basis','Fee Payer','Client Impact?','First Referral','Disclosure Version','Review Date','Status'],false),
-    vsoc:()=>rReg('Social Media Log','Social_Media_Log',['Date Submitted','Advisor','Platform','Content Type','Topic','Summary','CCO Review Date','Decision','Conditions','Post Date','Archived?'],false),
-    vptrd:()=>rReg('Personal Trading Log','Personal_Trading_Log',['Request Date','Advisor','Security','Ticker','Action','Quantity','Pre-Clearance Granted?','CCO Approval Date','Trade Date','Price','MNPI Check','Notes'],false),
-    virec:()=>rReg('Insurance Recommendations','Insurance_Recommendations',['Date','Advisor','Client','Province','Product Type','Carrier','Coverage Amount','Annual Premium','RWL Generated?','INA Generated?','CCO Reviewed?'],true),
-    virep:()=>rReg('Replacement Business','Replacement_Business',['Date','Advisor','Client','Replacing Carrier','Existing Carrier','Existing Policy #','Replacement Type','CCO Approved?','Declaration Signed?','Status'],true),
-    virwl:()=>rReg('RWL Log','RWL_Log',['Date','Advisor','Client','Product Recommended','RWL Reference','Alternatives Documented','PDF Generated','Filed to SharePoint'],true),
-    viseg:()=>rReg('Seg Fund Suitability Log','SegFund_Suitability',['Date','Advisor','Client','Fund Name','Carrier','Guarantee Level','IF Delivered?','Fund Facts Delivered?','Assessment Generated?','CCO Reviewed?'],true),
-    vicmp:()=>rReg('Insurance Complaints','Insurance_Complaints',['Ref #','Date','Client','Advisor','Nature','Province','E&O Notified?','OLHI Referred?','Status','Resolution'],true),
-    vitrn:()=>rReg('Insurance Training','Insurance_Training',['Date','Advisor','Module','Province CE','Hours','Score','Pass/Fail','CE Credits','Certificate #'],true),
-    lsup:fSupervisionForm,
-    registry:rRegistry,
-    addadvisor:fAddAdvisor,
-    expiry:rExpiryAlerts,
+  document.querySelectorAll("nav a").forEach(function(a){a.classList.remove("active");});
+  var nd=document.getElementById("n-"+id);if(nd)nd.classList.add("active");
+  var map={
+    dash:rDash,
+    "ins-rec":function(){rReg("Insurance Recommendations","insurance_recommendations",[["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],["Product","product_type",false],["Carrier","carrier",false],["Coverage","coverage_amount",false],["RWL?","rwl_generated",true],["INA?","ina_generated",true],["CCO?","cco_reviewed",true]]);},
+    "ins-rep":function(){rReg("Replacement Business","replacement_business",[["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],["Replacing","replacing_carrier",false],["Existing","existing_carrier",false],["CCO Approved?","cco_approved",true],["Declaration?","declaration_signed",true],["Status","status",true]]);},
+    "ins-rwl":function(){rReg("RWL Log","rwl_log",[["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],["Product","product_recommended",false],["RWL Ref","rwl_reference",false],["PDF Generated","pdf_generated",true]]);},
+    "ins-seg":function(){rReg("Seg Fund Log","segfund_suitability",[["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],["Fund","fund_name",false],["Carrier","carrier",false],["Guarantee","guarantee_level",false],["IF?","if_delivered",true],["Facts?","fund_facts",true],["CCO?","cco_reviewed",true]]);},
+    "ins-cmp":function(){rReg("Insurance Complaints","insurance_complaints",[["Ref","ref_number",false],["Date","date_received",false],["Client","client_name",false],["Nature","nature",false],["Province","province",false],["E&O?","eo_notified",true],["Status","status",true]]);},
+    "ins-trn":function(){rReg("Insurance Training","insurance_training",[["Date","date",false],["Advisor","advisor_name",false],["Module","module",false],["Province CE","province_ce",false],["Hours","hours",false],["Pass/Fail","pass_fail",true],["CE Credits","ce_credits",false]]);},
+    "inv-rec":function(){rReg("Investment Recommendations","investment_recommendations",[["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],["Account","account_type",false],["Security","security",false],["Action","action",false],["CCO?","cco_reviewed",true]]);},
+    "inv-suit":function(){rReg("Suitability Assessments","suitability_assessments",[["Date","date",false],["Advisor","advisor_name",false],["Client","client_name",false],["Risk Profile","risk_profile",false],["Time Horizon","time_horizon",false],["CCO?","cco_reviewed",true]]);},
+    "inv-coi":function(){rReg("COI Register","coi_register",[["Date","date_identified",false],["Advisor","advisor_name",false],["Type","conflict_type",false],["Description","description",false],["CCO?","cco_reviewed",true],["Status","status",true]]);},
+    "inv-cmp":function(){rReg("Investment Complaints","investment_complaints",[["Ref","ref_number",false],["Date","date_received",false],["Client","client_name",false],["Nature","nature",false],["Amount","amount_disputed",false],["OBSI?","obsi_referred",true],["Status","status",true]]);},
+    registry:fRegistry, onboard:fOnboard, supervision:fSupervision
   };
-  (map[id]||rMasterDash)();
+  (map[id]||rDash)();
 }
 
-// ── MASTER DASHBOARD ──
-async function rMasterDash(){
-  const el=document.getElementById('mc');
-  el.innerHTML='<div class="ph"><div class="bc">CCO Master Compliance Portal</div><h1>Master Compliance Dashboard</h1><p>Unified real-time view across all investment and insurance registers — '+new Date().toLocaleDateString('en-CA',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+'</p></div><div id="inv-stats"><div class="loading"><div class="spinner"></div>Loading investment registers…</div></div><div id="ins-stats" style="margin-top:4px"><div class="loading"><div class="spinner"></div>Loading insurance registers…</div></div><div class="dg2" id="panels"><div class="loading"><div class="spinner"></div></div></div>';
-
-  const [coi,gifts,oba,trn,sup,cmp,ref,soc,ptrd,irec,irep,irwl,iseg,icmp,itrn]=await Promise.all([
-    rSheet('COI_Register!A2:K'),rSheet('Gifts_Entertainment!A2:K'),rSheet('OBA_Register!A2:N'),
-    rSheet('Training_Register!A2:J'),rSheet('Supervision_Reports!A2:L'),rSheet('Complaint_Register!A2:M'),
-    rSheet('Referral_Register!A2:M'),rSheet('Social_Media_Log!A2:K'),rSheet('Personal_Trading_Log!A2:L'),
-    rSheet('Insurance_Recommendations!A2:K'),rSheet('Replacement_Business!A2:J'),rSheet('RWL_Log!A2:H'),
-    rSheet('SegFund_Suitability!A2:J'),rSheet('Insurance_Complaints!A2:J'),rSheet('Insurance_Training!A2:I')
-  ]);
-
-  const openInvCmp=cmp.filter(r=>r[12]&&!r[12].toLowerCase().includes('closed')).length;
-  const pendOBA=oba.filter(r=>r[9]&&r[9].toLowerCase().includes('pending')).length;
-  const pendRep=irep.filter(r=>r[7]&&r[7].toLowerCase().includes('pending')).length;
-  const openInsCmp=icmp.filter(r=>r[8]&&!r[8].toLowerCase().includes('closed')).length;
-  const totalComplaints=openInvCmp+openInsCmp;
-
-  document.getElementById('inv-stats').innerHTML='<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding:0 2px">Investment Compliance</div><div class="sg-inv"><div class="sc"><div class="sl">COI Entries</div><div class="sv">'+coi.length+'</div><div class="ss">Conflicts logged</div></div><div class="sc a"><div class="sl">OBA Records</div><div class="sv">'+oba.length+'</div><div class="ss">'+pendOBA+' pending CCO</div></div><div class="sc t"><div class="sl">Training Records</div><div class="sv">'+trn.length+'</div><div class="ss">All modules</div></div><div class="sc g"><div class="sl">Supervision Reports</div><div class="sv">'+sup.length+'</div><div class="ss">Monthly reports filed</div></div><div class="sc r"><div class="sl">Open Inv. Complaints</div><div class="sv">'+openInvCmp+'</div><div class="ss">'+cmp.length+' total</div></div></div>';
-
-  document.getElementById('ins-stats').innerHTML='<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ins);margin-bottom:10px;padding:0 2px">Insurance Compliance</div><div class="sg-ins"><div class="sc ins"><div class="sl">Recommendations</div><div class="sv">'+irec.length+'</div><div class="ss">All products</div></div><div class="sc ins"><div class="sl">Replacements</div><div class="sv">'+irep.length+'</div><div class="ss">'+pendRep+' pending CCO</div></div><div class="sc ins-t"><div class="sl">RWLs Generated</div><div class="sv">'+irwl.length+'</div><div class="ss">Reason Why Letters</div></div><div class="sc r"><div class="sl">Open Ins. Complaints</div><div class="sv">'+openInsCmp+'</div><div class="ss">'+icmp.length+' total</div></div></div>';
-
-  document.getElementById('panels').innerHTML='<div class="card"><div class="ch"><h3>Recent COI Entries</h3><button class="btn bs bsm" onclick="go('vcoi')">View All</button></div><div class="cb">'+(coi.length===0?'<div class="empty"><h4>No COI entries</h4></div>':'<div class="tw"><table><thead><tr><th>Date</th><th>Advisor</th><th>Type</th><th>Status</th></tr></thead><tbody>'+coi.slice(-6).reverse().map(r=>'<tr><td>'+(r[0]||'—')+'</td><td>'+(r[1]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+bdg(r[9])+'</td></tr>').join('')+'</tbody></table></div>')+'</div></div><div class="card"><div class="ch"><h3>Open Complaints — All</h3><button class="btn bs bsm" onclick="go('vcmp')">Investment</button></div><div class="cb"><div class="sdiv">Investment Complaints</div>'+(cmp.length===0?'<div class="empty"><h4>No complaints</h4></div>':'<div class="tw"><table><thead><tr><th>Ref</th><th>Client</th><th>Nature</th><th>Status</th></tr></thead><tbody>'+cmp.filter(r=>r[12]&&!r[12].toLowerCase().includes('closed')).slice(-4).map(r=>'<tr><td>'+(r[0]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+(r[4]||'—')+'</td><td>'+bdg(r[12])+'</td></tr>').join('')+'</tbody></table></div>')+'<div class="sdiv ins">Insurance Complaints</div>'+(icmp.length===0?'<div class="empty"><h4>No insurance complaints</h4></div>':'<div class="tw"><table><thead><tr><th class="ins">Ref</th><th class="ins">Client</th><th class="ins">Nature</th><th class="ins">Status</th></tr></thead><tbody>'+icmp.filter(r=>r[8]&&!r[8].toLowerCase().includes('closed')).slice(-4).map(r=>'<tr><td>'+(r[0]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+(r[4]||'—')+'</td><td>'+bdg(r[8])+'</td></tr>').join('')+'</tbody></table></div>')+'</div></div><div class="card"><div class="ch"><h3>Recent Insurance Recommendations</h3><button class="btn bs bsm" onclick="go('virec')">View All</button></div><div class="cb">'+(irec.length===0?'<div class="empty"><h4>No recommendations logged</h4></div>':'<div class="tw"><table><thead><tr><th class="ins">Date</th><th class="ins">Advisor</th><th class="ins">Client</th><th class="ins">Product</th><th class="ins">RWL</th></tr></thead><tbody>'+irec.slice(-6).reverse().map(r=>'<tr><td>'+(r[0]||'—')+'</td><td>'+(r[1]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+(r[4]||'—')+'</td><td>'+bdg(r[8])+'</td></tr>').join('')+'</tbody></table></div>')+'</div></div><div class="card"><div class="ch"><h3>Replacement Business Pending CCO</h3><button class="btn bs bsm" onclick="go('virep')">View All</button></div><div class="cb">'+(irep.filter(r=>r[7]&&r[7].toLowerCase().includes('pending')).length===0?'<div class="empty"><h4>No pending replacements</h4></div>':'<div class="tw"><table><thead><tr><th class="ins">Date</th><th class="ins">Advisor</th><th class="ins">Client</th><th class="ins">Replacing</th><th class="ins">CCO Status</th></tr></thead><tbody>'+irep.filter(r=>r[7]&&r[7].toLowerCase().includes('pending')).map(r=>'<tr><td>'+(r[0]||'—')+'</td><td>'+(r[1]||'—')+'</td><td>'+(r[2]||'—')+'</td><td>'+(r[3]||'—')+'</td><td>'+bdg(r[7])+'</td></tr>').join('')+'</tbody></table></div>')+'</div></div>';
-}
-
-// ── COMPLIANCE HEALTH DASHBOARD ──
-async function rHealth(){
-  const el=document.getElementById('mc');
-  el.innerHTML='<div class="ph"><div class="bc">CCO Analysis</div><h1>Compliance Health Overview</h1><p>Snapshot assessment of firm compliance status across all registers.</p></div><div id="health-content"><div class="loading"><div class="spinner"></div>Calculating health scores…</div></div>';
-
-  const [coi,gifts,oba,trn,sup,cmp,irec,irep,irwl,icmp]=await Promise.all([
-    rSheet('COI_Register!A2:K'),rSheet('Gifts_Entertainment!A2:K'),rSheet('OBA_Register!A2:N'),
-    rSheet('Training_Register!A2:J'),rSheet('Supervision_Reports!A2:L'),rSheet('Complaint_Register!A2:M'),
-    rSheet('Insurance_Recommendations!A2:K'),rSheet('Replacement_Business!A2:J'),rSheet('RWL_Log!A2:H'),
-    rSheet('Insurance_Complaints!A2:J')
-  ]);
-
-  const pendCOI=coi.filter(r=>r[9]&&r[9].toLowerCase().includes('pending')).length;
-  const pendOBA=oba.filter(r=>r[9]&&r[9].toLowerCase().includes('pending')).length;
-  const failTrn=trn.filter(r=>r[5]&&r[5].toLowerCase().includes('fail')).length;
-  const openCmp=cmp.filter(r=>r[12]&&!r[12].toLowerCase().includes('closed')).length;
-  const pendRep=irep.filter(r=>r[7]&&r[7].toLowerCase().includes('pending')).length;
-  const openIcmp=icmp.filter(r=>r[8]&&!r[8].toLowerCase().includes('closed')).length;
-  const noRWL=irec.filter(r=>!r[8]||r[8].toLowerCase().includes('pending')).length;
-
-  function scoreColor(s){return s>=80?'green':s>=60?'amber':'red';}
-
-  const scores=[
-    {label:'COI Compliance',score:coi.length===0?100:Math.round((1-pendCOI/coi.length)*100),detail:pendCOI+' pending CCO review'},
-    {label:'OBA Compliance',score:oba.length===0?100:Math.round((1-pendOBA/oba.length)*100),detail:pendOBA+' pending approval'},
-    {label:'Training Currency',score:trn.length===0?100:Math.round((1-failTrn/trn.length)*100),detail:failTrn+' failed / retake required'},
-    {label:'Complaint Handling',score:openCmp===0?100:Math.max(40,100-openCmp*15),detail:openCmp+' open investment complaints'},
-    {label:'Insurance Suitability',score:irec.length===0?100:Math.round((1-noRWL/irec.length)*100),detail:noRWL+' recommendations without confirmed RWL'},
-    {label:'Replacement Controls',score:irep.length===0?100:Math.round((1-pendRep/Math.max(irep.length,1))*100),detail:pendRep+' pending CCO pre-approval'},
-    {label:'Insurance Complaints',score:openIcmp===0?100:Math.max(40,100-openIcmp*20),detail:openIcmp+' open insurance complaints'},
-    {label:'Supervision Reports',score:sup.length>=1?100:20,detail:sup.length+' monthly reports on file'},
-  ];
-
-  const overallScore=Math.round(scores.reduce((s,x)=>s+x.score,0)/scores.length);
-
-  document.getElementById('health-content').innerHTML='<div class="card" style="margin-bottom:20px"><div class="ch"><h3>Overall Compliance Health Score</h3></div><div class="cb"><div style="display:flex;align-items:center;gap:32px"><div style="text-align:center"><div class="health-score '+scoreColor(overallScore)+'" style="font-size:64px">'+overallScore+'</div><div class="health-label">Overall Score</div><div class="health-detail">Based on '+scores.length+' compliance dimensions</div></div><div style="flex:1"><div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Score interpretation: 80–100 = Satisfactory | 60–79 = Needs Attention | Below 60 = Deficient</div>'+scores.map(s=>'<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:160px;font-size:12px;font-weight:500">'+s.label+'</div><div style="flex:1;background:#f0ead8;border-radius:3px;height:8px"><div style="width:'+s.score+'%;background:'+(s.score>=80?'var(--ok)':s.score>=60?'var(--warn)':'var(--err)')+';height:8px;border-radius:3px;transition:width .5s"></div></div><div style="width:36px;text-align:right;font-size:12px;font-weight:600;color:'+(s.score>=80?'var(--ok)':s.score>=60?'var(--warn)':'var(--err)')+'">'+s.score+'</div><div style="width:200px;font-size:11px;color:var(--muted)">'+s.detail+'</div></div>').join('')+'</div></div></div></div><div class="dg2"><div class="card"><div class="ch"><h3>Items Requiring CCO Action</h3></div><div class="cb">'+[
-    [pendCOI,'COI entries pending review','go('vcoi')'],
-    [pendOBA,'OBA disclosures pending approval','go('voba')'],
-    [failTrn,'Training failures — retake required','go('vtrn')'],
-    [openCmp,'Open investment complaints','go('vcmp')'],
-    [pendRep,'Replacement transactions pending CCO approval','go('virep')'],
-    [noRWL,'Insurance recommendations without confirmed RWL','go('virec')'],
-    [openIcmp,'Open insurance complaints','go('vicmp')'],
-  ].filter(x=>x[0]>0).map(([n,label,action])=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr)"><div style="display:flex;align-items:center;gap:10px"><span style="background:var(--err);color:var(--wh);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">'+n+'</span><span style="font-size:12.5px">'+label+'</span></div><button class="btn bs bsm" onclick="'+action+'">View</button></div>').join('')+(pendCOI+pendOBA+failTrn+openCmp+pendRep+noRWL+openIcmp===0?'<div class="empty"><h4>✓ No items requiring immediate action</h4></div>':'')+'</div></div><div class="card"><div class="ch"><h3>Register Activity Summary</h3></div><div class="cb"><div class="tw"><table><thead><tr><th>Register</th><th>Total Entries</th><th>Status</th></tr></thead><tbody>'+[
-    ['COI Register (Investment)',coi.length,coi.length>0?'Active':'Empty'],
-    ['Gifts & Entertainment',gifts.length,gifts.length>0?'Active':'Empty'],
-    ['OBA Register',oba.length,oba.length>0?'Active':'Empty'],
-    ['Training Register',trn.length,trn.length>0?'Active':'Empty'],
-    ['Supervision Reports',sup.length,sup.length>0?'Active':'Empty'],
-    ['Investment Complaints',cmp.length,cmp.length>0?'Active':'Empty'],
-    ['Insurance Recommendations',irec.length,irec.length>0?'Active':'Empty'],
-    ['Replacement Business',irep.length,irep.length>0?'Active':'Empty'],
-    ['RWL Log',irwl.length,irwl.length>0?'Active':'Empty'],
-    ['Insurance Complaints',icmp.length,icmp.length>0?'Active':'Empty'],
-  ].map((r,i)=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+bdg(r[2])+'</td></tr>').join('')+'</tbody></table></div></div></div></div>';
-}
-
-// ── GENERIC REGISTER VIEW ──
-async function rReg(title,sheet,cols,isIns){
-  const el=document.getElementById('mc');
-  const band=isIns?'ins':'';
-  el.innerHTML='<div class="ph"><div class="bc">'+(isIns?'Insurance Registers':'Investment Registers')+'</div><h1>'+title+'</h1></div><div class="card"><div class="ch'+(isIns?' ins-ch':'')+'"><h3>All Entries</h3><span style="font-size:11.5px;color:var(--muted)" id="ec">Loading…</span></div><div class="cb" id="rt"><div class="loading"><div class="spinner"></div>Fetching from Google Sheets…</div></div></div>';
+async function rDash(){
+  var el=document.getElementById("mc");
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">CCO Compliance Portal</div><h1>Compliance Dashboard</h1><p>"+new Date().toLocaleDateString("en-CA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+"</p></div><div class=\"sg\" id=\"sg\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div><div class=\"dg\" id=\"dg\"></div>";
   try{
-    const rows=await rSheet(sheet+'!A2:'+String.fromCharCode(64+Math.min(cols.length,26)));
-    document.getElementById('ec').textContent=rows.length+' entries';
-    if(rows.length===0){document.getElementById('rt').innerHTML='<div class="empty"><h4>No entries yet</h4><p>Entries will appear here once logged through the advisor portal.</p></div>';return;}
-    const statusCols=['CCO Approval','Status','Pass/Fail','CCO Certified','Decision','Client Disclosed?','RDI Updated?','OBSI Referred?','ComSet Filed?','Archived?','Pre-Clearance Granted?','CCO Approved?','Declaration Signed?','IF Delivered?','Fund Facts Delivered?','Assessment Generated?','RWL Generated?','INA Generated?','CCO Reviewed?','E&O Notified?','OLHI Referred?','NRD Updated'];
-    document.getElementById('rt').innerHTML='<div class="tw"><table><thead><tr>'+cols.map(c=>'<th'+(isIns?' class="ins"':'')+'>'+c+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map((_,i)=>'<td>'+(r[i]?(statusCols.includes(cols[i])?bdg(r[i]):r[i]):'—')+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
-  }catch(e){document.getElementById('rt').innerHTML='<div style="padding:20px;color:var(--err)">⚠️ '+e.message+'</div>';}
+    var res=await Promise.all([
+      sbSelect("insurance_recommendations","select=*&limit=500"),
+      sbSelect("replacement_business","select=*&limit=200"),
+      sbSelect("insurance_complaints","select=*&limit=200"),
+      sbSelect("investment_complaints","select=*&limit=200"),
+      sbSelect("advisor_registry","select=*"),
+      sbSelect("supervision_log","select=*&order=created_at.desc&limit=10")
+    ]);
+    var insRec=res[0],rep=res[1],insCmp=res[2],invCmp=res[3],reg=res[4],sup=res[5];
+    var openInsCmp=insCmp.filter(function(r){return r.status&&!r.status.toLowerCase().includes("closed");}).length;
+    var openInvCmp=invCmp.filter(function(r){return r.status&&!r.status.toLowerCase().includes("closed");}).length;
+    var pendRep=rep.filter(function(r){return r.cco_approved&&r.cco_approved.toLowerCase().includes("pending");}).length;
+    var activeAdv=reg.filter(function(r){return r.status==="Active";}).length;
+    document.getElementById("sg").innerHTML=
+      "<div class=\"sc\"><div class=\"sl\">Active Advisors</div><div class=\"sv\">"+activeAdv+"</div><div class=\"ss\">"+reg.length+" total</div></div>"+
+      "<div class=\"sc a\"><div class=\"sl\">Replacements Pending</div><div class=\"sv\">"+pendRep+"</div><div class=\"ss\">CCO pre-approval required</div></div>"+
+      "<div class=\"sc t\"><div class=\"sl\">Open Insurance Complaints</div><div class=\"sv\">"+openInsCmp+"</div><div class=\"ss\">"+insCmp.length+" total logged</div></div>"+
+      "<div class=\"sc g\"><div class=\"sl\">Open Investment Complaints</div><div class=\"sv\">"+openInvCmp+"</div><div class=\"ss\">"+invCmp.length+" total logged</div></div>";
+    var supRows=sup.slice(0,5).map(function(r){return "<tr><td>"+(r.date||"&mdash;")+"</td><td>"+(r.advisor_name||"&mdash;")+"</td><td>"+(r.review_type||"&mdash;")+"</td><td>"+bdg(r.status)+"</td></tr>";}).join("");
+    var recRows=insRec.slice(0,5).map(function(r){return "<tr><td>"+(r.date||"&mdash;")+"</td><td>"+(r.advisor_name||"&mdash;")+"</td><td>"+(r.client_name||"&mdash;")+"</td><td>"+bdg(r.cco_reviewed)+"</td></tr>";}).join("");
+    document.getElementById("dg").innerHTML=
+      "<div class=\"card\"><div class=\"ch\"><h3>Recent Supervision Activity</h3><button class=\"btn bs bsm\" onclick=\"go('supervision')\">View All</button></div><div class=\"cb\">"+(sup.length===0?"<div class=\"empty\"><p>No supervision entries yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Date</th><th>Advisor</th><th>Review Type</th><th>Status</th></tr></thead><tbody>"+supRows+"</tbody></table></div>")+"</div></div>"+
+      "<div class=\"card\"><div class=\"ch\"><h3>Recent Recommendations &mdash; Pending CCO</h3><button class=\"btn bs bsm\" onclick=\"go('ins-rec')\">View All</button></div><div class=\"cb\">"+(insRec.length===0?"<div class=\"empty\"><p>No recommendations yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Date</th><th>Advisor</th><th>Client</th><th>CCO Status</th></tr></thead><tbody>"+recRows+"</tbody></table></div>")+"</div></div>";
+  }catch(e){document.getElementById("sg").innerHTML="<div class=\"al ale\" style=\"grid-column:span 4\">&mdash; "+e.message+"</div>";}
 }
-
-// ── FILE SUPERVISION REPORT ──
-function fSupervisionForm(){
-  const mon=new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long'});
-  document.getElementById('mc').innerHTML='<div class="ph"><div class="bc">CCO Actions</div><h1>File Monthly Supervision Report</h1><p>File by the 5th business day of the following month. Required every month without exception.</p></div><div class="card"><div class="ch"><h3>Monthly Supervision Report</h3></div><div class="cb"><div id="fa"></div><div class="sdiv">Report Period & Book of Business</div><div class="fg t"><div class="fgrp"><label>Reporting Period *</label><input type="text" id="s-per" placeholder="e.g. March 2027" value="'+mon+'"></div><div class="fgrp"><label>AUM ($M)</label><input type="number" id="s-aum" placeholder="e.g. 12.5" step="0.1"></div><div class="fgrp"><label>Total Active Accounts</label><input type="number" id="s-accts" placeholder="e.g. 24"></div><div class="fgrp"><label>New Accounts This Month</label><input type="number" id="s-new" placeholder="0"></div><div class="fgrp"><label>Trades Reviewed</label><input type="number" id="s-trd" placeholder="e.g. 18"></div><div class="fgrp"><label>Advisors Under Supervision</label><input type="number" id="s-advs" placeholder="e.g. 2"></div></div><div class="sdiv">Supervision Findings</div><div class="fg t"><div class="fgrp"><label>KYC Currency Status</label><select id="s-kyc"><option>All current</option><option>1-2 approaching due date</option><option>1+ overdue — action taken</option><option>Material gap — deficiency logged</option></select></div><div class="fgrp"><label>SDW Issues Found</label><select id="s-sdw"><option>None</option><option>Minor — resolved</option><option>Moderate — follow-up required</option><option>Material — deficiency logged</option></select></div><div class="fgrp"><label>COI / Compensation Review</label><select id="s-coi"><option>No issues identified</option><option>Pre-trade disclosure gap — corrected</option><option>Undisclosed conflict — escalated</option><option>Deficiency logged</option></select></div><div class="fgrp"><label>Complaints Received</label><input type="number" id="s-cmp" placeholder="0"></div><div class="fgrp"><label>Total Deficiencies Found</label><input type="number" id="s-def" placeholder="0"></div><div class="fgrp"><label>Overall Rating</label><select id="s-rat"><option>Satisfactory — no material issues</option><option>Satisfactory with notes</option><option>Needs Attention — follow-up scheduled</option><option>Deficient — remediation plan required</option></select></div></div><div class="fg" style="margin-top:14px"><div class="fgrp s2"><label>Key Findings & Notes</label><textarea id="s-notes" placeholder="Summarise key findings, corrective actions taken, and items to carry forward…"></textarea></div></div><div style="margin-top:18px;display:flex;gap:10px"><button class="btn bp" onclick="sSup()" id="sb-sup">File Report</button><button class="btn bs" onclick="go('vsup')">View All Reports</button></div></div></div>';
-}
-async function sSup(){
-  const per=gv('s-per');if(!per){document.getElementById('fa').innerHTML='<div style="background:rgba(139,32,32,.1);border-left:3px solid var(--err);padding:10px 14px;border-radius:6px;font-size:12.5px;margin-bottom:14px">Reporting period is required.</div>';return;}
-  const btn=document.getElementById('sb-sup');btn.disabled=true;btn.textContent='Filing…';
-  try{await aRow('Supervision_Reports',[per,gv('s-aum'),gv('s-accts'),gv('s-new'),gv('s-trd'),gv('s-kyc'),gv('s-sdw'),gv('s-coi'),gv('s-cmp'),gv('s-def'),gv('s-rat'),TODAY]);toast('✓ Supervision report filed');fSupervisionForm();}
-  catch(e){document.getElementById('fa').innerHTML='<div style="background:rgba(139,32,32,.1);border-left:3px solid var(--err);padding:10px 14px;border-radius:6px;font-size:12.5px;margin-bottom:14px">⚠️ '+e.message+'</div>';btn.disabled=false;btn.textContent='File Report';}
-}
-
-// ── EXPORT SUMMARY ──
-async function rExport(){
-  const el=document.getElementById('mc');
-  el.innerHTML='<div class="ph"><div class="bc">CCO Actions</div><h1>Export Compliance Summary</h1><p>Generate a text summary of all register counts suitable for the annual compliance review report.</p></div><div class="card"><div class="ch"><h3>Register Summary</h3></div><div class="cb" id="exp-content"><div class="loading"><div class="spinner"></div>Loading all registers…</div></div></div>';
-
-  const [coi,gifts,oba,trn,sup,cmp,ref,soc,ptrd,irec,irep,irwl,iseg,icmp,itrn]=await Promise.all([
-    rSheet('COI_Register!A2:A'),rSheet('Gifts_Entertainment!A2:A'),rSheet('OBA_Register!A2:A'),
-    rSheet('Training_Register!A2:A'),rSheet('Supervision_Reports!A2:A'),rSheet('Complaint_Register!A2:A'),
-    rSheet('Referral_Register!A2:A'),rSheet('Social_Media_Log!A2:A'),rSheet('Personal_Trading_Log!A2:A'),
-    rSheet('Insurance_Recommendations!A2:A'),rSheet('Replacement_Business!A2:A'),rSheet('RWL_Log!A2:A'),
-    rSheet('SegFund_Suitability!A2:A'),rSheet('Insurance_Complaints!A2:A'),rSheet('Insurance_Training!A2:A')
-  ]);
-
-  const summary='VFG COMPLIANCE REGISTER SUMMARY\nGenerated: '+new Date().toLocaleDateString('en-CA',{year:'numeric',month:'long',day:'numeric'})+'\n\nINVESTMENT COMPLIANCE REGISTERS\n'+[
-    ['COI Register',coi.length],['Gifts & Entertainment Register',gifts.length],['OBA Register',oba.length],
-    ['Training Register',trn.length],['Supervision Reports',sup.length],['Complaint Register',cmp.length],
-    ['Referral Arrangement Register',ref.length],['Social Media Content Log',soc.length],['Personal Trading Log',ptrd.length],
-  ].map(([n,c])=>n+': '+c+' entries').join('\n')+'\n\nINSURANCE COMPLIANCE REGISTERS\n'+[
-    ['Insurance Recommendations',irec.length],['Replacement Business Register',irep.length],['RWL Log',irwl.length],
-    ['Seg Fund Suitability Log',iseg.length],['Insurance Complaints',icmp.length],['Insurance Training Register',itrn.length],
-  ].map(([n,c])=>n+': '+c+' entries').join('\n')+'\n\nTotal entries across all registers: '+(coi.length+gifts.length+oba.length+trn.length+sup.length+cmp.length+ref.length+soc.length+ptrd.length+irec.length+irep.length+irwl.length+iseg.length+icmp.length+itrn.length);
-
-  document.getElementById('exp-content').innerHTML='<pre style="font-family:monospace;font-size:12px;background:var(--parch);padding:20px;border-radius:6px;white-space:pre-wrap;line-height:1.7">'+summary+'</pre><div style="margin-top:16px"><button class="btn bp" onclick="navigator.clipboard.writeText(document.querySelector('pre').textContent).then(()=>toast('✓ Copied to clipboard'))">Copy to Clipboard</button></div>';
-}
-
 
 // ── ADVISOR REGISTRY ──
-const REG_SHEET='Advisor_Registry';
-async function loadAdvisors(){return await rSheet(REG_SHEET+'!A2:AC');}
-function daysUntil(d){if(!d)return null;const dt=new Date(d);if(isNaN(dt))return null;return Math.round((dt-new Date())/(1000*60*60*24));}
-function expiryBadge(d){const days=daysUntil(d);if(days===null)return '<span class="expiry-badge" style="background:#f0ead8;color:#888">No date</span>';if(days<0)return '<span class="expiry-badge exp-expired">EXPIRED '+Math.abs(days)+'d ago</span>';if(days<=30)return '<span class="expiry-badge exp-warn30">'+days+'d — URGENT</span>';if(days<=90)return '<span class="expiry-badge exp-warn90">'+days+'d — Renew soon</span>';return '<span class="expiry-badge exp-ok">'+days+'d remaining</span>';}
-function fmtDate(d){if(!d)return '—';const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('en-CA',{year:'numeric',month:'short',day:'numeric'});}
-
-async function rRegistry(){
-  const el=document.getElementById('mc');
-  el.innerHTML='<div class="ph"><div class="bc">Advisor Registry</div><h1>Advisor Profiles</h1><p>Licence, E&O, designation and carrier appointment records for all VFP advisors.</p></div><div id="rc"><div class="loading"><div class="spinner"></div>Loading…</div></div>';
-  const rows=await loadAdvisors();
-  if(rows.length===0){document.getElementById('rc').innerHTML='<div class="card"><div class="cb"><div class="empty"><div class="ei">👤</div><h4>No advisors in registry yet</h4><p>Add advisors using the Add / Update Advisor form.</p></div></div></div>';return;}
-  window._advRows=rows;
-  document.getElementById('rc').innerHTML='<div class="advisor-grid">'+rows.map((r,i)=>{
-    const exps=[r[7],r[9],r[11],r[16]].filter(Boolean);
-    const mins=exps.length?Math.min(...exps.map(d=>daysUntil(d)||999)):999;
-    return '<div class="advisor-card" onclick="rAdvDetail('+i+')"><div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div class="advisor-name">'+(r[0]||'Unknown')+'</div><div class="advisor-role">'+(r[1]||'Advisor')+'</div></div><span class="b '+(( r[27]||'Active').toLowerCase()==='active'?'bg':'bx')+'">'+( r[27]||'Active')+'</span></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+
-    (r[7]?'<span style="font-size:10px;color:var(--muted)">ON: '+expiryBadge(r[7])+'</span>':'')+
-    (r[9]?'<span style="font-size:10px;color:var(--muted)">BC: '+expiryBadge(r[9])+'</span>':'')+
-    (r[11]?'<span style="font-size:10px;color:var(--muted)">AB: '+expiryBadge(r[11])+'</span>':'')+
-    (r[16]?'<span style="font-size:10px;color:var(--muted)">E&O: '+expiryBadge(r[16])+'</span>':'')+
-    '</div></div>';
-  }).join('')+'</div><button class="btn bs" onclick="go('addadvisor')" style="margin-top:4px">+ Add Advisor</button>';
-}
-
-function rAdvDetail(i){
-  const r=window._advRows[i];if(!r)return;
-  const el=document.getElementById('mc');
-  const fields=[['NRD Number',r[4],''],['CIRO Category',r[5],''],['ON Licence #',r[6],r[7]],['ON Expiry',fmtDate(r[7]),r[7]],['BC Licence #',r[8],r[9]],['BC Expiry',fmtDate(r[9]),r[9]],['AB Licence #',r[10],r[11]],['AB Expiry',fmtDate(r[11]),r[11]],['LLQP Completion',fmtDate(r[12]),''],['E&O Carrier',r[13],''],['E&O Policy #',r[14],''],['E&O Coverage',r[15],''],['E&O Expiry',fmtDate(r[16]),r[16]],['CFP #',r[17],''],['CFP Renewal',fmtDate(r[18]),r[18]],['CIM #',r[19],''],['CIM Renewal',fmtDate(r[20]),r[20]],['CLU #',r[21],''],['CLU Renewal',fmtDate(r[22]),r[22]],['RRC #',r[23],''],['RRC Renewal',fmtDate(r[24]),r[24]],['MGA / Dealer',r[25],''],['Contract Date',fmtDate(r[26]),''],['Status',r[27]||'Active','']];
-  el.innerHTML='<div class="ph"><div class="bc" style="cursor:pointer" onclick="rRegistry()">← Back to Registry</div><h1>'+(r[0]||'Advisor')+'</h1><p>'+(r[1]||'')+(r[2]?' — '+r[2]:'')+'</p></div><div class="card"><div class="ch"><h3>Profile Details</h3></div><div class="cb">'+fields.map(([l,v,exp])=>'<div class="licence-row"><span class="licence-label">'+l+'</span><span class="licence-value">'+(v||'—')+'</span>'+(exp?expiryBadge(exp):'')+'</div>').join('')+(r[28]?'<div style="margin-top:14px;padding:12px;background:var(--parch);border-radius:6px;font-size:12.5px"><strong>Carrier Appointments / Notes:</strong><br>'+r[28].replace(/\n/g,'<br>')+'</div>':'')+'</div></div>';
-}
-
-async function rExpiryAlerts(){
-  const el=document.getElementById('mc');
-  el.innerHTML='<div class="ph"><div class="bc">Advisor Registry</div><h1>Licence & E&O Expiry Alerts</h1><p>All items expiring within 90 days. Review weekly.</p></div><div id="ac"><div class="loading"><div class="spinner"></div>Calculating…</div></div>';
-  const rows=await loadAdvisors();
-  if(rows.length===0){document.getElementById('ac').innerHTML='<div class="card"><div class="cb"><div class="empty"><h4>No advisors in registry yet</h4></div></div></div>';return;}
-  const alerts=[];
-  const flds=[[7,'Ontario Insurance Licence'],[9,'BC Insurance Licence'],[11,'Alberta Insurance Licence'],[16,'E&O Insurance'],[18,'CFP Designation'],[20,'CIM Designation'],[22,'CLU Designation'],[24,'RRC Designation']];
-  for(const r of rows){const name=r[0]||'Unknown';for(const [col,label] of flds){const days=daysUntil(r[col]);if(days!==null&&days<=90)alerts.push({name,label,expiry:r[col],days});}}
-  alerts.sort((a,b)=>a.days-b.days);
-  const crit=alerts.filter(a=>a.days<=30),warn=alerts.filter(a=>a.days>30&&a.days<=60),note=alerts.filter(a=>a.days>60&&a.days<=90);
-  const renderList=(list,cls)=>list.map(a=>'<div class="alert-item '+cls+'"><div style="display:flex;align-items:center;gap:14px"><div class="days-chip '+(a.days<=30?'red':a.days<=60?'amber':'teal')+'">'+a.days+'</div><div><div style="font-weight:600;font-size:13px">'+a.name+' — '+a.label+'</div><div style="font-size:11.5px;color:var(--muted)">Expires: '+fmtDate(a.expiry)+'</div></div></div></div>').join('');
-  const appsCode=`function checkExpiries() {
-  var ss = SpreadsheetApp.openById('1XhsjTCdIZ2CmDsMlqERfw9CT-ZtPPMtBu2Mlst7W42s');
-  var sheet = ss.getSheetByName('Advisor_Registry');
-  var data = sheet.getDataRange().getValues();
-  var today = new Date(); var alerts = [];
-  var cols = {on:7,bc:9,ab:11,eo:16,cfp:18,cim:20,clu:22,rrc:24};
-  var labels = {on:'Ontario Licence',bc:'BC Licence',ab:'Alberta Licence',
-    eo:'E&O Insurance',cfp:'CFP',cim:'CIM',clu:'CLU',rrc:'RRC'};
-  for(var i=1;i<data.length;i++){var name=data[i][0];if(!name)continue;
-    for(var key in cols){var val=data[i][cols[key]];if(!val)continue;
-      var exp=new Date(val);var days=Math.round((exp-today)/(1000*60*60*24));
-      if(days<=90)alerts.push(name+' — '+labels[key]+': '+days+' days ('+exp.toDateString()+')');}}
-  if(alerts.length>0){MailApp.sendEmail({to:'compliance@voltawealth.ca',
-    subject:'VFG Licence Expiry Alert — '+alerts.length+' item(s)',
-    body:'Licences requiring attention:\\n\\n'+alerts.join('\\n')+
-    '\\n\\nPortal: https://voltafinancial.github.io/vfg-portal/cco.html'});}
-}`;
-  document.getElementById('ac').innerHTML=(alerts.length===0?'<div class="card"><div class="cb"><div style="text-align:center;padding:40px;color:var(--ok)"><div style="font-size:36px;margin-bottom:12px">✓</div><div style="font-size:15px;font-weight:600">No expiry alerts</div><div style="font-size:13px;color:var(--muted);margin-top:6px">All items are current beyond 90 days.</div></div></div></div>':
-  '<div class="card" style="margin-bottom:14px"><div class="ch" style="background:rgba(139,32,32,.05)"><h3 style="color:var(--err)">🚨 Critical — Within 30 days ('+crit.length+')</h3></div><div class="cb">'+(crit.length?renderList(crit,'alert-critical'):'<div style="text-align:center;padding:12px;color:var(--muted)">None</div>')+'</div></div>'+
-  '<div class="card" style="margin-bottom:14px"><div class="ch" style="background:rgba(184,134,11,.05)"><h3 style="color:var(--warn)">⚠️ Warning — 31–60 days ('+warn.length+')</h3></div><div class="cb">'+(warn.length?renderList(warn,'alert-warning'):'<div style="text-align:center;padding:12px;color:var(--muted)">None</div>')+'</div></div>'+
-  '<div class="card" style="margin-bottom:14px"><div class="ch"><h3>📅 Notice — 61–90 days ('+note.length+')</h3></div><div class="cb">'+(note.length?renderList(note,'alert-notice'):'<div style="text-align:center;padding:12px;color:var(--muted)">None</div>')+'</div></div>')+
-  '<div class="card" style="margin-top:16px"><div class="ch"><h3>📧 Automated Email Reminders — Google Apps Script</h3></div><div class="cb"><p style="font-size:13px;margin-bottom:12px">Paste this into <strong>script.google.com</strong> → New project → Set a daily trigger on <em>checkExpiries</em> at 8:00 AM to receive automatic email alerts.</p><pre style="background:#1a1a1a;color:#4ade80;padding:16px;border-radius:6px;font-family:monospace;font-size:11px;white-space:pre-wrap;overflow-x:auto">'+appsCode.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</pre><button class="btn bs" style="margin-top:12px" onclick="navigator.clipboard.writeText(document.querySelector('pre').textContent).then(()=>toast('✓ Copied'))">Copy Script</button></div></div>';
-}
-
-async function fAddAdvisor(){
-  const el=document.getElementById('mc');
-  el.innerHTML='<div class="ph"><div class="bc">Advisor Registry</div><h1>Add / Update Advisor</h1><p>Complete all licence and E&O details. Expiry dates drive the alert system.</p></div><div class="notice">⚠️ Enter all expiry dates in YYYY-MM-DD format. The alert system calculates days remaining from these dates and flags items within 90 days.</div><div class="card"><div class="ch"><h3>Advisor Record</h3></div><div class="cb"><div id="fa"></div><div class="sdiv">Personal & Registration</div><div class="fg t"><div class="fgrp"><label>Full Legal Name *</label><input type="text" id="a-name" placeholder="As on NRD"></div><div class="fgrp"><label>Role</label><select id="a-role"><option>Insurance Advisor</option><option>Investment Advisor</option><option>Insurance & Investment Advisor</option><option>Branch Manager / CCO</option></select></div><div class="fgrp"><label>VFG Email *</label><input type="text" id="a-email" placeholder="advisor@voltafinancial.ca"></div><div class="fgrp"><label>Phone</label><input type="text" id="a-phone"></div><div class="fgrp"><label>NRD Number</label><input type="text" id="a-nrd"></div><div class="fgrp"><label>CIRO Category</label><select id="a-ciro"><option>N/A — Insurance Only</option><option>Registered Representative</option><option>Branch Manager</option><option>Mutual Fund Dealing Representative</option></select></div></div><div class="sdiv">Provincial Licences</div><div class="fg t"><div class="fgrp"><label>ON Licence # (FSRA)</label><input type="text" id="a-onnum"></div><div class="fgrp"><label>ON Licence Expiry</label><input type="date" id="a-onexp"></div><div class="fgrp"><label>LLQP Date</label><input type="date" id="a-llqp"></div><div class="fgrp"><label>BC Licence # (BCFSA)</label><input type="text" id="a-bcnum"></div><div class="fgrp"><label>BC Expiry (March 31)</label><input type="date" id="a-bcexp"></div><div class="fgrp"><label>AB Licence # (AIC)</label><input type="text" id="a-abnum"></div><div class="fgrp"><label>AB Expiry (Dec 31)</label><input type="date" id="a-abexp"></div></div><div class="sdiv">E&O Insurance</div><div class="fg t"><div class="fgrp"><label>E&O Carrier *</label><input type="text" id="a-eocarrier" placeholder="e.g. Intact, Markel"></div><div class="fgrp"><label>E&O Policy #</label><input type="text" id="a-eopol"></div><div class="fgrp"><label>Coverage</label><select id="a-eocov"><option>$1M/$2M aggregate</option><option>$2M/$4M aggregate</option><option>$5M/$10M aggregate</option></select></div><div class="fgrp"><label>E&O Expiry *</label><input type="date" id="a-eoexp"></div><div class="fgrp"><label>E&O Retroactive Date</label><input type="date" id="a-eoretro"></div></div><div class="sdiv">Designations</div><div class="fg t"><div class="fgrp"><label>CFP # / Renewal</label><input type="text" id="a-cfpnum" placeholder="FP Canada #"></div><div class="fgrp"><label>CFP Renewal Date</label><input type="date" id="a-cfpexp"></div><div class="fgrp"><label>CIM # / Renewal</label><input type="text" id="a-cimnum"></div><div class="fgrp"><label>CIM Renewal Date</label><input type="date" id="a-cimexp"></div><div class="fgrp"><label>CLU # / Renewal</label><input type="text" id="a-clunum"></div><div class="fgrp"><label>CLU Renewal Date</label><input type="date" id="a-cluexp"></div><div class="fgrp"><label>RRC # / Renewal</label><input type="text" id="a-rrcnum"></div><div class="fgrp"><label>RRC Renewal Date</label><input type="date" id="a-rrcexp"></div></div><div class="sdiv">MGA / Dealer & Carrier Appointments</div><div class="fg t"><div class="fgrp"><label>Current MGA / Dealer *</label><input type="text" id="a-mga" placeholder="e.g. Carte Risk Management"></div><div class="fgrp"><label>Contract Date</label><input type="date" id="a-contractdate"></div><div class="fgrp"><label>Status</label><select id="a-status"><option>Active</option><option>Onboarding</option><option>On Leave</option><option>Suspended</option><option>Departed</option></select></div></div><div class="fg" style="margin-top:14px"><div class="fgrp s2"><label>Carrier Appointments & Notes</label><textarea id="a-notes" placeholder="Canada Life — Life & Seg Funds — Active\nSun Life — Life, CI, DI — Active\nManulife — Life — Active\n(One carrier per line. Include product lines and status.)"></textarea></div></div><div style="margin-top:18px;display:flex;gap:10px"><button class="btn bp" onclick="sAdvisor()" id="sb-adv">Save Advisor Record</button><button class="btn bs" onclick="go('registry')">View Registry</button></div></div></div>';
-}
-
-async function sAdvisor(){
-  const name=gv('a-name'),email=gv('a-email');
-  if(!name||!email){document.getElementById('fa').innerHTML='<div class="al ale">Name and email are required.</div>';return;}
-  const btn=document.getElementById('sb-adv');btn.disabled=true;btn.textContent='Saving…';
+async function fRegistry(){
+  var el=document.getElementById("mc");
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">Advisor Management</div><h1>Advisor Registry</h1></div><div class=\"card\"><div class=\"ch\"><h3>All Advisors</h3><button class=\"btn bp bsm\" onclick=\"go('onboard')\">+ Add Advisor</button></div><div class=\"cb\" id=\"reg-body\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div></div>";
   try{
-    await aRow(REG_SHEET,[name,gv('a-role'),email,gv('a-phone'),gv('a-nrd'),gv('a-ciro'),gv('a-onnum'),gv('a-onexp'),gv('a-bcnum'),gv('a-bcexp'),gv('a-abnum'),gv('a-abexp'),gv('a-llqp'),gv('a-eocarrier'),gv('a-eopol'),gv('a-eocov'),gv('a-eoexp'),gv('a-cfpnum'),gv('a-cfpexp'),gv('a-cimnum'),gv('a-cimexp'),gv('a-clunum'),gv('a-cluexp'),gv('a-rrcnum'),gv('a-rrcexp'),gv('a-mga'),gv('a-contractdate'),gv('a-status'),gv('a-notes')]);
-    toast('\u2713 Advisor record saved');go('registry');
-  }catch(e){document.getElementById('fa').innerHTML='<div class="al ale">\u26a0\ufe0f '+e.message+'</div>';btn.disabled=false;btn.textContent='Save Advisor Record';}
+    var advisors=await sbSelect("advisor_registry","select=*&order=full_name.asc");
+    if(advisors.length===0){document.getElementById("reg-body").innerHTML="<div class=\"empty\"><p>No advisors registered yet. <a href=\"#\" onclick=\"go('onboard')\" style=\"color:var(--vault)\">Add the first advisor.</a></p></div>";return;}
+    var today=new Date();
+    function expClass(dateStr){
+      if(!dateStr)return "bx";
+      var d=new Date(dateStr),diff=(d-today)/(1000*60*60*24);
+      if(diff<0)return "br";
+      if(diff<30)return "br";
+      if(diff<90)return "ba";
+      return "bg";
+    }
+    function expLabel(dateStr){
+      if(!dateStr)return "Not set";
+      var d=new Date(dateStr),diff=Math.round((d-today)/(1000*60*60*24));
+      if(diff<0)return "EXPIRED";
+      if(diff===0)return "Expires today";
+      return "Exp "+d.toLocaleDateString("en-CA");
+    }
+    var roleMap={cco:"CCO",advisor_investment:"Investment",advisor_insurance:"Insurance",advisor_dual:"Dual"};
+    var rows=advisors.map(function(a){
+      return "<div class=\"advisor-card\">"+
+        "<div>"+
+          "<div style=\"font-weight:600;font-size:13.5px\">"+a.full_name+"</div>"+
+          "<div style=\"font-size:11.5px;color:var(--muted);margin-top:2px\">"+a.email+" &mdash; "+(roleMap[a.role]||a.role)+"</div>"+
+          "<div style=\"font-size:11px;color:var(--muted);margin-top:2px\">Licence: "+(a.licence_number||"&mdash;")+" &mdash; Provinces: "+((a.provinces||[]).join(", ")||"&mdash;")+"</div>"+
+        "</div>"+
+        "<div style=\"display:flex;gap:8px;align-items:center;flex-wrap:wrap\">"+
+          "<span class=\"exp-chip "+expClass(a.licence_expiry)+"\">Lic: "+expLabel(a.licence_expiry)+"</span>"+
+          "<span class=\"exp-chip "+expClass(a.eo_expiry)+"\">E&O: "+expLabel(a.eo_expiry)+"</span>"+
+          "<span class=\"b "+(a.status==="Active"?"bg":"br")+"\">"+a.status+"</span>"+
+          "<button class=\"btn bs bsm\" onclick=\"editAdvisor('"+a.id+"')\">Edit</button>"+
+          (a.status==="Active"?"<button class=\"btn bsm\" style=\"background:rgba(139,32,32,.1);color:var(--err);border:1px solid rgba(139,32,32,.3)\" onclick=\"deactivateAdvisor('"+a.id+"','"+a.full_name+"')\">Deactivate</button>":"")+
+        "</div>"+
+      "</div>";
+    }).join("");
+    document.getElementById("reg-body").innerHTML=rows;
+  }catch(e){document.getElementById("reg-body").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
 }
 
-// INIT
-rMasterDash();
+// ── ONBOARD NEW ADVISOR ──
+function fOnboard(){
+  var yr=new Date().getFullYear();
+  var h="<div class=\"ph\"><div class=\"bc\">Advisor Management</div><h1>Add New Advisor</h1></div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>New Advisor Account</h3></div><div class=\"cb\"><div id=\"ob-msg\"></div>";
+  h+="<div class=\"sdiv\">Login Credentials</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Full Name *</label><input type=\"text\" id=\"ob-name\" placeholder=\"First and Last Name, Designations\"></div>";
+  h+="<div class=\"fgrp\"><label>Email Address *</label><input type=\"email\" id=\"ob-email\" placeholder=\"advisor@voltafinancial.ca\"></div>";
+  h+="<div class=\"fgrp\"><label>Temporary Password *</label><input type=\"text\" id=\"ob-pass\" placeholder=\"Min 12 characters\"></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Registration Details</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Portal Role *</label><select id=\"ob-role\"><option value=\"advisor_insurance\">Insurance Advisor</option><option value=\"advisor_investment\">Investment Advisor</option><option value=\"advisor_dual\">Dual Registered Advisor</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Licence Number</label><input type=\"text\" id=\"ob-lic\" placeholder=\"e.g. ON-INS-12345\"></div>";
+  h+="<div class=\"fgrp\"><label>Licence Expiry Date</label><input type=\"date\" id=\"ob-licexp\"></div>";
+  h+="<div class=\"fgrp\"><label>E&O Insurance Expiry</label><input type=\"date\" id=\"ob-eoexp\"></div>";
+  h+="<div class=\"fgrp\"><label>Provinces Registered</label><select id=\"ob-prov\" multiple style=\"min-height:80px\"><option>Ontario</option><option>British Columbia</option><option>Alberta</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Designations</label><input type=\"text\" id=\"ob-desig\" placeholder=\"e.g. CFP, CIM, CLU\"></div>";
+  h+="</div>";
+  h+="<div class=\"notice\" style=\"margin-top:14px\">The advisor will receive a login email. They should change their temporary password on first login. The account is active immediately upon creation.</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"doOnboard()\" id=\"ob-btn\">Create Advisor Account</button><button class=\"btn bs\" onclick=\"go('registry')\">Cancel</button></div>";
+  h+="</div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+
+async function doOnboard(){
+  var name=gv("ob-name"),email=gv("ob-email"),pass=gv("ob-pass"),role=gv("ob-role");
+  if(!name||!email||!pass||!role){document.getElementById("ob-msg").innerHTML="<div class=\"al ale\">Name, email, password and role are required.</div>";return;}
+  if(pass.length<12){document.getElementById("ob-msg").innerHTML="<div class=\"al ale\">Password must be at least 12 characters.</div>";return;}
+  var btn=document.getElementById("ob-btn");btn.disabled=true;btn.textContent="Creating account…";
+  try{
+    // Get selected provinces
+    var provSel=document.getElementById("ob-prov");
+    var provs=Array.from(provSel.selectedOptions).map(function(o){return o.value;});
+
+    // Create auth user via Supabase Auth Admin API
+    // Note: This uses the anon key - for production use a Supabase Edge Function with service_role
+    // For now we sign up the user directly
+    var signupR=await fetch(SUPA_URL+"/auth/v1/signup",{
+      method:"POST",
+      headers:{"apikey":SUPA_ANON,"Content-Type":"application/json"},
+      body:JSON.stringify({
+        email:email,password:pass,
+        data:{full_name:name,role:role}
+      })
+    });
+    var signupD=await signupR.json();
+    if(!signupR.ok)throw new Error(signupD.error_description||signupD.msg||"Could not create account");
+
+    var userId=signupD.user?signupD.user.id:null;
+    if(!userId)throw new Error("User created but ID not returned");
+
+    // Update the profile that was auto-created by the trigger
+    await new Promise(function(res){setTimeout(res,1000);}); // wait for trigger
+    await sbUpdate("profiles","id=eq."+userId,{
+      full_name:name,email:email,role:role,
+      licence_number:gv("ob-lic"),provinces:provs,
+      designations:gv("ob-desig"),active:true
+    });
+
+    // Insert into advisor registry
+    await sbInsert("advisor_registry",{
+      profile_id:userId,full_name:name,email:email,role:role,
+      licence_number:gv("ob-lic"),
+      licence_expiry:gv("ob-licexp")||null,
+      eo_expiry:gv("ob-eoexp")||null,
+      provinces:provs,designations:gv("ob-desig"),
+      onboard_date:TODAY,status:"Active"
+    });
+
+    toast("✓ Advisor account created: "+name,"pdf");
+    document.getElementById("ob-msg").innerHTML="<div class=\"al als\">✓ Account created for "+name+" ("+email+"). They can now log in with the temporary password.</div>";
+    btn.disabled=false;btn.textContent="Create Another";
+  }catch(e){
+    document.getElementById("ob-msg").innerHTML="<div class=\"al ale\">⚠️ "+e.message+"</div>";
+    btn.disabled=false;btn.textContent="Create Advisor Account";
+  }
+}
+
+async function deactivateAdvisor(id,name){
+  if(!confirm("Deactivate "+name+"? They will immediately lose portal access."))return;
+  try{
+    await sbUpdate("profiles","id=eq."+id,{active:false});
+    await sbUpdate("advisor_registry","profile_id=eq."+id,{status:"Deactivated"});
+    toast(name+" deactivated","pdf");
+    fRegistry();
+  }catch(e){toast(e.message,"err");}
+}
+
+async function editAdvisor(id){
+  try{
+    var rows=await sbSelect("advisor_registry","select=*&profile_id=eq."+id);
+    var a=rows[0];if(!a){toast("Advisor not found","err");return;}
+    var el=document.getElementById("mc");
+    el.innerHTML="<div class=\"ph\"><div class=\"bc\">Advisor Management</div><h1>Edit Advisor</h1></div>"+
+      "<div class=\"card\"><div class=\"ch\"><h3>"+a.full_name+"</h3></div><div class=\"cb\"><div id=\"ea-msg\"></div>"+
+      "<div class=\"fg t\">"+
+      "<div class=\"fgrp\"><label>Full Name</label><input type=\"text\" id=\"ea-name\" value=\""+a.full_name+"\"></div>"+
+      "<div class=\"fgrp\"><label>Email</label><input type=\"text\" id=\"ea-email\" value=\""+a.email+"\" readonly style=\"background:#f0ead8\"></div>"+
+      "<div class=\"fgrp\"><label>Role</label><select id=\"ea-role\"><option value=\"advisor_insurance\""+( a.role==="advisor_insurance"?" selected":"")+">Insurance Advisor</option><option value=\"advisor_investment\""+( a.role==="advisor_investment"?" selected":"")+">Investment Advisor</option><option value=\"advisor_dual\""+( a.role==="advisor_dual"?" selected":"")+">Dual Advisor</option></select></div>"+
+      "<div class=\"fgrp\"><label>Licence Number</label><input type=\"text\" id=\"ea-lic\" value=\""+(a.licence_number||"")+"\"></div>"+
+      "<div class=\"fgrp\"><label>Licence Expiry</label><input type=\"date\" id=\"ea-licexp\" value=\""+(a.licence_expiry||"")+"\"></div>"+
+      "<div class=\"fgrp\"><label>E&O Expiry</label><input type=\"date\" id=\"ea-eoexp\" value=\""+(a.eo_expiry||"")+"\"></div>"+
+      "<div class=\"fgrp\"><label>Designations</label><input type=\"text\" id=\"ea-desig\" value=\""+(a.designations||"")+"\"></div>"+
+      "<div class=\"fgrp\"><label>Status</label><select id=\"ea-stat\"><option"+( a.status==="Active"?" selected":"")+">Active</option><option"+( a.status==="Deactivated"?" selected":"")+">Deactivated</option></select></div>"+
+      "</div>"+
+      "<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"saveAdvisor('"+id+"')\">Save Changes</button><button class=\"btn bs\" onclick=\"go('registry')\">Cancel</button></div>"+
+      "</div></div>";
+  }catch(e){toast(e.message,"err");}
+}
+
+async function saveAdvisor(registryId){
+  try{
+    var data={full_name:gv("ea-name"),role:gv("ea-role"),licence_number:gv("ea-lic"),licence_expiry:gv("ea-licexp")||null,eo_expiry:gv("ea-eoexp")||null,designations:gv("ea-desig"),status:gv("ea-stat")};
+    await sbUpdate("advisor_registry","id=eq."+registryId,data);
+    toast("✓ Advisor updated");
+    fRegistry();
+  }catch(e){document.getElementById("ea-msg").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
+}
+
+// ── SUPERVISION LOG ──
+async function fSupervision(){
+  var el=document.getElementById("mc");
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">CCO</div><h1>Supervision Log</h1></div>"+
+    "<div class=\"card\"><div class=\"ch\"><h3>Log New Supervision Review</h3></div><div class=\"cb\"><div id=\"sup-msg\"></div>"+
+    "<div class=\"fg t\">"+
+    "<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"sup-date\" value=\""+TODAY+"\"></div>"+
+    "<div class=\"fgrp\"><label>Advisor Reviewed *</label><input type=\"text\" id=\"sup-adv\" placeholder=\"Full name\"></div>"+
+    "<div class=\"fgrp\"><label>Review Type *</label><select id=\"sup-type\"><option>Monthly Trade Review</option><option>Quarterly Suitability Review</option><option>Annual Comprehensive Review</option><option>Ad Hoc Review</option><option>Complaint Follow-Up</option><option>New Advisor Onboarding Review</option></select></div>"+
+    "<div class=\"fgrp\"><label>Items Reviewed</label><input type=\"number\" id=\"sup-items\" placeholder=\"e.g. 12\"></div>"+
+    "<div class=\"fgrp\"><label>Status</label><select id=\"sup-stat\"><option>Completed &mdash; No Issues</option><option>Completed &mdash; Issues Noted</option><option>In Progress</option><option>Escalated</option></select></div>"+
+    "</div>"+
+    "<div class=\"fg\" style=\"margin-top:14px\">"+
+    "<div class=\"fgrp\"><label>Findings</label><textarea id=\"sup-find\" placeholder=\"Describe what was reviewed and any findings...\"></textarea></div>"+
+    "<div class=\"fgrp\"><label>Actions Required</label><textarea id=\"sup-act\" placeholder=\"Corrective actions, follow-up items, or none...\"></textarea></div>"+
+    "</div>"+
+    "<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"logSupervision()\" id=\"sup-btn\">Log Review</button></div>"+
+    "</div></div>"+
+    "<div class=\"card\"><div class=\"ch\"><h3>Recent Supervision Entries</h3></div><div class=\"cb\" id=\"sup-hist\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div></div>";
+  loadSupHistory();
+}
+
+async function loadSupHistory(){
+  try{
+    var rows=await sbSelect("supervision_log","select=*&order=created_at.desc&limit=50");
+    if(rows.length===0){document.getElementById("sup-hist").innerHTML="<div class=\"empty\"><p>No entries yet</p></div>";return;}
+    var tb=rows.map(function(r){return "<tr><td>"+(r.date||"&mdash;")+"</td><td>"+(r.advisor_name||"&mdash;")+"</td><td>"+(r.review_type||"&mdash;")+"</td><td>"+(r.items_reviewed||"&mdash;")+"</td><td>"+bdg(r.status)+"</td></tr>";}).join("");
+    document.getElementById("sup-hist").innerHTML="<div class=\"tw\"><table><thead><tr><th>Date</th><th>Advisor</th><th>Review Type</th><th>Items</th><th>Status</th></tr></thead><tbody>"+tb+"</tbody></table></div>";
+  }catch(e){document.getElementById("sup-hist").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
+}
+
+async function logSupervision(){
+  var d=gv("sup-date"),a=gv("sup-adv"),t=gv("sup-type");
+  if(!d||!a||!t){document.getElementById("sup-msg").innerHTML="<div class=\"al ale\">Complete required fields.</div>";return;}
+  var btn=document.getElementById("sup-btn");btn.disabled=true;btn.textContent="Logging…";
+  try{
+    await sbInsert("supervision_log",{date:d,advisor_name:a,review_type:t,items_reviewed:parseInt(gv("sup-items"))||null,findings:gv("sup-find"),actions:gv("sup-act"),status:gv("sup-stat"),cco_id:_profile?_profile.id:null});
+    toast("✓ Supervision entry logged");
+    fSupervision();
+  }catch(e){document.getElementById("sup-msg").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Review";}
+}
+
+// ── AUTH ──
+async function initSession(){
+  var stored=localStorage.getItem("vfg_cco_session");
+  if(stored){
+    try{
+      var sess=JSON.parse(stored);
+      if(sess.expires_at&&Date.now()/1000<sess.expires_at-300){
+        _session=sess;
+        _profile=await sbGetProfile(sess.user.id);
+        if(_profile&&_profile.active&&_profile.role==="cco"){showApp();return;}
+        _session=null;_profile=null;localStorage.removeItem("vfg_cco_session");
+      }
+    }catch(e){localStorage.removeItem("vfg_cco_session");}
+  }
+  showLogin();
+}
+
+function showLogin(){
+  document.getElementById("login-screen").style.display="flex";
+  document.getElementById("app-shell").style.display="none";
+}
+
+function showApp(){
+  document.getElementById("login-screen").style.display="none";
+  document.getElementById("app-shell").style.display="flex";
+  document.getElementById("user-name").textContent=(_profile?_profile.full_name:"CCO")+" — CCO";
+  document.getElementById("hdate").textContent=new Date().toLocaleDateString("en-CA",{year:"numeric",month:"short",day:"numeric"});
+  rDash();
+}
+
+async function handleLogin(e){
+  e.preventDefault();
+  var email=document.getElementById("li-email").value.trim();
+  var pass=document.getElementById("li-pass").value;
+  var btn=document.getElementById("li-btn");
+  var err=document.getElementById("li-err");
+  err.style.display="none";
+  if(!email||!pass){err.textContent="Email and password are required.";err.style.display="block";return;}
+  btn.disabled=true;btn.textContent="Signing in…";
+  try{
+    var sess=await sbSignIn(email,pass);
+    _session=sess;
+    var prof=await sbGetProfile(sess.user.id);
+    if(!prof)throw new Error("Profile not found.");
+    if(!prof.active)throw new Error("Account deactivated.");
+    if(prof.role!=="cco")throw new Error("Access denied. This portal is for the CCO only.");
+    localStorage.setItem("vfg_cco_session",JSON.stringify(sess));
+    _profile=prof;
+    showApp();
+  }catch(ex){
+    err.textContent=ex.message;
+    err.style.display="block";
+    btn.disabled=false;
+    btn.textContent="Sign In to CCO Portal";
+  }
+}
+
+function showReset(){var rf=document.getElementById("reset-form");rf.style.display=rf.style.display==="none"?"block":"none";}
+async function sendReset(){
+  var email=document.getElementById("li-reset-email").value.trim();
+  if(!email)return;
+  await fetch(SUPA_URL+"/auth/v1/recover",{method:"POST",headers:{"apikey":SUPA_ANON,"Content-Type":"application/json"},body:JSON.stringify({email:email})});
+  document.getElementById("reset-success").style.display="block";
+  setTimeout(function(){document.getElementById("reset-success").style.display="none";},4000);
+}
+
+initSession();
+
 </script>
 </body>
 </html>
