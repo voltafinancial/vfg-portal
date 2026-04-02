@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VFG Investment Advisor Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{--vault:#042825;--vl:#0a3d39;--vd:#021a18;--parch:#F7F0E0;--pd:#ede4ce;--bed:#BFAA8E;--steel:#ADC1C2;--wh:#ffffff;--tx:#1a1a1a;--muted:#6b6b6b;--ok:#2d7a4f;--warn:#b8860b;--err:#8b2020;--bdr:rgba(4,40,37,.12);--shad:0 2px 16px rgba(4,40,37,.08);}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -31,7 +32,7 @@ header{background:var(--vault);color:var(--wh);padding:0 28px;height:60px;displa
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .signout-btn{background:none;border:1px solid rgba(191,170,142,.4);color:var(--bed);padding:5px 12px;border-radius:4px;font-size:11.5px;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .signout-btn:hover{background:rgba(247,240,224,.1);}
-nav{width:218px;background:var(--vd);flex-shrink:0;padding:20px 0;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
+nav{width:230px;background:var(--vd);flex-shrink:0;padding:20px 0;display:flex;flex-direction:column;gap:1px;overflow-y:auto;}
 .ns{padding:0 14px 6px;font-size:9px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(191,170,142,.45);margin-top:14px;}
 .ns:first-child{margin-top:0;}
 nav a{display:flex;align-items:center;gap:9px;padding:8px 14px;color:rgba(247,240,224,.6);text-decoration:none;font-size:12.5px;cursor:pointer;transition:all .15s;border-left:2px solid transparent;margin:0 6px;border-radius:4px;}
@@ -45,15 +46,16 @@ main{flex:1;padding:28px 32px;overflow-y:auto;}
 .ch{padding:14px 18px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
 .ch h3{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--vault);}
 .cb{padding:18px;}
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.fg.t{grid-template-columns:1fr 1fr 1fr;}
-.fgrp{display:flex;flex-direction:column;gap:4px;}.fgrp.s2{grid-column:span 2;}.fgrp.s3{grid-column:span 3;}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px;}.fg.t{grid-template-columns:1fr 1fr 1fr;}.fg.q{grid-template-columns:1fr 1fr 1fr 1fr;}
+.fgrp{display:flex;flex-direction:column;gap:4px;}.fgrp.s2{grid-column:span 2;}.fgrp.s3{grid-column:span 3;}.fgrp.s4{grid-column:span 4;}
 label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--vault);}
 input,select,textarea{font-family:'DM Sans',sans-serif;font-size:12.5px;padding:8px 11px;border:1px solid rgba(4,40,37,.2);border-radius:5px;background:var(--wh);color:var(--tx);transition:border-color .15s;outline:none;width:100%;}
 input:focus,select:focus,textarea:focus{border-color:var(--vault);box-shadow:0 0 0 3px rgba(4,40,37,.07);}
-textarea{resize:vertical;min-height:80px;}
+textarea{resize:vertical;min-height:72px;}
 .btn{font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:500;padding:8px 18px;border-radius:5px;border:none;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
 .bp{background:var(--vault);color:var(--wh);}.bp:hover{background:var(--vl);}.bp:disabled{opacity:.5;cursor:not-allowed;}
 .bs{background:var(--parch);color:var(--vault);border:1px solid var(--bdr);}.bs:hover{background:var(--pd);}
+.bpdf{background:var(--bed);color:var(--vault);font-weight:600;}.bpdf:hover{background:#a8916a;}
 .bsm{padding:5px 11px;font-size:11.5px;}
 .tw{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
@@ -82,8 +84,23 @@ tr:hover td{background:rgba(247,240,224,.5);}
 .sdiv:first-child{margin-top:0;}
 .btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
 .empty{text-align:center;padding:40px 20px;color:var(--muted);}
+.ck-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px;}
+.ck-grid.t{grid-template-columns:1fr 1fr 1fr;}
+.ck{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:var(--parch);border-radius:5px;cursor:pointer;font-size:12px;line-height:1.4;}
+.ck input[type=checkbox]{width:14px;height:14px;margin-top:1px;flex-shrink:0;accent-color:var(--vault);}
+.ck.sel{background:rgba(4,40,37,.08);border:1px solid rgba(4,40,37,.2);}
+.step-bar{display:flex;gap:0;margin-bottom:24px;border-radius:6px;overflow:hidden;border:1px solid var(--bdr);}
+.step{flex:1;padding:10px 8px;text-align:center;font-size:11px;font-weight:500;background:var(--wh);color:var(--muted);border-right:1px solid var(--bdr);cursor:pointer;transition:all .15s;}
+.step:last-child{border-right:none;}
+.step.active{background:var(--vault);color:var(--wh);font-weight:600;}
+.step.done{background:var(--parch);color:var(--vault);}
+.kyc-card{background:var(--wh);border:1px solid var(--bdr);border-radius:8px;margin-bottom:14px;}
+.kyc-ch{padding:12px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
+.kyc-ch h4{font-family:'Cormorant Garamond',serif;font-size:14px;font-weight:600;color:var(--vault);}
+.kyc-cb{padding:16px;display:none;}
+.kyc-cb.open{display:block;}
 #toast{position:fixed;bottom:22px;right:22px;background:var(--vault);color:var(--wh);padding:11px 18px;border-radius:6px;font-size:12.5px;box-shadow:0 8px 40px rgba(4,40,37,.14);transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:320px;}
-#toast.show{transform:translateY(0);opacity:1;}#toast.error{background:var(--err);}
+#toast.show{transform:translateY(0);opacity:1;}#toast.error{background:var(--err);}#toast.pdf{background:var(--ok);}
 </style>
 </head>
 <body>
@@ -142,16 +159,32 @@ tr:hover td{background:rgba(247,240,224,.5);}
 <div style="display:flex;flex:1;">
 <nav>
   <div class="ns">Overview</div>
-  <a onclick="go('dash')" id="n-dash" class="active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
+  <a onclick="go('dash')" id="n-dash" class="active">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a>
   <div class="ns">Registers &mdash; View</div>
   <a onclick="go('vrec')" id="n-vrec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Recommendations</a>
-  <a onclick="go('vsuit')" id="n-vsuit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>Suitability</a>
+  <a onclick="go('vkyc')" id="n-vkyc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>KYC Assessments</a>
+  <a onclick="go('vsuit')" id="n-vsuit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>Suitability</a>
   <a onclick="go('vcoi')" id="n-vcoi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>COI Register</a>
+  <a onclick="go('voba')" id="n-voba"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>OBA Register</a>
+  <a onclick="go('vgift')" id="n-vgift"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>Gifts &amp; Entertainment</a>
+  <a onclick="go('vref')" id="n-vref"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Referrals</a>
+  <a onclick="go('vtrn')" id="n-vtrn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Training / CE</a>
+  <a onclick="go('vptrd')" id="n-vptrd"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Personal Trading</a>
   <a onclick="go('vcmp')" id="n-vcmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Complaints</a>
+  <div class="ns">Generate Documents</div>
+  <a onclick="go('gkyc')" id="n-gkyc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>KYC Assessment</a>
+  <a onclick="go('gsdw')" id="n-gsdw"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Suitability Worksheet</a>
+  <a onclick="go('gtrl')" id="n-gtrl"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Trade Rationale Letter</a>
   <div class="ns">Log New Entry</div>
   <a onclick="go('lrec')" id="n-lrec"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Recommendation</a>
-  <a onclick="go('lsuit')" id="n-lsuit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Suitability</a>
+  <a onclick="go('lsuit')" id="n-lsuit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Suitability Update</a>
   <a onclick="go('lcoi')" id="n-lcoi"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log COI</a>
+  <a onclick="go('loba')" id="n-loba"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log OBA</a>
+  <a onclick="go('lgift')" id="n-lgift"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Gift / Entertainment</a>
+  <a onclick="go('lref')" id="n-lref"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Referral</a>
+  <a onclick="go('ltrn')" id="n-ltrn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Training / CE</a>
+  <a onclick="go('lptrd')" id="n-lptrd"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Personal Trade</a>
   <a onclick="go('lcmp')" id="n-lcmp"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Log Complaint</a>
 </nav>
 <main id="mc" style="flex:1;padding:28px 32px;overflow-y:auto;"></main>
@@ -161,10 +194,11 @@ tr:hover td{background:rgba(247,240,224,.5);}
 <script>
 var SUPA_URL="https://vpuwuyqnknlqyozqfmfb.supabase.co";
 var SUPA_ANON="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwdXd1eXFua25scXlvenFmbWZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwMTA1NDQsImV4cCI6MjA5MDU4NjU0NH0.SZoeLCEqcl6VL0jbe4Pvsi8yC0J8aSGbJT0Fol1URUY";
-
-var _session=null,_profile=null;
+var _session=null,_profile=null,_kycData={};
 var TODAY=new Date().toISOString().slice(0,10);
+var YR=new Date().getFullYear();
 
+// ── SUPABASE CORE ──
 async function sbFetch(path,opts){
   opts=opts||{};
   var headers={"apikey":SUPA_ANON,"Content-Type":"application/json"};
@@ -185,9 +219,7 @@ async function sbSignOut(){
 }
 async function sbGetProfile(uid){
   var token=_session?_session.access_token:SUPA_ANON;
-  var r=await fetch(SUPA_URL+"/rest/v1/profiles?id=eq."+uid+"&select=*",{
-    headers:{"apikey":SUPA_ANON,"Authorization":"Bearer "+token,"Content-Type":"application/json"}
-  });
+  var r=await fetch(SUPA_URL+"/rest/v1/profiles?id=eq."+uid+"&select=*",{headers:{"apikey":SUPA_ANON,"Authorization":"Bearer "+token,"Content-Type":"application/json"}});
   var d=await r.json();return d[0]||null;
 }
 async function sbInsert(table,row){
@@ -195,20 +227,41 @@ async function sbInsert(table,row){
   if(!r.ok){var e=await r.json();throw new Error(e.message||e.details||"Insert failed");}
 }
 async function sbSelect(table,q){
-  var r=await sbFetch("/rest/v1/"+table+"?"+(q||"select=*&order=created_at.desc&limit=200"));
+  var r=await sbFetch("/rest/v1/"+table+"?"+(q||"select=*&order=created_at.desc&limit=300"));
   if(!r.ok){var e=await r.json();throw new Error(e.message||"Query failed");}
   return await r.json();
 }
 
-function toast(m,t){t=t||"ok";var e=document.getElementById("toast");e.textContent=m;e.className=t==="err"?"error show":"show";setTimeout(function(){e.className="";},4000);}
+// ── HELPERS ──
+function toast(m,t){t=t||"ok";var e=document.getElementById("toast");e.textContent=m;e.className=t==="err"?"error show":t==="pdf"?"pdf show":"show";setTimeout(function(){e.className="";},4000);}
 function gv(id){var e=document.getElementById(id);return e?e.value:"";}
-function bdg(v){if(!v)return "<span class=\"b bx\">&mdash;</span>";var l=v.toLowerCase();if(l.includes("approv")||l.includes("complet")||l.includes("pass")||l.includes("yes"))return "<span class=\"b bg\">"+v+"</span>";if(l.includes("pending")||l.includes("review"))return "<span class=\"b ba\">"+v+"</span>";if(l.includes("fail")||l.includes("reject"))return "<span class=\"b br\">"+v+"</span>";return "<span class=\"b bb\">"+v+"</span>";}
+function fmt(n){return "$"+Math.abs(Math.round(n)).toLocaleString("en-CA");}
+function pn(id){var e=document.getElementById(id);return parseFloat(String(e?e.value:"0").replace(/[^0-9.]/g,""))||0;}
+function bdg(v){
+  if(!v)return "<span class=\"b bx\">&mdash;</span>";
+  var l=v.toLowerCase();
+  if(l.includes("approv")||l.includes("complet")||l.includes("pass")||l.includes("yes")||l.includes("generated")||l.includes("active")||l.includes("suitable"))return "<span class=\"b bg\">"+v+"</span>";
+  if(l.includes("pending")||l.includes("review")||l.includes("progress"))return "<span class=\"b ba\">"+v+"</span>";
+  if(l.includes("fail")||l.includes("reject")||l.includes("unsuitable")||l.includes("concern")||l.includes("open"))return "<span class=\"b br\">"+v+"</span>";
+  return "<span class=\"b bb\">"+v+"</span>";
+}
+function mkRef(prefix){return prefix+"-"+YR+"-"+String(Math.floor(Math.random()*900)+100);}
+function ckGroup(id,items,cols){
+  var g="<div class=\"ck-grid"+(cols===3?" t":"")+"\" id=\""+id+"\">";
+  items.forEach(function(item){g+="<label class=\"ck\"><input type=\"checkbox\" value=\""+item+"\"> "+item+"</label>";});
+  return g+"</div>";
+}
+function getChecked(id){
+  var boxes=document.querySelectorAll("#"+id+" input[type=checkbox]:checked");
+  return Array.from(boxes).map(function(b){return b.value;}).join("; ");
+}
 
-async function rReg(title,table,cols){
+async function rReg(title,table,cols,filterOwn){
   var el=document.getElementById("mc");
-  el.innerHTML="<div class=\"ph\"><div class=\"bc\">Registers</div><h1>"+title+"</h1></div><div class=\"card\"><div class=\"ch\"><h3>My Entries</h3><span style=\"font-size:11.5px;color:var(--muted)\" id=\"ec\">Loading&hellip;</span></div><div class=\"cb\" id=\"rt\"><div class=\"loading\"><div class=\"spinner\"></div>Fetching&hellip;</div></div></div>";
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">Registers</div><h1>"+title+"</h1></div><div class=\"card\"><div class=\"ch\"><h3>All Entries</h3><span style=\"font-size:11.5px;color:var(--muted)\" id=\"ec\">Loading&hellip;</span></div><div class=\"cb\" id=\"rt\"><div class=\"loading\"><div class=\"spinner\"></div>Fetching&hellip;</div></div></div>";
   try{
-    var q="select=*&order=created_at.desc&limit=200"+((_profile&&_profile.role!=="cco")?"&advisor_id=eq."+_profile.id:"");
+    var q="select=*&order=created_at.desc&limit=300";
+    if(filterOwn&&_profile&&_profile.role!=="cco")q+="&advisor_id=eq."+_profile.id;
     var rows=await sbSelect(table,q);
     document.getElementById("ec").textContent=rows.length+" entries";
     if(rows.length===0){document.getElementById("rt").innerHTML="<div class=\"empty\"><p>No entries yet</p></div>";return;}
@@ -218,96 +271,716 @@ async function rReg(title,table,cols){
   }catch(e){document.getElementById("rt").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";}
 }
 
+// ── NAVIGATION ──
 function go(id){
   document.querySelectorAll("nav a").forEach(function(a){a.classList.remove("active");});
   var nd=document.getElementById("n-"+id);if(nd)nd.classList.add("active");
   var map={
     dash:rDash,
-    vrec:function(){rReg("Investment Recommendations","investment_recommendations",[["Date","date",false],["Client","client_name",false],["Account","account_type",false],["Security","security",false],["Action","action",false],["Suitability","suitability",true],["CCO?","cco_reviewed",true]]);},
-    vsuit:function(){rReg("Suitability Assessments","suitability_assessments",[["Date","date",false],["Client","client_name",false],["Risk Profile","risk_profile",false],["Objective","investment_obj",false],["KYC Date","kyc_date",false],["CCO?","cco_reviewed",true]]);},
-    vcoi:function(){rReg("COI Register","coi_register",[["Date","date_identified",false],["Type","conflict_type",false],["Description","description",false],["Disclosed","disclosed",true],["CCO?","cco_reviewed",true],["Status","status",true]]);},
-    vcmp:function(){rReg("Complaints","investment_complaints",[["Ref","ref_number",false],["Date","date_received",false],["Client","client_name",false],["Nature","nature",false],["Status","status",true]]);},
-    lrec:fLogRec, lsuit:fLogSuit, lcoi:fLogCOI, lcmp:fLogCmp
+    vrec:function(){rReg("Recommendations","investment_recommendations",[["Date","date"],["Client","client_name"],["Account","account_type"],["Security","security"],["Action","action",false],["Suitability","suitability",true],["CCO","cco_reviewed",true]],true);},
+    vkyc:function(){rReg("KYC Assessments","kyc_assessments",[["Date","date"],["Client","client_name"],["KYC Ref","kyc_ref"],["Account","account_type"],["Risk Profile","risk_profile",true],["Objective","investment_obj"],["Next Review","next_review_date"],["CCO","cco_reviewed",true]],true);},
+    vsuit:function(){rReg("Suitability Assessments","suitability_assessments",[["Date","date"],["Client","client_name"],["Risk Profile","risk_profile",true],["Objective","investment_obj"],["Time Horizon","time_horizon"],["KYC Date","kyc_date"],["CCO","cco_reviewed",true]],true);},
+    vcoi:function(){rReg("COI Register","coi_register",[["Date","date_identified"],["Type","conflict_type"],["Description","description"],["Disclosed","disclosed",true],["CCO","cco_reviewed",true],["Status","status",true]],true);},
+    voba:function(){rReg("OBA Register","oba_register",[["Date","date_disclosed"],["OBA Name","oba_name"],["Type","oba_type"],["Time Commitment","time_commitment"],["Compensation","compensation"],["CCO Approved","cco_approved",true],["Status","status",true]],true);},
+    vgift:function(){rReg("Gifts & Entertainment","gifts_entertainment",[["Date","date"],["Direction","direction",true],["Type","gift_type"],["Description","description"],["Value","value_amount"],["From/To","given_received_from"],["Pre-Approved","pre_approved",true],["Status","status",true]],true);},
+    vref:function(){rReg("Referral Register","referral_register",[["Date","date"],["Direction","direction",true],["Client","client_name"],["Service","service_referred"],["Fee Arrangement","fee_arrangement"],["Disclosure","disclosure_provided",true],["CCO Approved","cco_approved",true],["Status","status",true]],true);},
+    vtrn:function(){rReg("Training & CE Register","investment_training",[["Date","date"],["Type","training_type"],["Provider","provider"],["Topic","topic"],["Hours","hours"],["CE Credits","ce_credits"],["Designation Credits","designation_credits"],["Pass/Fail","pass_fail",true]],true);},
+    vptrd:function(){rReg("Personal Trading Log","personal_trading_log",[["Date","date"],["Security","security"],["Action","action",true],["Qty","quantity"],["Price","price"],["Account Type","account_type"],["Conflict Check","conflict_check",true],["Pre-Clearance","pre_clearance",true]],true);},
+    vcmp:function(){rReg("Complaints","investment_complaints",[["Ref","ref_number"],["Date","date_received"],["Client","client_name"],["Nature","nature"],["Amount","amount_disputed"],["E&O","eo_notified",true],["OBSI","obsi_referred",true],["Status","status",true]],true);},
+    gkyc:fKYC, gsdw:fSDW, gtrl:fTRL,
+    lrec:fLogRec, lsuit:fLogSuit, lcoi:fLogCOI,
+    loba:fLogOBA, lgift:fLogGift, lref:fLogRef,
+    ltrn:fLogTrn, lptrd:fLogPTrd, lcmp:fLogCmp
   };
   (map[id]||rDash)();
 }
 
+// ── DASHBOARD ──
 async function rDash(){
   var el=document.getElementById("mc");
-  el.innerHTML="<div class=\"ph\"><div class=\"bc\">VFG Investment Advisor Portal</div><h1>Dashboard</h1><p>"+new Date().toLocaleDateString("en-CA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+"</p></div><div class=\"sg\" id=\"sg\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div><div class=\"dg\" id=\"dg\"></div>";
+  el.innerHTML="<div class=\"ph\"><div class=\"bc\">VFG Investment Advisor Portal</div><h1>Investment Compliance Dashboard</h1><p>"+new Date().toLocaleDateString("en-CA",{weekday:"long",year:"numeric",month:"long",day:"numeric"})+"</p></div><div class=\"sg\" id=\"sg\"><div class=\"loading\"><div class=\"spinner\"></div>Loading&hellip;</div></div><div class=\"dg\" id=\"dg\"></div>";
   try{
     var q=_profile&&_profile.role!=="cco"?"&advisor_id=eq."+_profile.id:"";
     var res=await Promise.all([
-      sbSelect("investment_recommendations","select=*&limit=200"+q),
-      sbSelect("suitability_assessments","select=*&limit=200"+q),
-      sbSelect("investment_complaints","select=*&limit=100"+q),
-      sbSelect("coi_register","select=*&limit=100"+q)
+      sbSelect("investment_recommendations","select=*&limit=300"+q),
+      sbSelect("kyc_assessments","select=*&limit=300"+q),
+      sbSelect("investment_complaints","select=*&limit=200"+q),
+      sbSelect("coi_register","select=*&limit=200"+q),
+      sbSelect("oba_register","select=*&limit=100"+q),
+      sbSelect("personal_trading_log","select=*&limit=200"+q)
     ]);
-    var rec=res[0],suit=res[1],cmp=res[2],coi=res[3];
+    var rec=res[0],kyc=res[1],cmp=res[2],coi=res[3],oba=res[4],ptrd=res[5];
     var openCmp=cmp.filter(function(r){return r.status&&!r.status.toLowerCase().includes("closed");}).length;
-    var openCOI=coi.filter(function(r){return r.status&&!r.status.toLowerCase().includes("closed");}).length;
+    var pendOBA=oba.filter(function(r){return r.cco_approved&&r.cco_approved.toLowerCase().includes("pending");}).length;
+    var kycDue=kyc.filter(function(r){return r.next_review_date&&new Date(r.next_review_date)<=new Date(new Date().setDate(new Date().getDate()+90));}).length;
     document.getElementById("sg").innerHTML=
       "<div class=\"sc\"><div class=\"sl\">Recommendations</div><div class=\"sv\">"+rec.length+"</div><div class=\"ss\">All logged</div></div>"+
-      "<div class=\"sc a\"><div class=\"sl\">Suitability Assessments</div><div class=\"sv\">"+suit.length+"</div><div class=\"ss\">On file</div></div>"+
-      "<div class=\"sc t\"><div class=\"sl\">Open Complaints</div><div class=\"sv\">"+openCmp+"</div><div class=\"ss\">"+cmp.length+" total</div></div>"+
-      "<div class=\"sc g\"><div class=\"sl\">Open COI Items</div><div class=\"sv\">"+openCOI+"</div><div class=\"ss\">Conflict of interest</div></div>";
+      "<div class=\"sc a\"><div class=\"sl\">KYC Assessments</div><div class=\"sv\">"+kyc.length+"</div><div class=\"ss\">"+kycDue+" due within 90 days</div></div>"+
+      "<div class=\"sc t\"><div class=\"sl\">Open Complaints</div><div class=\"sv\">"+openCmp+"</div><div class=\"ss\">"+cmp.length+" total logged</div></div>"+
+      "<div class=\"sc g\"><div class=\"sl\">OBA Pending CCO</div><div class=\"sv\">"+pendOBA+"</div><div class=\"ss\">"+oba.length+" total disclosed</div></div>";
     var rr=rec.slice(0,5).map(function(r){return "<tr><td>"+(r.date||"&mdash;")+"</td><td>"+(r.client_name||"&mdash;")+"</td><td>"+(r.security||"&mdash;")+"</td><td>"+(r.action||"&mdash;")+"</td><td>"+bdg(r.cco_reviewed)+"</td></tr>";}).join("");
+    var kycR=kyc.filter(function(r){return r.next_review_date;}).sort(function(a,b){return new Date(a.next_review_date)-new Date(b.next_review_date);}).slice(0,5).map(function(r){
+      var d=new Date(r.next_review_date),diff=Math.round((d-new Date())/(1000*60*60*24));
+      var chip=diff<0?"<span class=\"b br\">OVERDUE</span>":diff<=30?"<span class=\"b br\">"+diff+"d</span>":diff<=90?"<span class=\"b ba\">"+diff+"d</span>":"<span class=\"b bg\">"+diff+"d</span>";
+      return "<tr><td>"+(r.client_name||"&mdash;")+"</td><td>"+(r.risk_profile||"&mdash;")+"</td><td>"+(r.next_review_date||"&mdash;")+"</td><td>"+chip+"</td></tr>";
+    }).join("");
     document.getElementById("dg").innerHTML=
-      "<div class=\"card\"><div class=\"ch\"><h3>Recent Recommendations</h3><button class=\"btn bs bsm\" onclick=\"go('lrec')\">+ Log</button></div><div class=\"cb\">"+(rec.length===0?"<div class=\"empty\"><p>No entries yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Date</th><th>Client</th><th>Security</th><th>Action</th><th>CCO</th></tr></thead><tbody>"+rr+"</tbody></table></div>")+"</div></div>"+
-      "<div class=\"card\"><div class=\"ch\"><h3>Quick Actions</h3></div><div class=\"cb\"><div class=\"btn-row\"><button class=\"btn bp\" onclick=\"go('lrec')\">Log Recommendation</button><button class=\"btn bp\" onclick=\"go('lsuit')\">Log Suitability</button><button class=\"btn bs\" onclick=\"go('lcoi')\">Log COI</button></div></div></div>";
+      "<div class=\"card\"><div class=\"ch\"><h3>Recent Recommendations</h3><button class=\"btn bs bsm\" onclick=\"go('lrec')\">+ Log</button></div><div class=\"cb\">"+(rec.length===0?"<div class=\"empty\"><p>No recommendations yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Date</th><th>Client</th><th>Security</th><th>Action</th><th>CCO</th></tr></thead><tbody>"+rr+"</tbody></table></div>")+"</div></div>"+
+      "<div class=\"card\"><div class=\"ch\"><h3>KYC Review Schedule</h3><button class=\"btn bs bsm\" onclick=\"go('gkyc')\">New KYC</button></div><div class=\"cb\">"+(kyc.length===0?"<div class=\"empty\"><p>No KYC assessments yet</p></div>":"<div class=\"tw\"><table><thead><tr><th>Client</th><th>Risk Profile</th><th>Next Review</th><th>Days Remaining</th></tr></thead><tbody>"+kycR+"</tbody></table></div>")+"</div></div>";
   }catch(e){document.getElementById("sg").innerHTML="<div class=\"al ale\" style=\"grid-column:span 4\">&mdash; "+e.message+"</div>";}
 }
+
+
+// ── KYC ASSESSMENT WIZARD ──
+var _kycStep=0;
+var _kycD={};
+
+function fKYC(){
+  _kycStep=0; _kycD={};
+  renderKYC();
+}
+
+function renderKYC(){
+  var steps=["Client Profile","Financial Picture","Investment Profile","KYC Factors","Review & Generate"];
+  var bar="<div class=\"step-bar\">";
+  steps.forEach(function(s,i){bar+="<div class=\"step"+(i===_kycStep?" active":i<_kycStep?" done":"")+"\">"+s+"</div>";});
+  bar+="</div>";
+  var h="<div class=\"ph\"><div class=\"bc\">Generate Documents</div><h1>KYC Assessment</h1><p>CIRO-compliant Know Your Client assessment — generates PDF for client file</p></div>"+bar;
+  h+="<div id=\"kyc-msg\"></div>";
+  if(_kycStep===0) h+=kycS0();
+  else if(_kycStep===1) h+=kycS1();
+  else if(_kycStep===2) h+=kycS2();
+  else if(_kycStep===3) h+=kycS3();
+  else if(_kycStep===4) h+=kycS4();
+  document.getElementById("mc").innerHTML=h;
+}
+
+function kycS0(){
+  var h="<div class=\"card\"><div class=\"ch\"><h3>Client Profile</h3></div><div class=\"cb\">";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Client Full Name *</label><input id=\"kc-cn\" value=\""+(_kycD.cn||"")+"\" placeholder=\"Last, First\"></div>";
+  h+="<div class=\"fgrp\"><label>Date of Birth</label><input type=\"date\" id=\"kc-dob\" value=\""+(_kycD.dob||"")+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Assessment Date *</label><input type=\"date\" id=\"kc-dt\" value=\""+(_kycD.dt||TODAY)+"\"></div>";
+  h+="<div class=\"fgrp\"><label>KYC Type</label><select id=\"kc-type\"><option"+((_kycD.ktype||"")==="New Account"?" selected":"")+">New Account</option><option"+((_kycD.ktype||"")==="Annual Review"?" selected":"")+">Annual Review</option><option"+((_kycD.ktype||"")==="Material Change"?" selected":"")+">Material Change</option><option"+((_kycD.ktype||"")==="Triggered Review"?" selected":"")+">Triggered Review</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Account Type</label><select id=\"kc-acct\"><option>RRSP</option><option>TFSA</option><option>Non-Registered</option><option>RRIF</option><option>RESP</option><option>LIRA</option><option>Corporate</option><option>Joint</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Province *</label><select id=\"kc-prov\"><option>Ontario</option><option>British Columbia</option><option>Alberta</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Personal Circumstances</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Employment Status</label><select id=\"kc-emp\"><option>Employed — salaried</option><option>Employed — commission/variable</option><option>Self-employed</option><option>Business owner</option><option>Retired</option><option>Not employed</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Employer / Occupation</label><input id=\"kc-occ\" value=\""+(_kycD.occ||"")+"\" placeholder=\"Employer name or occupation\"></div>";
+  h+="<div class=\"fgrp\"><label>Marital Status</label><select id=\"kc-mar\"><option>Single</option><option>Married / Common-law</option><option>Separated / Divorced</option><option>Widowed</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Number of Dependants</label><select id=\"kc-dep\"><option>0</option><option>1</option><option>2</option><option>3</option><option>4+</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Trusted Contact Person *</label><input id=\"kc-tcp\" value=\""+(_kycD.tcp||"")+"\" placeholder=\"Full name\"></div>";
+  h+="<div class=\"fgrp\"><label>TCP Relationship</label><input id=\"kc-tcpr\" value=\""+(_kycD.tcpr||"")+"\" placeholder=\"e.g. Spouse, Adult child\"></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Vulnerable Client Assessment</div>";
+  h+="<div class=\"fg\">";
+  h+="<div class=\"fgrp\"><label>Vulnerability Indicators Present?</label><select id=\"kc-vuln\"><option>No indicators identified</option><option>Age-related concerns noted</option><option>Cognitive decline concerns noted</option><option>Financial exploitation risk identified</option><option>Other — documented below</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Notes (if applicable)</label><input id=\"kc-vulnn\" placeholder=\"Describe any vulnerability indicators\"></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"kycNext(0)\">Next: Financial Picture &rarr;</button></div>";
+  h+="</div></div>";
+  return h;
+}
+
+function kycS1(){
+  var h="<div class=\"card\"><div class=\"ch\"><h3>Financial Picture</h3></div><div class=\"cb\">";
+  h+="<div class=\"sdiv\">Income</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Annual Employment Income</label><input type=\"text\" id=\"kc-inc\" value=\""+(_kycD.inc||"")+"\" placeholder=\"e.g. $180,000\"></div>";
+  h+="<div class=\"fgrp\"><label>Other Annual Income</label><input type=\"text\" id=\"kc-oinc\" value=\""+(_kycD.oinc||"")+"\" placeholder=\"Rental, pension, investment\"></div>";
+  h+="<div class=\"fgrp\"><label>Annual Income Category</label><select id=\"kc-incc\"><option>Under $50,000</option><option>$50,000 – $100,000</option><option>$100,000 – $200,000</option><option>$200,000 – $500,000</option><option>$500,000+</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Net Worth</div>";
+  h+="<div class=\"fg q\">";
+  h+="<div class=\"fgrp\"><label>Total Net Worth</label><input type=\"text\" id=\"kc-nw\" value=\""+(_kycD.nw||"")+"\" placeholder=\"e.g. $2,500,000\"></div>";
+  h+="<div class=\"fgrp\"><label>Liquid / Investable Assets</label><input type=\"text\" id=\"kc-liq\" value=\""+(_kycD.liq||"")+"\" placeholder=\"e.g. $800,000\"></div>";
+  h+="<div class=\"fgrp\"><label>Fixed Assets</label><input type=\"text\" id=\"kc-fix\" value=\""+(_kycD.fix||"")+"\" placeholder=\"Primary residence, real estate\"></div>";
+  h+="<div class=\"fgrp\"><label>Total Liabilities</label><input type=\"text\" id=\"kc-liab\" value=\""+(_kycD.liab||"")+"\" placeholder=\"Mortgage, loans\"></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Net Worth Category</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Net Worth Category</label><select id=\"kc-nwc\"><option>Under $500,000</option><option>$500,000 – $1,000,000</option><option>$1,000,000 – $2,500,000</option><option>$2,500,000 – $5,000,000</option><option>$5,000,000+</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Investment Account Value (this account)</label><input type=\"text\" id=\"kc-acctval\" value=\""+(_kycD.acctval||"")+"\" placeholder=\"e.g. $450,000\"></div>";
+  h+="<div class=\"fgrp\"><label>% of Total Investable Assets (this account)</label><input type=\"text\" id=\"kc-pct\" value=\""+(_kycD.pct||"")+"\" placeholder=\"e.g. 35%\"></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bs\" onclick=\"kycBack(1)\">&#8592; Back</button><button class=\"btn bp\" onclick=\"kycNext(1)\">Next: Investment Profile &rarr;</button></div>";
+  h+="</div></div>";
+  return h;
+}
+
+function kycS2(){
+  var h="<div class=\"card\"><div class=\"ch\"><h3>Investment Profile</h3></div><div class=\"cb\">";
+  h+="<div class=\"sdiv\">Risk & Objectives</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Risk Tolerance</label><select id=\"kc-risk\"><option>Conservative — capital preservation, minimal volatility</option><option>Moderate Conservative — modest growth, below-average volatility</option><option>Moderate — balanced growth and income, average market volatility</option><option>Moderate Aggressive — growth-oriented, above-average volatility acceptable</option><option>Aggressive — maximum growth, high volatility acceptable</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Primary Investment Objective</label><select id=\"kc-obj\"><option>Capital preservation</option><option>Income generation</option><option>Balanced growth and income</option><option>Capital growth</option><option>Aggressive growth / speculation</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Time Horizon</label><select id=\"kc-horiz\"><option>Short-term — under 3 years</option><option>Medium-term — 3 to 7 years</option><option>Long-term — 7 to 15 years</option><option>Very long-term — 15 years or more</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Investment Knowledge</div>";
+  h+="<div class=\"fg\">";
+  h+="<div class=\"fgrp\"><label>Investment Knowledge Level</label><select id=\"kc-know\"><option>None — no prior investment experience</option><option>Limited — basic savings products only</option><option>Good — familiar with mutual funds and basic securities</option><option>Sophisticated — experience with equities, fixed income, complex products</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Prior Investment Experience</label><input id=\"kc-exp\" value=\""+(_kycD.exp||"")+"\" placeholder=\"e.g. 10 years — mutual funds, ETFs, GICs\"></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Portfolio Considerations</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Withdrawal Needs</label><select id=\"kc-with\"><option>None anticipated</option><option>Irregular — occasional lump sums</option><option>Regular — monthly or quarterly income</option><option>Significant — large upcoming need</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Liquidity Requirements</label><select id=\"kc-liqr\"><option>Low — no near-term liquidity needs</option><option>Moderate — may need 10–25% within 3 years</option><option>High — may need 25%+ within 3 years</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Tax Considerations</label><select id=\"kc-tax\"><option>Registered account — tax-deferred/sheltered</option><option>Non-registered — tax efficiency important</option><option>Corporate account — after-tax optimization</option><option>Multiple — see notes</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bs\" onclick=\"kycBack(2)\">&#8592; Back</button><button class=\"btn bp\" onclick=\"kycNext(2)\">Next: KYC Factors &rarr;</button></div>";
+  h+="</div></div>";
+  return h;
+}
+
+function kycS3(){
+  var h="<div class=\"card\"><div class=\"ch\"><h3>KYC Factors &amp; Suitability Determination</h3></div><div class=\"cb\">";
+  h+="<div class=\"sdiv\">Suitability Factors Considered (check all that apply)</div>";
+  h+="<label style=\"font-size:11px;color:var(--muted);margin-bottom:8px;display:block\">These factors must be considered when determining suitability under CIRO Rule 3400</label>";
+  h+=ckGroup("kc-suit",[
+    "Client's financial circumstances and needs","Client's investment knowledge and experience",
+    "Client's risk tolerance — capacity and willingness","Client's investment time horizon",
+    "Client's liquidity needs","Nature of existing portfolio — concentration risk",
+    "Impact of costs and fees on returns","Tax implications of the recommendation",
+    "Client's other assets and overall financial situation","Vulnerable client considerations documented"
+  ],2);
+  h+="<div class=\"sdiv\" style=\"margin-top:20px\">Material Changes Since Last Review (Annual KYC)</div>";
+  h+=ckGroup("kc-chg",[
+    "No material changes","Employment or income change",
+    "Marital status change","Significant change in net worth",
+    "Change in investment objectives","Change in risk tolerance",
+    "Change in time horizon","Inheritance or windfall",
+    "Health or capacity change","New major financial obligation"
+  ],2);
+  h+="<div class=\"sdiv\" style=\"margin-top:20px\">Suitability Determination</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Overall Suitability *</label><select id=\"kc-sdet\"><option>Suitable — within documented KYC profile</option><option>Suitable — marginal, rationale documented</option><option>KYC update required before proceeding</option><option>Not suitable — recommendation not made</option></select></div>";
+  h+="<div class=\"fgrp\"><label>CCO Review Required?</label><select id=\"kc-cco\"><option>No — within standard parameters</option><option>Yes — pending CCO review</option><option>Yes — CCO reviewed and approved</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Next KYC Review Date</label><input type=\"date\" id=\"kc-nrev\"></div>";
+  h+="</div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Advisor Notes / Rationale</label><textarea id=\"kc-notes\" placeholder=\"Any additional context, client instructions, or rationale for suitability determination...\"></textarea></div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bs\" onclick=\"kycBack(3)\">&#8592; Back</button><button class=\"btn bp\" onclick=\"kycNext(3)\">Review &amp; Generate &rarr;</button></div>";
+  h+="</div></div>";
+  return h;
+}
+
+function kycS4(){
+  var d=_kycD;
+  var ref=d.ref||mkRef("KYC");
+  _kycD.ref=ref;
+  var h="<div class=\"card\"><div class=\"ch\"><h3>Review &amp; Generate</h3></div><div class=\"cb\">";
+  h+="<div class=\"als\" style=\"margin-bottom:18px\">Review all information before generating. The PDF will be saved to the client file.</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>KYC Reference</label><input id=\"kc-ref\" value=\""+ref+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Assessment Date</label><input id=\"kc-fdt\" value=\""+(d.dt||TODAY)+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Advisor</label><input value=\""+(_profile?_profile.full_name:"")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Client Summary</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Client</label><input value=\""+(d.cn||"")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Account</label><input value=\""+(d.acct||"")+" — "+(d.prov||"")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>KYC Type</label><input value=\""+(d.ktype||"")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Risk Profile</label><input value=\""+(d.risk||"").split("—")[0].trim()+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Objective</label><input value=\""+(d.obj||"")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Time Horizon</label><input value=\""+(d.horiz||"").split("—")[0].trim()+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Net Worth</label><input value=\""+(d.nw||"&mdash;")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Liquid Assets</label><input value=\""+(d.liq||"&mdash;")+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="<div class=\"fgrp\"><label>Suitability</label><input value=\""+(d.sdet||"").split("—")[0].trim()+"\" readonly style=\"background:var(--parch)\"></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\">";
+  h+="<button class=\"btn bpdf\" onclick=\"genKYCPDF()\" id=\"kyc-gen-btn\">&#8595; Generate KYC PDF &amp; Log</button>";
+  h+="<button class=\"btn bs\" onclick=\"kycBack(4)\">&#8592; Back</button>";
+  h+="</div></div></div>";
+  return h;
+}
+
+function kycNext(step){
+  if(step===0){
+    var cn=gv("kc-cn"),dt=gv("kc-dt");
+    if(!cn||!dt){document.getElementById("kyc-msg").innerHTML="<div class=\"al ale\">Client name and date are required.</div>";return;}
+    Object.assign(_kycD,{cn:cn,dob:gv("kc-dob"),dt:dt,ktype:gv("kc-type"),acct:gv("kc-acct"),prov:gv("kc-prov"),emp:gv("kc-emp"),occ:gv("kc-occ"),mar:gv("kc-mar"),dep:gv("kc-dep"),tcp:gv("kc-tcp"),tcpr:gv("kc-tcpr"),vuln:gv("kc-vuln"),vulnn:gv("kc-vulnn")});
+  } else if(step===1){
+    Object.assign(_kycD,{inc:gv("kc-inc"),oinc:gv("kc-oinc"),incc:gv("kc-incc"),nw:gv("kc-nw"),liq:gv("kc-liq"),fix:gv("kc-fix"),liab:gv("kc-liab"),nwc:gv("kc-nwc"),acctval:gv("kc-acctval"),pct:gv("kc-pct")});
+  } else if(step===2){
+    Object.assign(_kycD,{risk:gv("kc-risk"),obj:gv("kc-obj"),horiz:gv("kc-horiz"),know:gv("kc-know"),exp:gv("kc-exp"),with:gv("kc-with"),liqr:gv("kc-liqr"),tax:gv("kc-tax")});
+  } else if(step===3){
+    Object.assign(_kycD,{suit:getChecked("kc-suit"),chg:getChecked("kc-chg"),sdet:gv("kc-sdet"),cco:gv("kc-cco"),nrev:gv("kc-nrev"),notes:gv("kc-notes")});
+  }
+  _kycStep=step+1;
+  renderKYC();
+}
+
+function kycBack(step){_kycStep=step-1;renderKYC();}
+
+async function genKYCPDF(){
+  var d=_kycD;
+  var btn=document.getElementById("kyc-gen-btn");
+  btn.disabled=true;btn.textContent="Generating...";
+  try{
+    var adv=_profile?_profile.full_name:"Advisor";
+    var ref=d.ref||mkRef("KYC");
+    var {jsPDF}=window.jspdf;
+    var doc=new jsPDF({unit:"mm",format:"letter"});
+    var W=215.9,M=18,cw=W-2*M,y=M;
+    function ln(n){y+=n;}
+    function hd(txt,sz,clr){
+      doc.setFont("helvetica","bold");doc.setFontSize(sz||10);
+      if(clr)doc.setTextColor(clr[0],clr[1],clr[2]);
+      else doc.setTextColor(4,40,37);
+      doc.text(txt,M,y);ln(sz?sz*0.5:5);
+    }
+    function bd(txt,sz){doc.setFont("helvetica","normal");doc.setFontSize(sz||9);doc.setTextColor(26,26,26);var lines=doc.splitTextToSize(txt,cw);doc.text(lines,M,y);ln(lines.length*4+2);}
+    function row2(l1,v1,l2,v2){
+      doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(4,40,37);
+      doc.text(l1,M,y);doc.text(l2,M+cw/2,y);
+      doc.setFont("helvetica","normal");doc.setTextColor(26,26,26);
+      doc.text(String(v1||"—"),M,y+4);doc.text(String(v2||"—"),M+cw/2,y+4);
+      ln(10);
+    }
+    function divider(){doc.setDrawColor(191,170,142);doc.setLineWidth(0.3);doc.line(M,y,W-M,y);ln(4);}
+    function newPage(){doc.addPage();y=M;}
+    function checkPage(needed){if(y+needed>270)newPage();}
+
+    // Header banner
+    doc.setFillColor(4,40,37);doc.rect(0,0,W,22,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(247,240,224);
+    doc.text("Volta Financial Group",M,12);
+    doc.setFontSize(8);doc.setTextColor(191,170,142);
+    doc.text("Know Your Client Assessment",M,18);
+    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(191,170,142);
+    doc.text("Ref: "+ref+" | "+d.dt,W-M,12,{align:"right"});
+    doc.text("Advisor: "+adv,W-M,18,{align:"right"});
+    y=30;
+
+    hd("CLIENT PROFILE",11);divider();
+    row2("Client Name",d.cn,"Date of Birth",d.dob||"Not provided");
+    row2("KYC Type",d.ktype,"Assessment Date",d.dt);
+    row2("Account Type",d.acct,"Province",d.prov);
+    row2("Employment",d.emp,"Occupation",d.occ);
+    row2("Marital Status",d.mar,"Dependants",d.dep);
+    row2("Trusted Contact Person",d.tcp,"TCP Relationship",d.tcpr);
+    checkPage(20);
+    hd("Vulnerable Client Assessment",9);
+    bd("Indicators: "+(d.vuln||"None identified")+(d.vulnn?". Notes: "+d.vulnn:""));
+    divider();
+
+    checkPage(50);
+    hd("FINANCIAL PICTURE",11);divider();
+    row2("Annual Employment Income",d.inc||"Not disclosed","Other Annual Income",d.oinc||"None");
+    row2("Income Category",d.incc,"Net Worth Category",d.nwc);
+    row2("Total Net Worth",d.nw||"Not disclosed","Liquid/Investable Assets",d.liq||"Not disclosed");
+    row2("Fixed Assets",d.fix||"Not disclosed","Total Liabilities",d.liab||"Not disclosed");
+    row2("Account Value",d.acctval||"N/A","% of Investable Portfolio",d.pct||"N/A");
+    divider();
+
+    checkPage(60);
+    hd("INVESTMENT PROFILE",11);divider();
+    hd("Risk Tolerance",9);bd(d.risk||"Not specified");
+    hd("Primary Investment Objective",9);bd(d.obj||"Not specified");
+    hd("Time Horizon",9);bd(d.horiz||"Not specified");
+    hd("Investment Knowledge",9);bd(d.know||"Not specified");
+    hd("Prior Investment Experience",9);bd(d.exp||"Not specified");
+    row2("Withdrawal Needs",d.with,"Liquidity Requirements",d.liqr);
+    hd("Tax Considerations",9);bd(d.tax||"Not specified");
+    divider();
+
+    checkPage(60);
+    hd("KYC FACTORS & SUITABILITY",11);divider();
+    hd("Suitability Factors Considered",9);
+    bd(d.suit||"None recorded");
+    if(d.chg){hd("Material Changes Since Last Review",9);bd(d.chg);}
+    checkPage(20);
+    hd("Suitability Determination",9);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);
+    var sCol=d.sdet&&d.sdet.toLowerCase().includes("suitable")?[45,122,79]:[139,32,32];
+    doc.setTextColor(sCol[0],sCol[1],sCol[2]);
+    doc.text(d.sdet||"Not determined",M,y);ln(7);
+    doc.setTextColor(26,26,26);
+    row2("CCO Review",""+d.cco,"Next KYC Review Date",d.nrev||"Not set");
+    if(d.notes){hd("Advisor Notes",9);bd(d.notes);}
+    divider();
+
+    checkPage(40);
+    hd("ADVISOR CERTIFICATION",11);divider();
+    bd("I certify that the information recorded in this KYC Assessment was obtained directly from the client and accurately reflects the client's personal and financial circumstances as disclosed. This assessment has been completed in accordance with CIRO Rule 3400 and VFG KYC Policy (POL-VFG-005).");
+    ln(6);
+    doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(4,40,37);
+    doc.text("Advisor: "+adv,M,y);doc.text("Date: "+d.dt,M+cw/2,y);ln(5);
+    doc.text("Signature: _______________________________",M,y);ln(10);
+    doc.setFontSize(7);doc.setTextColor(150,150,150);
+    doc.text("Volta Financial Group | "+ref+" | CIRO Rule 3400 | Confidential — Client File",W/2,y,{align:"center"});
+
+    doc.save("KYC-"+d.cn.replace(/[^a-zA-Z0-9]/g,"-")+"-"+ref+".pdf");
+
+    // Log to Supabase
+    await sbInsert("kyc_assessments",{
+      advisor_id:_profile?_profile.id:null,advisor_name:adv,date:d.dt,kyc_ref:ref,
+      client_name:d.cn,account_type:d.acct,province:d.prov,kyc_type:d.ktype,
+      risk_profile:d.risk?d.risk.split("—")[0].trim():"",investment_obj:d.obj,
+      time_horizon:d.horiz?d.horiz.split("—")[0].trim():"",
+      annual_income:d.incc,net_worth:d.nwc,liquid_assets:d.liq,
+      investment_knowledge:d.know?d.know.split("—")[0].trim():"",
+      dependents:d.dep,employment_status:d.emp,trusted_contact:d.tcp,
+      vulnerable_client_check:d.vuln,changes_from_prior:d.chg,
+      pdf_generated:"Generated — "+ref,cco_reviewed:d.cco,
+      next_review_date:d.nrev||null,notes:d.notes
+    });
+
+    toast("KYC Assessment generated and logged","pdf");
+    document.getElementById("kyc-msg").innerHTML="<div class=\"als\">&#10003; KYC Assessment "+ref+" generated and logged to register.</div>";
+    btn.disabled=false;btn.textContent="&#8595; Generate KYC PDF & Log";
+    _kycD={};_kycStep=0;
+  }catch(e){
+    document.getElementById("kyc-msg").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";
+    btn.disabled=false;btn.textContent="&#8595; Generate KYC PDF & Log";
+  }
+}
+
+
+// ── SDW — SUITABILITY DOCUMENTATION WORKSHEET ──
+function fSDW(){
+  var yr=new Date().getFullYear();
+  var h="<div class=\"ph\"><div class=\"bc\">Generate Documents</div><h1>Suitability Documentation Worksheet</h1><p>CIRO Rule 3400 — documents suitability for each recommendation</p></div>";
+  h+="<div id=\"sdw-msg\"></div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>Client &amp; Transaction Details</h3></div><div class=\"cb\">";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"sd-dt\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Client Full Name *</label><input id=\"sd-cn\" placeholder=\"Last, First\"></div>";
+  h+="<div class=\"fgrp\"><label>KYC Reference</label><input id=\"sd-kycr\" placeholder=\"e.g. KYC-2027-001\"></div>";
+  h+="<div class=\"fgrp\"><label>Account Type</label><select id=\"sd-acct\"><option>RRSP</option><option>TFSA</option><option>Non-Registered</option><option>RRIF</option><option>RESP</option><option>Corporate</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Security / Product *</label><input id=\"sd-sec\" placeholder=\"e.g. Manulife Canadian Balanced Fund — Series F\"></div>";
+  h+="<div class=\"fgrp\"><label>Action *</label><select id=\"sd-act\"><option>Buy</option><option>Sell</option><option>Switch</option><option>Transfer In</option><option>Rebalance</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Amount / Units</label><input id=\"sd-amt\" placeholder=\"e.g. $50,000 or 1,250 units\"></div>";
+  h+="<div class=\"fgrp\"><label>% of Client Portfolio</label><input id=\"sd-pct\" placeholder=\"e.g. 12%\"></div>";
+  h+="<div class=\"fgrp\"><label>MER / Fee</label><input id=\"sd-mer\" placeholder=\"e.g. 1.85% MER (Series F)\"></div>";
+  h+="</div></div></div>";
+
+  h+="<div class=\"card\"><div class=\"ch\"><h3>Client KYC Profile at Time of Recommendation</h3></div><div class=\"cb\">";
+  h+="<div class=\"fg q\">";
+  h+="<div class=\"fgrp\"><label>Risk Tolerance</label><select id=\"sd-risk\"><option>Conservative</option><option>Moderate Conservative</option><option>Moderate</option><option>Moderate Aggressive</option><option>Aggressive</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Investment Objective</label><select id=\"sd-obj\"><option>Capital preservation</option><option>Income generation</option><option>Balanced growth and income</option><option>Capital growth</option><option>Aggressive growth</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Time Horizon</label><select id=\"sd-horiz\"><option>Short-term (under 3 years)</option><option>Medium-term (3–7 years)</option><option>Long-term (7–15 years)</option><option>Very long-term (15+ years)</option></select></div>";
+  h+="<div class=\"fgrp\"><label>KYC Currency</label><select id=\"sd-kycc\"><option>Current — reviewed within 12 months</option><option>Current — reviewed within 36 months</option><option>Updated this transaction</option><option>Requires update — flagged</option></select></div>";
+  h+="</div></div></div>";
+
+  h+="<div class=\"card\"><div class=\"ch\"><h3>CIRO Rule 3400 — Suitability Factors</h3><span style=\"font-size:11.5px;color:var(--muted)\">Check all factors considered</span></div><div class=\"cb\">";
+  h+="<div class=\"sdiv\" style=\"margin-top:0\">Factor 1 — Client&apos;s financial circumstances and needs</div>";
+  h+=ckGroup("sd-f1",["Income and cash flow support this recommendation","Net worth is sufficient relative to position size","Liquid assets adequate — not over-concentrating illiquid holdings","This account represents an appropriate % of total investable assets"],2);
+  h+="<div class=\"sdiv\">Factor 2 — Investment knowledge and experience</div>";
+  h+=ckGroup("sd-f2",["Client understands the nature and risks of this product","Product complexity is appropriate for client's knowledge level","Client has prior experience with this product type","Client has been informed of key risks in writing"],2);
+  h+="<div class=\"sdiv\">Factor 3 — Risk tolerance</div>";
+  h+=ckGroup("sd-f3",["Product risk rating is consistent with client's documented risk tolerance","Volatility of product is within client's stated acceptable range","Downside scenario discussed and client accepts potential loss","No mismatch between risk tolerance and product risk level"],2);
+  h+="<div class=\"sdiv\">Factor 4 — Time horizon</div>";
+  h+=ckGroup("sd-f4",["Time horizon of product aligns with client's stated horizon","No anticipated liquidity events that conflict with this investment","Lock-up or redemption restrictions are acceptable given client's timeline"],2);
+  h+="<div class=\"sdiv\">Factor 5 — Portfolio context and concentration</div>";
+  h+=ckGroup("sd-f5",["This position does not create undue concentration in one issuer","Asset class diversification maintained post-transaction","Geographic or sector concentration reviewed and acceptable","Position size is proportionate to overall portfolio"],2);
+  h+="<div class=\"sdiv\">Factor 6 — Costs and fees</div>";
+  h+=ckGroup("sd-f6",["MER and embedded fees disclosed to client","Total cost of ownership discussed","Fee structure (Series F / advisory fee) appropriate","Cost is justified by value and client's best interest"],2);
+  h+="<div class=\"sdiv\">Factor 7 — Share class / series selection</div>";
+  h+=ckGroup("sd-f7",["Client is eligible for lower-cost series — documented why recommended series is appropriate","No lower-cost equivalent available for this client","Series F selected — no embedded trailer conflict","Series A/B selected — trailing commission disclosed per POL-VFG-009 s.5"],2);
+  h+="<div class=\"sdiv\">Factor 8 — Tax considerations</div>";
+  h+=ckGroup("sd-f8",["Account type is tax-appropriate for this investment","Tax efficiency of product considered","No adverse tax event triggered by this transaction","Capital gains/loss implications discussed"],2);
+  h+="</div></div>";
+
+  h+="<div class=\"card\"><div class=\"ch\"><h3>Recommendation Rationale &amp; Suitability Determination</h3></div><div class=\"cb\">";
+  h+="<div class=\"fgrp\"><label>Why is this recommendation in the client&apos;s best interest?</label><textarea id=\"sd-rat\" style=\"min-height:100px\" placeholder=\"Explain why this specific product/action is suitable given the client's documented KYC profile, financial circumstances, and investment objectives. Address any factors that required particular consideration.\"></textarea></div>";
+  h+="<div class=\"fg t\" style=\"margin-top:14px\">";
+  h+="<div class=\"fgrp\"><label>Suitability Determination *</label><select id=\"sd-sdet\"><option>Suitable — consistent with KYC profile</option><option>Suitable — marginal, rationale documented above</option><option>Suitable — KYC updated this transaction</option><option>Not suitable — recommendation not made</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Conflict of Interest Present?</label><select id=\"sd-coi\"><option>No conflicts — arms length transaction</option><option>Yes — trailing commission — disclosed per RDI</option><option>Yes — Series A/B vs F differential — documented</option><option>Yes — other — documented in COI Register</option></select></div>";
+  h+="<div class=\"fgrp\"><label>CCO Review</label><select id=\"sd-cco\"><option>Not required — within standard parameters</option><option>Pending CCO approval</option><option>CCO reviewed and approved</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bpdf\" onclick=\"genSDW()\" id=\"sdw-btn\">&#8595; Generate SDW PDF &amp; Log</button></div>";
+  h+="</div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+
+async function genSDW(){
+  var dt=gv("sd-dt"),cn=gv("sd-cn"),sec=gv("sd-sec"),act=gv("sd-act"),rat=gv("sd-rat");
+  if(!dt||!cn||!sec){document.getElementById("sdw-msg").innerHTML="<div class=\"al ale\">Date, client name and security are required.</div>";return;}
+  var btn=document.getElementById("sdw-btn");btn.disabled=true;btn.textContent="Generating...";
+  try{
+    var adv=_profile?_profile.full_name:"Advisor";
+    var ref=mkRef("SDW");
+    var {jsPDF}=window.jspdf;
+    var doc=new jsPDF({unit:"mm",format:"letter"});
+    var W=215.9,M=18,cw=W-2*M,y=M;
+    function ln(n){y+=n;}
+    function hd(txt,sz){doc.setFont("helvetica","bold");doc.setFontSize(sz||9);doc.setTextColor(4,40,37);doc.text(txt,M,y);ln((sz||9)*0.5+1);}
+    function bd(txt){doc.setFont("helvetica","normal");doc.setFontSize(8.5);doc.setTextColor(26,26,26);var lines=doc.splitTextToSize(txt,cw);doc.text(lines,M,y);ln(lines.length*4+2);}
+    function row2(l1,v1,l2,v2){
+      doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(4,40,37);
+      doc.text(l1,M,y);doc.text(l2,M+cw/2,y);
+      doc.setFont("helvetica","normal");doc.setTextColor(26,26,26);
+      doc.text(String(v1||"—"),M,y+4);doc.text(String(v2||"—"),M+cw/2,y+4);
+      ln(10);
+    }
+    function divider(){doc.setDrawColor(191,170,142);doc.setLineWidth(0.3);doc.line(M,y,W-M,y);ln(4);}
+    function checkPage(n){if(y+n>270){doc.addPage();y=M;}}
+
+    doc.setFillColor(4,40,37);doc.rect(0,0,W,22,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(15);doc.setTextColor(247,240,224);
+    doc.text("Volta Financial Group",M,12);
+    doc.setFontSize(8);doc.setTextColor(191,170,142);
+    doc.text("Suitability Documentation Worksheet — CIRO Rule 3400",M,18);
+    doc.setFont("helvetica","normal");
+    doc.text("Ref: "+ref+" | "+dt,W-M,12,{align:"right"});
+    doc.text("Advisor: "+adv,W-M,18,{align:"right"});
+    y=30;
+
+    hd("TRANSACTION DETAILS",11);divider();
+    row2("Client",cn,"KYC Reference",gv("sd-kycr")||"See client file");
+    row2("Security / Product",sec,"Action",act);
+    row2("Account Type",gv("sd-acct"),"Amount / Units",gv("sd-amt")||"N/A");
+    row2("% of Portfolio",gv("sd-pct")||"N/A","MER / Fee",gv("sd-mer")||"N/A");
+    divider();
+
+    hd("CLIENT KYC PROFILE AT TIME OF RECOMMENDATION",11);divider();
+    row2("Risk Tolerance",gv("sd-risk"),"Investment Objective",gv("sd-obj"));
+    row2("Time Horizon",gv("sd-horiz"),"KYC Currency",gv("sd-kycc"));
+    divider();
+
+    checkPage(80);
+    hd("SUITABILITY FACTORS CONSIDERED — CIRO RULE 3400",11);divider();
+    var factors=[
+      ["Factor 1 — Financial Circumstances",getChecked("sd-f1")],
+      ["Factor 2 — Knowledge & Experience",getChecked("sd-f2")],
+      ["Factor 3 — Risk Tolerance",getChecked("sd-f3")],
+      ["Factor 4 — Time Horizon",getChecked("sd-f4")],
+      ["Factor 5 — Portfolio Context",getChecked("sd-f5")],
+      ["Factor 6 — Costs and Fees",getChecked("sd-f6")],
+      ["Factor 7 — Share Class Selection",getChecked("sd-f7")],
+      ["Factor 8 — Tax Considerations",getChecked("sd-f8")]
+    ];
+    factors.forEach(function(f){
+      checkPage(20);
+      if(f[1]){hd(f[0],8.5);bd(f[1]);}
+    });
+    divider();
+
+    checkPage(50);
+    hd("RECOMMENDATION RATIONALE",11);divider();
+    bd(rat||"No rationale provided.");
+    divider();
+
+    checkPage(30);
+    hd("SUITABILITY DETERMINATION",11);divider();
+    var sdet=gv("sd-sdet");
+    doc.setFont("helvetica","bold");doc.setFontSize(10);
+    var sc=sdet.toLowerCase().includes("suitable")?[45,122,79]:[139,32,32];
+    doc.setTextColor(sc[0],sc[1],sc[2]);
+    doc.text(sdet,M,y);ln(7);doc.setTextColor(26,26,26);
+    row2("Conflict of Interest",gv("sd-coi"),"CCO Review",gv("sd-cco"));
+    divider();
+
+    checkPage(30);
+    hd("ADVISOR CERTIFICATION",11);divider();
+    bd("I certify this recommendation was made in the client's best interest based on their documented KYC profile and the suitability factors considered above, in accordance with CIRO Rule 3400 and VFG Suitability Framework (POL-VFG-006).");
+    ln(6);
+    doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(4,40,37);
+    doc.text("Advisor: "+adv,M,y);doc.text("Date: "+dt,M+cw/2,y);ln(5);
+    doc.text("Signature: _______________________________",M,y);ln(10);
+    doc.setFontSize(7);doc.setTextColor(150,150,150);
+    doc.text("Volta Financial Group | "+ref+" | CIRO Rule 3400 | Confidential",W/2,y,{align:"center"});
+
+    doc.save("SDW-"+cn.replace(/[^a-zA-Z0-9]/g,"-")+"-"+ref+".pdf");
+
+    await sbInsert("investment_recommendations",{
+      advisor_id:_profile?_profile.id:null,date:dt,advisor_name:adv,client_name:cn,
+      account_type:gv("sd-acct"),security:sec,action:act,
+      suitability:sdet.split("—")[0].trim(),
+      cco_reviewed:gv("sd-cco"),rationale:rat,
+      sdw_reference:ref
+    });
+    await sbInsert("suitability_assessments",{
+      advisor_id:_profile?_profile.id:null,date:dt,advisor_name:adv,client_name:cn,
+      assessment_ref:ref,risk_profile:gv("sd-risk"),time_horizon:gv("sd-horiz"),
+      investment_obj:gv("sd-obj"),cco_reviewed:gv("sd-cco"),notes:rat
+    });
+
+    toast("SDW generated and logged","pdf");
+    document.getElementById("sdw-msg").innerHTML="<div class=\"als\">&#10003; SDW "+ref+" generated — logged to Recommendations and Suitability registers.</div>";
+    btn.disabled=false;btn.textContent="&#8595; Generate SDW PDF & Log";
+  }catch(e){
+    document.getElementById("sdw-msg").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";
+    btn.disabled=false;btn.textContent="&#8595; Generate SDW PDF & Log";
+  }
+}
+
+// ── TRADE RATIONALE LETTER ──
+function fTRL(){
+  var h="<div class=\"ph\"><div class=\"bc\">Generate Documents</div><h1>Trade Rationale Letter</h1><p>Client-facing letter documenting the rationale for a material recommendation</p></div>";
+  h+="<div id=\"trl-msg\"></div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>Letter Details</h3></div><div class=\"cb\">";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"tl-dt\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Client Name *</label><input id=\"tl-cn\" placeholder=\"Full name\"></div>";
+  h+="<div class=\"fgrp\"><label>Account Type</label><select id=\"tl-acct\"><option>RRSP</option><option>TFSA</option><option>Non-Registered</option><option>RRIF</option><option>Corporate</option><option>Joint</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Security / Product *</label><input id=\"tl-sec\" placeholder=\"e.g. iShares Core S&P 500 ETF (IVV)\"></div>";
+  h+="<div class=\"fgrp\"><label>Action</label><select id=\"tl-act\"><option>Buy</option><option>Sell</option><option>Switch</option><option>Rebalance</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Amount</label><input id=\"tl-amt\" placeholder=\"e.g. $75,000\"></div>";
+  h+="</div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Recommendation Rationale *</label><textarea id=\"tl-rat\" style=\"min-height:120px\" placeholder=\"Explain the recommendation in plain language. Why is this product appropriate? How does it align with the client's objectives, risk tolerance and time horizon?\"></textarea></div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Risks Disclosed</label><textarea id=\"tl-risk\" style=\"min-height:80px\" placeholder=\"Key risks of this investment that were disclosed to the client...\"></textarea></div>";
+  h+="<div class=\"fg t\" style=\"margin-top:14px\">";
+  h+="<div class=\"fgrp\"><label>Fees Disclosed</label><input id=\"tl-fee\" placeholder=\"e.g. 0.03% MER + 1.00% advisory fee\"></div>";
+  h+="<div class=\"fgrp\"><label>Client Response</label><select id=\"tl-resp\"><option>Client accepted recommendation</option><option>Client declined recommendation</option><option>Client requested time to consider</option><option>Client directed the trade</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Communication Method</label><select id=\"tl-comm\"><option>In-person meeting</option><option>Video call</option><option>Telephone</option><option>Email — record attached</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bpdf\" onclick=\"genTRL()\" id=\"trl-btn\">&#8595; Generate Letter PDF &amp; Log</button></div>";
+  h+="</div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+
+async function genTRL(){
+  var dt=gv("tl-dt"),cn=gv("tl-cn"),sec=gv("tl-sec"),rat=gv("tl-rat");
+  if(!dt||!cn||!sec||!rat){document.getElementById("trl-msg").innerHTML="<div class=\"al ale\">Date, client name, security and rationale are required.</div>";return;}
+  var btn=document.getElementById("trl-btn");btn.disabled=true;btn.textContent="Generating...";
+  try{
+    var adv=_profile?_profile.full_name:"Advisor";
+    var ref=mkRef("TRL");
+    var {jsPDF}=window.jspdf;
+    var doc=new jsPDF({unit:"mm",format:"letter"});
+    var W=215.9,M=25,cw=W-2*M,y=M;
+    function ln(n){y+=n;}
+    function bd(txt,sz,bold){
+      doc.setFont("helvetica",bold?"bold":"normal");doc.setFontSize(sz||10);doc.setTextColor(26,26,26);
+      var lines=doc.splitTextToSize(txt,cw);doc.text(lines,M,y);ln(lines.length*5+2);
+    }
+    function checkPage(n){if(y+n>270){doc.addPage();y=M;}}
+
+    // Letterhead
+    doc.setFillColor(4,40,37);doc.rect(0,0,W,28,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(16);doc.setTextColor(247,240,224);
+    doc.text("Volta Financial Group",M,14);
+    doc.setFontSize(8);doc.setTextColor(191,170,142);
+    doc.text("Precision Planning. Managed Momentum. Lasting Legacy.",M,21);
+    doc.setFont("helvetica","normal");
+    doc.text(dt,W-M,14,{align:"right"});
+    doc.text("Ref: "+ref,W-M,21,{align:"right"});
+    y=38;
+
+    bd(cn,10,true);
+    bd("Re: Investment Recommendation — "+sec,10);
+    ln(4);
+    bd("Dear "+cn.split(",")[1]?cn.split(",")[1].trim():cn+",");
+    ln(2);
+    bd("I am writing to document the investment recommendation discussed with you on "+dt+" in connection with your "+gv("tl-acct")+" account.");
+    ln(4);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(4,40,37);
+    doc.text("Recommendation",M,y);ln(6);
+    bd("Action: "+gv("tl-act")+" — "+sec+(gv("tl-amt")?" | Amount: "+gv("tl-amt"):""));
+    ln(2);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(4,40,37);
+    doc.text("Rationale",M,y);ln(6);
+    bd(rat);
+    if(gv("tl-risk")){
+      checkPage(30);ln(2);
+      doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(4,40,37);
+      doc.text("Risks Disclosed",M,y);ln(6);
+      bd(gv("tl-risk"));
+    }
+    checkPage(30);ln(2);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(4,40,37);
+    doc.text("Fees",M,y);ln(6);
+    bd(gv("tl-fee")||"Fees applicable to this investment were disclosed verbally.");
+    checkPage(30);ln(4);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(4,40,37);
+    doc.text("Client Acknowledgement",M,y);ln(6);
+    bd(gv("tl-resp")+". Communication method: "+gv("tl-comm")+".");
+    ln(8);
+    doc.setFont("helvetica","normal");doc.setFontSize(10);doc.setTextColor(26,26,26);
+    doc.text("Sincerely,",M,y);ln(8);
+    doc.setFont("helvetica","bold");
+    doc.text(adv,M,y);ln(5);
+    doc.setFont("helvetica","normal");doc.setFontSize(8.5);
+    doc.text("Volta Financial Group",M,y);ln(5);
+    doc.text("compliance@voltawealth.ca",M,y);ln(12);
+    doc.setFontSize(7);doc.setTextColor(150,150,150);
+    doc.text("Volta Financial Group | "+ref+" | Confidential — For client file | Retain 7 years",W/2,y,{align:"center"});
+
+    doc.save("TRL-"+cn.replace(/[^a-zA-Z0-9]/g,"-")+"-"+ref+".pdf");
+
+    await sbInsert("investment_recommendations",{
+      advisor_id:_profile?_profile.id:null,date:dt,advisor_name:adv,client_name:cn,
+      account_type:gv("tl-acct"),security:sec,action:gv("tl-act"),
+      suitability:"Suitable — TRL generated",cco_reviewed:"Pending CCO review",rationale:rat
+    });
+
+    toast("Trade Rationale Letter generated","pdf");
+    document.getElementById("trl-msg").innerHTML="<div class=\"als\">&#10003; Letter "+ref+" generated and logged to Recommendations register.</div>";
+    btn.disabled=false;btn.textContent="&#8595; Generate Letter PDF & Log";
+  }catch(e){
+    document.getElementById("trl-msg").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";
+    btn.disabled=false;btn.textContent="&#8595; Generate Letter PDF & Log";
+  }
+}
+
+
+// ── LOG FORMS ──
 
 function fLogRec(){
   var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Investment Recommendation</h1></div>";
   h+="<div class=\"card\"><div class=\"ch\"><h3>New Recommendation</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
   h+="<div class=\"fg t\">";
   h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"lr-date\" value=\""+TODAY+"\"></div>";
-  h+="<div class=\"fgrp\"><label>Client Name *</label><input type=\"text\" id=\"lr-cli\" placeholder=\"Full name\"></div>";
-  h+="<div class=\"fgrp\"><label>Account Type</label><select id=\"lr-acct\"><option>RRSP</option><option>TFSA</option><option>Non-Registered</option><option>RRIF</option><option>RESP</option><option>Corporate</option><option>Joint</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Security / Fund</label><input type=\"text\" id=\"lr-sec\" placeholder=\"e.g. Manulife Balanced Fund\"></div>";
+  h+="<div class=\"fgrp\"><label>Client Name *</label><input id=\"lr-cli\" placeholder=\"Full name\"></div>";
+  h+="<div class=\"fgrp\"><label>Account Type</label><select id=\"lr-acct\"><option>RRSP</option><option>TFSA</option><option>Non-Registered</option><option>RRIF</option><option>RESP</option><option>LIRA</option><option>Corporate</option><option>Joint</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Security / Fund *</label><input id=\"lr-sec\" placeholder=\"e.g. Manulife Balanced Fund — Series F\"></div>";
   h+="<div class=\"fgrp\"><label>Action</label><select id=\"lr-act\"><option>Buy</option><option>Sell</option><option>Switch</option><option>Transfer In</option><option>Transfer Out</option><option>Rebalance</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Suitability Assessment</label><select id=\"lr-suit\"><option>Suitable &mdash; within KYC profile</option><option>Suitable &mdash; marginal, documented</option><option>KYC update completed</option><option>Pending CCO review</option></select></div>";
-  h+="<div class=\"fgrp\"><label>CCO Review Required?</label><select id=\"lr-cco\"><option>No &mdash; within pre-approved parameters</option><option>Yes &mdash; pending CCO approval</option><option>Yes &mdash; CCO approved</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Amount</label><input id=\"lr-amt\" placeholder=\"e.g. $50,000\"></div>";
   h+="</div>";
-  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Rationale</label><textarea id=\"lr-rat\" placeholder=\"Why is this recommendation suitable for this client at this time?\"></textarea></div>";
+  h+="<div class=\"sdiv\">Suitability Assessment</div>";
+  h+=ckGroup("lr-suit",["Within documented KYC risk profile","Consistent with investment objective","Time horizon appropriate","KYC is current (within 12 months)","Portfolio concentration reviewed","Cost/fee is reasonable and disclosed","Tax implications considered","Client directed — documented"],2);
+  h+="<div class=\"fg t\" style=\"margin-top:14px\">";
+  h+="<div class=\"fgrp\"><label>Suitability Determination</label><select id=\"lr-sdet\"><option>Suitable — within KYC profile</option><option>Suitable — marginal, rationale documented</option><option>KYC update completed</option><option>Client-directed trade</option></select></div>";
+  h+="<div class=\"fgrp\"><label>SDW / KYC Reference</label><input id=\"lr-ref\" placeholder=\"e.g. SDW-2027-001\"></div>";
+  h+="<div class=\"fgrp\"><label>CCO Review</label><select id=\"lr-cco\"><option>Not required</option><option>Pending CCO review</option><option>CCO approved</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Rationale</label><textarea id=\"lr-rat\" placeholder=\"Why is this recommendation suitable for this client?\"></textarea></div>";
   h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogRec()\" id=\"sb-lr\">Log Recommendation</button></div></div></div>";
   document.getElementById("mc").innerHTML=h;
 }
 async function sLogRec(){
-  var d=gv("lr-date"),c=gv("lr-cli");
-  if(!d||!c){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date and client name are required.</div>";return;}
-  var btn=document.getElementById("sb-lr");btn.disabled=true;btn.textContent="Logging…";
+  var d=gv("lr-date"),c=gv("lr-cli"),sec=gv("lr-sec");
+  if(!d||!c||!sec){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date, client name and security are required.</div>";return;}
+  var btn=document.getElementById("sb-lr");btn.disabled=true;btn.textContent="Logging\u2026";
   try{
-    await sbInsert("investment_recommendations",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",client_name:c,account_type:gv("lr-acct"),security:gv("lr-sec"),action:gv("lr-act"),suitability:gv("lr-suit"),cco_reviewed:gv("lr-cco"),rationale:gv("lr-rat")});
-    toast("✓ Recommendation logged");fLogRec();
+    await sbInsert("investment_recommendations",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",client_name:c,account_type:gv("lr-acct"),security:sec,action:gv("lr-act"),suitability:gv("lr-sdet"),cco_reviewed:gv("lr-cco"),rationale:gv("lr-rat"),sdw_reference:gv("lr-ref")});
+    toast("\u2713 Recommendation logged");fLogRec();
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Recommendation";}
 }
 
 function fLogSuit(){
-  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Suitability Assessment</h1></div>";
-  h+="<div class=\"card\"><div class=\"ch\"><h3>New Suitability Assessment</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
+  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Suitability Update</h1></div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>Suitability Assessment Update</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
   h+="<div class=\"fg t\">";
   h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"ls-date\" value=\""+TODAY+"\"></div>";
-  h+="<div class=\"fgrp\"><label>Client Name *</label><input type=\"text\" id=\"ls-cli\" placeholder=\"Full name\"></div>";
-  h+="<div class=\"fgrp\"><label>Assessment Ref #</label><input type=\"text\" id=\"ls-ref\" placeholder=\"SA-"+new Date().getFullYear()+"-001\"></div>";
+  h+="<div class=\"fgrp\"><label>Client Name *</label><input id=\"ls-cli\"></div>";
+  h+="<div class=\"fgrp\"><label>Assessment Ref</label><input id=\"ls-ref\" placeholder=\"SA-"+YR+"-001\"></div>";
   h+="<div class=\"fgrp\"><label>Risk Profile</label><select id=\"ls-risk\"><option>Conservative</option><option>Moderate Conservative</option><option>Moderate</option><option>Moderate Aggressive</option><option>Aggressive</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Time Horizon</label><select id=\"ls-horiz\"><option>Short-term (under 3 years)</option><option>Medium-term (3-7 years)</option><option>Long-term (7-15 years)</option><option>Very long-term (15+ years)</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Time Horizon</label><select id=\"ls-horiz\"><option>Short-term (under 3 years)</option><option>Medium-term (3–7 years)</option><option>Long-term (7–15 years)</option><option>Very long-term (15+ years)</option></select></div>";
   h+="<div class=\"fgrp\"><label>Investment Objective</label><select id=\"ls-obj\"><option>Capital preservation</option><option>Income generation</option><option>Balanced growth and income</option><option>Capital growth</option><option>Aggressive growth</option></select></div>";
   h+="<div class=\"fgrp\"><label>KYC Date</label><input type=\"date\" id=\"ls-kyc\"></div>";
   h+="<div class=\"fgrp\"><label>CCO Review</label><select id=\"ls-cco\"><option>Pending CCO review</option><option>CCO reviewed and approved</option></select></div>";
   h+="</div>";
-  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Notes</label><textarea id=\"ls-notes\" placeholder=\"Suitability notes, KYC changes, or special circumstances...\"></textarea></div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Changes / Notes</label><textarea id=\"ls-notes\" placeholder=\"Describe what changed and why the suitability assessment was updated...\"></textarea></div>";
   h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogSuit()\" id=\"sb-ls\">Log Assessment</button></div></div></div>";
   document.getElementById("mc").innerHTML=h;
 }
 async function sLogSuit(){
   var d=gv("ls-date"),c=gv("ls-cli");
-  if(!d||!c){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date and client name are required.</div>";return;}
-  var btn=document.getElementById("sb-ls");btn.disabled=true;btn.textContent="Logging…";
+  if(!d||!c){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date and client are required.</div>";return;}
+  var btn=document.getElementById("sb-ls");btn.disabled=true;btn.textContent="Logging\u2026";
   try{
     await sbInsert("suitability_assessments",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",client_name:c,assessment_ref:gv("ls-ref"),risk_profile:gv("ls-risk"),time_horizon:gv("ls-horiz"),investment_obj:gv("ls-obj"),kyc_date:gv("ls-kyc")||null,cco_reviewed:gv("ls-cco"),notes:gv("ls-notes")});
-    toast("✓ Suitability assessment logged");fLogSuit();
+    toast("\u2713 Suitability assessment logged");fLogSuit();
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Assessment";}
 }
 
@@ -317,11 +990,11 @@ function fLogCOI(){
   h+="<div class=\"card\"><div class=\"ch\"><h3>New COI Entry</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
   h+="<div class=\"fg t\">";
   h+="<div class=\"fgrp\"><label>Date Identified *</label><input type=\"date\" id=\"lc-date\" value=\""+TODAY+"\"></div>";
-  h+="<div class=\"fgrp\"><label>Conflict Type *</label><select id=\"lc-type\"><option value=\"\">-- Select --</option><option>Outside Business Activity</option><option>Personal interest in recommended security</option><option>Referral fee or compensation conflict</option><option>Relationship with issuer</option><option>Fee structure conflict</option><option>Personal trading conflict</option><option>Other</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Parties Involved</label><input type=\"text\" id=\"lc-parties\" placeholder=\"Client name, third party, etc.\"></div>";
-  h+="<div class=\"fgrp\"><label>Disclosed to Client?</label><select id=\"lc-disc\"><option>Yes &mdash; disclosed in writing</option><option>Yes &mdash; disclosed verbally, documenting</option><option>Not yet &mdash; pending disclosure</option><option>N/A &mdash; client not affected</option></select></div>";
-  h+="<div class=\"fgrp\"><label>CCO Reviewed?</label><select id=\"lc-cco\"><option>Pending CCO review</option><option>Yes &mdash; CCO reviewed</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Status</label><select id=\"lc-stat\"><option>Open &mdash; monitoring</option><option>Open &mdash; management plan in place</option><option>Closed &mdash; resolved</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Conflict Type *</label><select id=\"lc-type\"><option value=\"\">-- Select --</option><option>Outside Business Activity</option><option>Personal interest in recommended security</option><option>Referral fee or compensation conflict</option><option>Share class / series compensation differential</option><option>Trailing commission conflict</option><option>Relationship with issuer</option><option>Fee structure conflict</option><option>Personal trading conflict</option><option>Other</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Parties Involved</label><input id=\"lc-parties\" placeholder=\"Client name, third party, etc.\"></div>";
+  h+="<div class=\"fgrp\"><label>Disclosed to Client?</label><select id=\"lc-disc\"><option>Yes — disclosed in writing per RDI</option><option>Yes — disclosed verbally, documenting</option><option>Not yet — pending disclosure</option><option>N/A — client not affected</option></select></div>";
+  h+="<div class=\"fgrp\"><label>CCO Reviewed?</label><select id=\"lc-cco\"><option>Pending CCO review</option><option>Yes — CCO reviewed</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Status</label><select id=\"lc-stat\"><option>Open — monitoring</option><option>Open — management plan in place</option><option>Closed — resolved</option></select></div>";
   h+="</div>";
   h+="<div class=\"fg\" style=\"margin-top:14px\">";
   h+="<div class=\"fgrp\"><label>Description *</label><textarea id=\"lc-desc\" placeholder=\"Describe the nature of the conflict...\"></textarea></div>";
@@ -333,39 +1006,190 @@ function fLogCOI(){
 async function sLogCOI(){
   var d=gv("lc-date"),t=gv("lc-type"),desc=gv("lc-desc");
   if(!d||!t||!desc){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date, type and description are required.</div>";return;}
-  var btn=document.getElementById("sb-lc");btn.disabled=true;btn.textContent="Logging…";
+  var btn=document.getElementById("sb-lc");btn.disabled=true;btn.textContent="Logging\u2026";
   try{
     await sbInsert("coi_register",{advisor_id:_profile?_profile.id:null,date_identified:d,advisor_name:_profile?_profile.full_name:"",conflict_type:t,description:desc,parties:gv("lc-parties"),management:gv("lc-mgmt"),disclosed:gv("lc-disc"),cco_reviewed:gv("lc-cco"),status:gv("lc-stat")});
-    toast("✓ COI logged");fLogCOI();
+    toast("\u2713 COI logged");fLogCOI();
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log COI";}
 }
 
+function fLogOBA(){
+  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Outside Business Activity</h1></div>";
+  h+="<div class=\"notice\">All OBAs must be disclosed to and approved by the CCO before commencing. Failure to disclose an OBA is a CIRO disciplinary matter.</div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>New OBA Disclosure</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Date Disclosed *</label><input type=\"date\" id=\"lo-date\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>OBA Name / Organization *</label><input id=\"lo-name\" placeholder=\"Name of employer, company or activity\"></div>";
+  h+="<div class=\"fgrp\"><label>OBA Type *</label><select id=\"lo-type\"><option value=\"\">-- Select --</option><option>Employment — part-time</option><option>Directorship — public company</option><option>Directorship — private company</option><option>Officer role</option><option>Business ownership interest</option><option>Volunteer — charitable board</option><option>Volunteer — non-financial</option><option>Professional services</option><option>Real estate activity</option><option>Other</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Time Commitment (hours/week)</label><input id=\"lo-time\" placeholder=\"e.g. 5 hours/week\"></div>";
+  h+="<div class=\"fgrp\"><label>Compensation</label><select id=\"lo-comp\"><option>No compensation</option><option>Cash compensation</option><option>Equity / ownership interest</option><option>Expense reimbursement only</option><option>Commission or referral fees</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Conflict Potential</label><select id=\"lo-conf\"><option>Low — no client interaction or securities involvement</option><option>Medium — indirect client or securities connection</option><option>High — direct conflict or client solicitation risk</option></select></div>";
+  h+="<div class=\"fgrp\"><label>CCO Approved?</label><select id=\"lo-cco\"><option>Pending CCO approval</option><option>Approved — unconditionally</option><option>Approved — with conditions (see below)</option><option>Not approved — activity prohibited</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Status</label><select id=\"lo-stat\"><option>Active</option><option>Inactive — on hold</option><option>Ceased</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"fg\" style=\"margin-top:14px\">";
+  h+="<div class=\"fgrp\"><label>Description</label><textarea id=\"lo-desc\" placeholder=\"Describe the nature of the activity, your role, and the organization...\"></textarea></div>";
+  h+="<div class=\"fgrp\"><label>Approval Conditions (if applicable)</label><textarea id=\"lo-cond\" placeholder=\"Any conditions placed by the CCO on this OBA...\"></textarea></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogOBA()\" id=\"sb-lo\">Log OBA</button></div></div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+async function sLogOBA(){
+  var d=gv("lo-date"),n=gv("lo-name"),t=gv("lo-type");
+  if(!d||!n||!t){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date, name and type are required.</div>";return;}
+  var btn=document.getElementById("sb-lo");btn.disabled=true;btn.textContent="Logging\u2026";
+  try{
+    await sbInsert("oba_register",{advisor_id:_profile?_profile.id:null,date_disclosed:d,advisor_name:_profile?_profile.full_name:"",oba_name:n,oba_type:t,description:gv("lo-desc"),time_commitment:gv("lo-time"),compensation:gv("lo-comp"),conflict_potential:gv("lo-conf"),cco_approved:gv("lo-cco"),conditions:gv("lo-cond"),status:gv("lo-stat")});
+    toast("\u2713 OBA logged");fLogOBA();
+  }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log OBA";}
+}
+
+function fLogGift(){
+  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Gift or Entertainment</h1></div>";
+  h+="<div class=\"notice\">VFG policy: gifts given or received with a value over $150 must be pre-approved by the CCO. All gifts and entertainment must be logged regardless of value.</div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>New Gift / Entertainment Entry</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"lg-date\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Direction *</label><select id=\"lg-dir\"><option>Received — from client</option><option>Received — from third party / carrier</option><option>Given — to client</option><option>Given — to third party</option><option>Entertainment — attended (received)</option><option>Entertainment — hosted (given)</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Gift Type</label><select id=\"lg-type\"><option>Gift — physical item</option><option>Gift — gift card / voucher</option><option>Entertainment — meal</option><option>Entertainment — sporting event</option><option>Entertainment — cultural event</option><option>Entertainment — travel / hospitality</option><option>Charitable donation in name</option><option>Other</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Description *</label><input id=\"lg-desc\" placeholder=\"Brief description of gift or event\"></div>";
+  h+="<div class=\"fgrp\"><label>Estimated Value *</label><input id=\"lg-val\" placeholder=\"e.g. $75 or $250\"></div>";
+  h+="<div class=\"fgrp\"><label>Given / Received From</label><input id=\"lg-from\" placeholder=\"Name of individual or organization\"></div>";
+  h+="<div class=\"fgrp\"><label>Client-Related?</label><select id=\"lg-cli\"><option>No — no client relationship</option><option>Yes — existing client</option><option>Yes — prospective client</option><option>Yes — client representative</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Pre-Approved by CCO?</label><select id=\"lg-app\"><option>Not required — under $150 threshold</option><option>Yes — CCO pre-approved</option><option>No — retroactive disclosure</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Status</label><select id=\"lg-stat\"><option>Accepted / Given</option><option>Declined — returned</option><option>Donated to charity</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Rationale / Notes</label><textarea id=\"lg-rat\" placeholder=\"Why was this gift/entertainment appropriate?\"></textarea></div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogGift()\" id=\"sb-lg\">Log Gift / Entertainment</button></div></div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+async function sLogGift(){
+  var d=gv("lg-date"),dir=gv("lg-dir"),desc=gv("lg-desc"),val=gv("lg-val");
+  if(!d||!dir||!desc||!val){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date, direction, description and value are required.</div>";return;}
+  var btn=document.getElementById("sb-lg");btn.disabled=true;btn.textContent="Logging\u2026";
+  try{
+    await sbInsert("gifts_entertainment",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",direction:dir,gift_type:gv("lg-type"),description:desc,value_amount:val,given_received_from:gv("lg-from"),client_related:gv("lg-cli"),pre_approved:gv("lg-app"),rationale:gv("lg-rat"),status:gv("lg-stat")});
+    toast("\u2713 Gift / Entertainment logged");fLogGift();
+  }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Gift / Entertainment";}
+}
+
+function fLogRef(){
+  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Referral Arrangement</h1></div>";
+  h+="<div class=\"notice\">All referral arrangements involving fee payment must have a written agreement in place and be disclosed to the client before services are provided. (POL-VFG-008)</div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>New Referral Entry</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"lrf-date\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Direction *</label><select id=\"lrf-dir\"><option>Outgoing — VFG referred client to third party</option><option>Incoming — third party referred client to VFG</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Referral Source / Recipient</label><input id=\"lrf-src\" placeholder=\"Name of individual or firm\"></div>";
+  h+="<div class=\"fgrp\"><label>Client Name</label><input id=\"lrf-cli\" placeholder=\"Client name (if applicable)\"></div>";
+  h+="<div class=\"fgrp\"><label>Service Referred</label><input id=\"lrf-svc\" placeholder=\"e.g. Tax planning, estate planning, mortgage\"></div>";
+  h+="<div class=\"fgrp\"><label>Fee Arrangement</label><select id=\"lrf-fee\"><option>No fee arrangement</option><option>Fixed referral fee</option><option>Percentage of revenue</option><option>Reciprocal referral — no cash exchange</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Fee Amount (if applicable)</label><input id=\"lrf-amt\" placeholder=\"e.g. $500 or 10% of planning fee\"></div>";
+  h+="<div class=\"fgrp\"><label>Disclosure Provided to Client?</label><select id=\"lrf-disc\"><option>Yes — per POL-VFG-008 Part B</option><option>Pending — not yet provided</option><option>N/A — no fee arrangement</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Written Agreement in Place?</label><select id=\"lrf-agr\"><option>Yes</option><option>No — informal arrangement</option><option>Pending execution</option></select></div>";
+  h+="<div class=\"fgrp\"><label>CCO Approved?</label><select id=\"lrf-cco\"><option>Pending CCO approval</option><option>Yes — CCO approved</option><option>N/A — no fee arrangement</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Status</label><select id=\"lrf-stat\"><option>Active</option><option>Completed</option><option>Terminated</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Notes</label><textarea id=\"lrf-notes\" placeholder=\"Any additional context...\"></textarea></div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogRef()\" id=\"sb-lrf\">Log Referral</button></div></div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+async function sLogRef(){
+  var d=gv("lrf-date"),dir=gv("lrf-dir");
+  if(!d||!dir){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date and direction are required.</div>";return;}
+  var btn=document.getElementById("sb-lrf");btn.disabled=true;btn.textContent="Logging\u2026";
+  try{
+    await sbInsert("referral_register",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",direction:dir,referral_source:gv("lrf-src"),client_name:gv("lrf-cli"),service_referred:gv("lrf-svc"),fee_arrangement:gv("lrf-fee"),fee_amount:gv("lrf-amt"),disclosure_provided:gv("lrf-disc"),written_agreement:gv("lrf-agr"),cco_approved:gv("lrf-cco"),status:gv("lrf-stat"),notes:gv("lrf-notes")});
+    toast("\u2713 Referral logged");fLogRef();
+  }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Referral";}
+}
+
+function fLogTrn(){
+  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Training / CE</h1></div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>New Training Entry</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Date *</label><input type=\"date\" id=\"lt-date\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Training Type</label><select id=\"lt-type\"><option>CIRO / Regulatory CE</option><option>CFP Continuing Education</option><option>CIM Continuing Education</option><option>CLU Continuing Education</option><option>RRC Continuing Education</option><option>Firm-Required Training</option><option>Product Knowledge</option><option>AML / ATF Training</option><option>Ethics Training</option><option>Other Professional Development</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Provider / Institution</label><input id=\"lt-prov\" placeholder=\"e.g. CIRO, FP Canada, CFA Institute\"></div>";
+  h+="<div class=\"fgrp\"><label>Topic / Course Name *</label><input id=\"lt-topic\" placeholder=\"e.g. Options Fundamentals\"></div>";
+  h+="<div class=\"fgrp\"><label>Hours Completed</label><input type=\"number\" id=\"lt-hrs\" placeholder=\"e.g. 3.0\" step=\"0.5\"></div>";
+  h+="<div class=\"fgrp\"><label>CE Credits Earned</label><input type=\"number\" id=\"lt-ce\" placeholder=\"e.g. 3\" step=\"0.5\"></div>";
+  h+="<div class=\"fgrp\"><label>Designation Credits</label><input id=\"lt-desig\" placeholder=\"e.g. CFP: 3 CE, CLU: 2 CE\"></div>";
+  h+="<div class=\"fgrp\"><label>Pass / Fail</label><select id=\"lt-pf\"><option>Pass</option><option>Fail</option><option>Completion — no exam</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Certificate Number</label><input id=\"lt-cert\" placeholder=\"Completion certificate reference\"></div>";
+  h+="<div class=\"fgrp\"><label>Expiry Date (if applicable)</label><input type=\"date\" id=\"lt-exp\"></div>";
+  h+="</div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogTrn()\" id=\"sb-lt\">Log Training</button></div></div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+async function sLogTrn(){
+  var d=gv("lt-date"),topic=gv("lt-topic");
+  if(!d||!topic){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date and topic are required.</div>";return;}
+  var btn=document.getElementById("sb-lt");btn.disabled=true;btn.textContent="Logging\u2026";
+  try{
+    await sbInsert("investment_training",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",training_type:gv("lt-type"),provider:gv("lt-prov"),topic:topic,hours:parseFloat(gv("lt-hrs"))||null,ce_credits:parseFloat(gv("lt-ce"))||null,designation_credits:gv("lt-desig"),pass_fail:gv("lt-pf"),certificate_num:gv("lt-cert"),expiry_date:gv("lt-exp")||null});
+    toast("\u2713 Training logged");fLogTrn();
+  }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Training";}
+}
+
+function fLogPTrd(){
+  var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Personal Trade</h1></div>";
+  h+="<div class=\"notice\">VFG Policy: You must not trade a security within 48 hours before placing the same trade for a client without prior CCO approval. All personal trades in securities also held by clients must be documented.</div>";
+  h+="<div class=\"card\"><div class=\"ch\"><h3>New Personal Trade Entry</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
+  h+="<div class=\"fg t\">";
+  h+="<div class=\"fgrp\"><label>Trade Date *</label><input type=\"date\" id=\"lp-date\" value=\""+TODAY+"\"></div>";
+  h+="<div class=\"fgrp\"><label>Security *</label><input id=\"lp-sec\" placeholder=\"e.g. Apple Inc. (AAPL)\"></div>";
+  h+="<div class=\"fgrp\"><label>Action *</label><select id=\"lp-act\"><option>Buy</option><option>Sell</option><option>Short</option><option>Cover</option><option>Option Exercise</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Quantity</label><input id=\"lp-qty\" placeholder=\"e.g. 100 shares\"></div>";
+  h+="<div class=\"fgrp\"><label>Approximate Price</label><input id=\"lp-price\" placeholder=\"e.g. $185.50\"></div>";
+  h+="<div class=\"fgrp\"><label>Account Type</label><select id=\"lp-acct\"><option>Personal RRSP</option><option>Personal TFSA</option><option>Personal Non-Registered</option><option>Spouse / Family member account</option><option>Corporate account</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"sdiv\">Conflict Check</div>";
+  h+=ckGroup("lp-conf",["Security is NOT held in any client account","Security IS held in client accounts — 48-hour rule checked","No client trades in this security in past 48 hours","CCO pre-clearance obtained (if required)","This trade does not front-run any pending client order"],2);
+  h+="<div class=\"fg t\" style=\"margin-top:14px\">";
+  h+="<div class=\"fgrp\"><label>Conflict Check Result</label><select id=\"lp-cc\"><option>No conflict — security not held by clients</option><option>No conflict — 48-hour window clear</option><option>Pre-clearance obtained from CCO</option><option>Potential conflict — documented below</option></select></div>";
+  h+="<div class=\"fgrp\"><label>CCO Pre-Clearance?</label><select id=\"lp-cco\"><option>Not required</option><option>Yes — CCO pre-cleared this trade</option></select></div>";
+  h+="</div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Notes</label><textarea id=\"lp-notes\" placeholder=\"Any relevant context or explanation...\"></textarea></div>";
+  h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogPTrd()\" id=\"sb-lp\">Log Personal Trade</button></div></div></div>";
+  document.getElementById("mc").innerHTML=h;
+}
+async function sLogPTrd(){
+  var d=gv("lp-date"),sec=gv("lp-sec"),act=gv("lp-act");
+  if(!d||!sec||!act){document.getElementById("fa").innerHTML="<div class=\"al ale\">Date, security and action are required.</div>";return;}
+  var btn=document.getElementById("sb-lp");btn.disabled=true;btn.textContent="Logging\u2026";
+  try{
+    await sbInsert("personal_trading_log",{advisor_id:_profile?_profile.id:null,date:d,advisor_name:_profile?_profile.full_name:"",security:sec,action:act,quantity:gv("lp-qty"),price:gv("lp-price"),account_type:gv("lp-acct"),conflict_check:gv("lp-cc"),pre_clearance:gv("lp-cco"),notes:gv("lp-notes")});
+    toast("\u2713 Personal trade logged");fLogPTrd();
+  }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Personal Trade";}
+}
+
 function fLogCmp(){
-  var yr=new Date().getFullYear();
   var h="<div class=\"ph\"><div class=\"bc\">Log New Entry</div><h1>Log Investment Complaint</h1></div>";
   h+="<div class=\"notice\">Log immediately upon receipt. Notify CCO within 24 hours. For complaints alleging financial loss over $25,000, notify E&O insurer.</div>";
   h+="<div class=\"card\"><div class=\"ch\"><h3>New Complaint Entry</h3></div><div class=\"cb\"><div id=\"fa\"></div>";
   h+="<div class=\"fg t\">";
-  h+="<div class=\"fgrp\"><label>Ref # *</label><input type=\"text\" id=\"ic-ref\" placeholder=\"INV-CMP-"+yr+"-001\"></div>";
+  h+="<div class=\"fgrp\"><label>Ref # *</label><input id=\"ic-ref\" placeholder=\"INV-CMP-"+YR+"-001\"></div>";
   h+="<div class=\"fgrp\"><label>Date Received *</label><input type=\"date\" id=\"ic-date\" value=\""+TODAY+"\"></div>";
-  h+="<div class=\"fgrp\"><label>Client *</label><input type=\"text\" id=\"ic-cli\" placeholder=\"Client name\"></div>";
-  h+="<div class=\"fgrp\"><label>Nature *</label><select id=\"ic-nat\"><option value=\"\">-- Select --</option><option>Unsuitable recommendation</option><option>Unauthorized trading</option><option>Excessive trading / churning</option><option>Fee dispute</option><option>Service quality</option><option>Disclosure failure</option><option>Account administration error</option><option>Other</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Amount Disputed</label><input type=\"text\" id=\"ic-amt\" placeholder=\"e.g. $15,000\"></div>";
-  h+="<div class=\"fgrp\"><label>E&O Notified?</label><select id=\"ic-eo\"><option>No &mdash; below threshold</option><option>Yes &mdash; E&O notified</option><option>Pending assessment</option></select></div>";
-  h+="<div class=\"fgrp\"><label>OBSI Referred?</label><select id=\"ic-obsi\"><option>No</option><option>Yes &mdash; client self-referred</option><option>Yes &mdash; firm referred</option></select></div>";
-  h+="<div class=\"fgrp\"><label>Status</label><select id=\"ic-stat\"><option>Open &mdash; Investigation</option><option>Open &mdash; Response Pending</option><option>Closed &mdash; Resolved</option><option>Closed &mdash; Not Upheld</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Client *</label><input id=\"ic-cli\"></div>";
+  h+="<div class=\"fgrp\"><label>Nature *</label><select id=\"ic-nat\"><option value=\"\">-- Select --</option><option>Unsuitable recommendation</option><option>Unauthorized trading</option><option>Excessive trading / churning</option><option>Fee dispute</option><option>Service quality</option><option>Disclosure failure</option><option>Account administration error</option><option>Misrepresentation</option><option>Delay in processing</option><option>Other</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Amount Disputed</label><input id=\"ic-amt\" placeholder=\"e.g. $15,000\"></div>";
+  h+="<div class=\"fgrp\"><label>E&O Notified?</label><select id=\"ic-eo\"><option>No — below $25,000 threshold</option><option>Yes — E&O notified</option><option>Pending assessment</option></select></div>";
+  h+="<div class=\"fgrp\"><label>OBSI Referred?</label><select id=\"ic-obsi\"><option>No</option><option>Yes — client self-referred</option><option>Yes — firm referred</option></select></div>";
+  h+="<div class=\"fgrp\"><label>Status</label><select id=\"ic-stat\"><option>Open — Under Investigation</option><option>Open — Response Pending</option><option>Open — Escalated to CCO</option><option>Closed — Resolved in client's favour</option><option>Closed — Resolved with settlement</option><option>Closed — Not Upheld</option></select></div>";
   h+="</div>";
-  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Resolution Notes</label><textarea id=\"ic-res\" placeholder=\"Resolution details, compensation, lessons learned...\"></textarea></div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:14px\"><label>Complaint Description</label><textarea id=\"ic-desc\" placeholder=\"Describe the complaint in detail...\"></textarea></div>";
+  h+="<div class=\"fgrp\" style=\"margin-top:10px\"><label>Resolution Notes</label><textarea id=\"ic-res\" placeholder=\"Resolution details, compensation paid, corrective actions...\"></textarea></div>";
   h+="<div class=\"btn-row\"><button class=\"btn bp\" onclick=\"sLogCmp()\" id=\"sb-ic\">Log Complaint</button></div></div></div>";
   document.getElementById("mc").innerHTML=h;
 }
 async function sLogCmp(){
   var r2=gv("ic-ref"),d=gv("ic-date"),c=gv("ic-cli"),n=gv("ic-nat");
-  if(!r2||!d||!c||!n){document.getElementById("fa").innerHTML="<div class=\"al ale\">Complete required fields.</div>";return;}
-  var btn=document.getElementById("sb-ic");btn.disabled=true;btn.textContent="Logging…";
+  if(!r2||!d||!c||!n){document.getElementById("fa").innerHTML="<div class=\"al ale\">Complete all required fields.</div>";return;}
+  var btn=document.getElementById("sb-ic");btn.disabled=true;btn.textContent="Logging\u2026";
   try{
     await sbInsert("investment_complaints",{advisor_id:_profile?_profile.id:null,ref_number:r2,date_received:d,client_name:c,advisor_name:_profile?_profile.full_name:"",nature:n,amount_disputed:gv("ic-amt"),eo_notified:gv("ic-eo"),obsi_referred:gv("ic-obsi"),status:gv("ic-stat"),resolution:gv("ic-res")});
-    toast("✓ Complaint logged");fLogCmp();
+    toast("\u2713 Complaint logged");fLogCmp();
   }catch(e){document.getElementById("fa").innerHTML="<div class=\"al ale\">&mdash; "+e.message+"</div>";btn.disabled=false;btn.textContent="Log Complaint";}
 }
 
@@ -392,7 +1216,7 @@ function showApp(){
   document.getElementById("login-screen").style.display="none";
   document.getElementById("app-shell").style.display="flex";
   var roleMap={cco:"CCO",advisor_investment:"Investment Advisor",advisor_insurance:"Insurance Advisor",advisor_dual:"Dual Advisor"};
-  document.getElementById("user-name").textContent=(_profile?_profile.full_name:"User")+" — "+(_profile?roleMap[_profile.role]||_profile.role:"");
+  document.getElementById("user-name").textContent=(_profile?_profile.full_name:"User")+" \u2014 "+(_profile?roleMap[_profile.role]||_profile.role:"");
   document.getElementById("hdate").textContent=new Date().toLocaleDateString("en-CA",{year:"numeric",month:"short",day:"numeric"});
   rDash();
 }
@@ -405,7 +1229,7 @@ async function handleLogin(e){
   var err=document.getElementById("li-err");
   err.style.display="none";
   if(!email||!pass){err.textContent="Email and password are required.";err.style.display="block";return;}
-  btn.disabled=true;btn.textContent="Signing in…";
+  btn.disabled=true;btn.textContent="Signing in\u2026";
   try{
     var sess=await sbSignIn(email,pass);
     _session=sess;
@@ -428,7 +1252,6 @@ async function sendReset(){
 }
 
 initSession();
-
 </script>
 </body>
 </html>
